@@ -44,7 +44,8 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 ├── netlify/functions/      — Funciones serverless (Stripe, descarga)
 ├── incidencias/fotos/      — Subida de fotos de incidencias por token
 ├── seleccionar/            — Selección de inmuebles por lead
-└── subir/                  — Subida de archivos
+├── subir/                  — Subida de archivos (gastos "Sin IA", workflow n8n antiguo)
+└── gastos-revision.html    — Revisión/confirmación de gastos clasificados por IA (automanize-backend)
 ```
 
 ---
@@ -66,3 +67,5 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 - `docs/nize-trial.md` — landing de prueba gratis
 - `docs/netlify-functions.md` — funciones de Netlify / Stripe
 - `docs/telefono.md` — lógica del prefijo telefónico
+- `docs/incidencias-fotos.md` — subida de fotos de incidencias por token
+- `docs/gastos-revision.md` — revisión/confirmación de gastos clasificados por IA
