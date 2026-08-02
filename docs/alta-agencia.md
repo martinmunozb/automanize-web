@@ -39,7 +39,8 @@ Una fila por ficha enviada: `nombre_agencia`, `razon_social`, `nif`, `email_cont
 
 ### RLS
 - `anon` no tiene policies directas sobre ninguna tabla — todo pasa por las RPCs de abajo.
-- `authenticated` puede leer ambas tablas y gestionar `tokens` directamente (usado por el panel).
+- `authenticated` puede gestionar `tokens` directamente (usado por el panel).
+- `onboarding.respuestas` **no** es de lectura libre para cualquier `authenticated`: la única policy (`superadmin_all_respuestas`, `for all using (is_superadmin())`) exige que `auth.email()` de quien consulta esté en `public.is_superadmin()` (`inmuebles/sql_add_superadmin.sql`). Si el email de quien entra a `alta-agencia-admin.html` no está en esa lista, el `SELECT` no da error — simplemente devuelve 0 filas. Ver incidente abajo.
 
 ### RPCs (`SECURITY DEFINER`, schema `onboarding`)
 
@@ -108,6 +109,18 @@ Pasos tras importar:
 4. Activar el workflow.
 
 Si algún archivo no trae contenido (por lo que sea) simplemente no se adjunta — el cuerpo del email dice cuántos de cuántos se adjuntaron, con un link al panel para revisarlo desde ahí.
+
+---
+
+## Incidente (28 jul 2026): el panel mostraba "Todavía no ha llegado ninguna ficha" con fichas ya guardadas
+
+Síntoma: `alta-agencia.html` insertaba bien (`onboarding.submit` funcionaba, el email de aviso vía n8n llegaba siempre), pero `alta-agencia-admin.html` → "Solicitudes recibidas" mostraba siempre el estado vacío, sin ningún error de PostgREST visible.
+
+Causa: la cuenta que entraba al panel (`martinmunozinfo@gmail.com`) no estaba en `public.is_superadmin()`, que es lo único que filtra el `SELECT` de `onboarding.respuestas` (ver sección RLS arriba). RLS deniega en silencio — no lanza error, solo no devuelve filas — así que el frontend no tenía forma de distinguir "0 solicitudes reales" de "sin permiso para verlas".
+
+Fix: se añadió ese email a `is_superadmin()`. Detalle completo (y qué NO se tocó — esa cuenta sigue sin el tab de Superadmin de la app ni permiso para dar de alta tenants) en `Automatizacion_INMOBILIARIA/inmuebles/docs/SUPERADMIN.md` → "Incidente 28 jul 2026".
+
+**Lección para depurar esto en el futuro**: si un insert por RPC `security definer` funciona pero el panel de lectura muestra vacío sin error, sospechar primero de RLS silenciosa antes que del RPC de escritura — comprobar directamente en Supabase si la fila existe (`select * from onboarding.respuestas`) antes de tocar `alta-agencia.html` o el workflow de n8n.
 
 ---
 
