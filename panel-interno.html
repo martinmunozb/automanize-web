@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel interno — Automanize</title>
+<link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #f7f7f8; color: #111; }
+  a { color: inherit; }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #111; padding: 24px;
+  }
+  .login-card {
+    width: 100%; max-width: 380px; background: white; border-radius: 16px;
+    padding: 36px 30px; box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  }
+  .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .login-logo-mark { width: 34px; height: 34px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .login-logo-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .login-logo-text { font-size: 17px; font-weight: 800; }
+  .login-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+
+  label.field-label {
+    display: block; font-size: 11px; font-weight: 700; color: #888;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+  }
+  input, select, textarea {
+    width: 100%; padding: 11px 13px; border: 1.5px solid #e8e8e8; border-radius: 9px;
+    font-size: 14px; font-family: inherit; color: #111; background: white;
+    outline: none; transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #EAB308; box-shadow: 0 0 0 3px rgba(234,179,8,0.12); }
+  .field { margin-bottom: 16px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 18px; border-radius: 9px; font-size: 14px; font-weight: 700;
+    font-family: inherit; cursor: pointer; border: none; transition: all 0.15s;
+  }
+  .btn-primary { background: #111; color: white; width: 100%; padding: 13px; }
+  .btn-primary:hover:not(:disabled) { background: #333; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-accent { background: #EAB308; color: #111; }
+  .btn-accent:hover { background: #d4a107; }
+  .btn-ghost { background: transparent; color: #666; border: 1.5px solid #e8e8e8; }
+  .btn-ghost:hover { border-color: #ccc; color: #111; }
+  .btn-danger { background: #fff1f2; color: #b91c1c; }
+  .btn-danger:hover { background: #fee2e2; }
+  .btn-sm { padding: 7px 12px; font-size: 12.5px; border-radius: 7px; }
+
+  .alert { padding: 11px 13px; border-radius: 9px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .alert-ok  { background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #166534; }
+  .alert-err { background: #fff1f2; border: 1.5px solid #fecaca; color: #991b1b; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  /* ── APP SHELL ── */
+  #app { display: none; min-height: 100vh; }
+  header.topbar {
+    position: sticky; top: 0; z-index: 20; background: white; border-bottom: 1px solid #eee;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 60px;
+  }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .topbar-logo-mark { width: 28px; height: 28px; border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+  .topbar-logo-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .topbar-logo-text { font-size: 15px; font-weight: 800; }
+  .topbar-tag { font-size: 11px; font-weight: 700; color: #EAB308; text-transform: uppercase; letter-spacing: 0.08em; margin-left: 6px; padding-left: 10px; border-left: 1px solid #eee; }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .user-chip { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .user-avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: #111; color: white;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0;
+  }
+  .user-name { font-weight: 700; }
+  .user-email { color: #999; font-size: 11.5px; }
+
+  .bell-wrap { position: relative; }
+  .bell-btn { position: relative; font-size: 15px; }
+  .bell-badge {
+    position: absolute; top: -5px; right: -5px; background: #b91c1c; color: white;
+    font-size: 10px; font-weight: 800; min-width: 16px; height: 16px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; padding: 0 3px; line-height: 1;
+    border: 1.5px solid white;
+  }
+  .bell-dropdown {
+    position: absolute; top: calc(100% + 10px); right: 0; width: 320px; max-width: calc(100vw - 24px);
+    max-height: 420px; overflow-y: auto; background: white; border: 1px solid #eee; border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.18); z-index: 30; padding: 8px;
+  }
+  .bell-dropdown-head { font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px 6px; }
+  .bell-item {
+    display: block; width: 100%; text-align: left; padding: 10px; border-radius: 9px;
+    border: none; background: transparent; cursor: pointer; font-family: inherit;
+  }
+  .bell-item:hover { background: #fafafa; }
+  .bell-item-title { font-size: 13px; font-weight: 700; }
+  .bell-item-sub { font-size: 11.5px; color: #999; margin-top: 2px; }
+  .bell-item.overdue .bell-item-sub { color: #b91c1c; font-weight: 700; }
+  .bell-empty { padding: 22px 10px; text-align: center; color: #aaa; font-size: 12.5px; }
+
+  main.content { max-width: 1080px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  /* ── TOP-LEVEL SECTIONS ── */
+  .section-pills { display: flex; gap: 6px; background: #eee; padding: 5px; border-radius: 12px; width: fit-content; margin: 20px auto 0; }
+  .section-pills .pill-btn { font-size: 13.5px; padding: 10px 20px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+  .stat-card { background: white; border: 1px solid #eee; border-radius: 14px; padding: 18px 20px; }
+  .stat-label { font-size: 11.5px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .stat-value { font-size: 26px; font-weight: 800; }
+  .stat-value.ok { color: #15803d; }
+  .stat-value.bad { color: #b91c1c; }
+
+  .toolbar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .period-pills, .tab-pills { display: flex; gap: 6px; background: #eee; padding: 4px; border-radius: 10px; }
+  .pill-btn {
+    padding: 7px 14px; border-radius: 7px; border: none; background: transparent;
+    font-size: 12.5px; font-weight: 700; color: #666; cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .pill-btn.active { background: white; color: #111; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .search-input { max-width: 260px; }
+
+  table.data-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+  table.data-table th {
+    text-align: left; font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 12px 14px; background: #fafafa; border-bottom: 1px solid #eee;
+  }
+  table.data-table td { padding: 12px 14px; font-size: 13.5px; border-bottom: 1px solid #f3f3f3; vertical-align: middle; }
+  table.data-table tr:last-child td { border-bottom: none; }
+  table.data-table tr:hover td { background: #fafafa; }
+  .type-tag {
+    display: inline-block; padding: 3px 9px; border-radius: 6px; font-size: 11.5px; font-weight: 700;
+    background: #f3f4f6; color: #444; text-transform: capitalize;
+  }
+  .badge-activo { background: #dcfce7; color: #166534; }
+  .badge-pausado { background: #fef3c7; color: #92400e; }
+  .badge-baja { background: #fee2e2; color: #991b1b; }
+  .tag-pendiente { background: #FBF0CE; color: #8a5a10; }
+  .tag-usado { background: #e2f0df; color: #2e6b2f; }
+  .amount-gasto { color: #b91c1c; font-weight: 700; }
+  .amount-ingreso { color: #15803d; font-weight: 700; }
+  .row-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 28px; height: 28px; border-radius: 7px; border: 1.5px solid #e8e8e8; background: white;
+    cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .icon-btn:hover { border-color: #ccc; background: #fafafa; }
+  .factura-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 700; color: #92400e; text-decoration: none; margin-right: 8px; }
+  .factura-link:hover { text-decoration: underline; }
+  .no-factura { color: #ccc; font-size: 12px; }
+  .client-name-link { cursor: pointer; }
+  .client-name-link:hover { text-decoration: underline; }
+
+  .empty-state { text-align: center; padding: 48px 16px; color: #aaa; font-size: 13px; }
+  .empty-state .icon { font-size: 30px; margin-bottom: 10px; }
+
+  /* ── ACTIVIDAD / LISTAS TIPO TIMELINE ── */
+  .activity-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-item.reminder-overdue .activity-text { color: #b91c1c; }
+  .activity-item.reminder-soon .activity-text { color: #92400e; }
+  .activity-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: #111; color: white;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0;
+  }
+  .activity-text { font-size: 13.5px; line-height: 1.5; }
+  .activity-text b { font-weight: 700; }
+  .activity-time { font-size: 11.5px; color: #999; margin-top: 2px; }
+  .activity-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 6px 18px; }
+
+  .notes-add-row { display: flex; gap: 8px; margin-top: 14px; }
+  .notes-add-row textarea { flex: 1; }
+
+  .seg-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f3f3f3; }
+  .seg-row:last-child { border-bottom: none; }
+  .seg-mes { font-weight: 700; font-size: 12.5px; width: 96px; flex-shrink: 0; text-transform: capitalize; }
+  .seg-pill { padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; flex-shrink: 0; text-transform: capitalize; }
+  .seg-pendiente { background: #f3f4f6; color: #888; }
+  .seg-hecho { background: #dcfce7; color: #166534; }
+  .seg-omitido { background: #f3f4f6; color: #bbb; text-decoration: line-through; }
+  .seg-notas { flex: 1; font-size: 12.5px; border: 1.5px solid #eee; background: #fafafa; padding: 6px 8px; border-radius: 7px; }
+  .seg-notas:focus { border-color: #EAB308; background: white; }
+
+  .card-box { background: white; border: 1px solid #eee; border-radius: 14px; padding: 22px; margin-bottom: 18px; max-width: 460px; }
+  .card-box h3 { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+  .link-box { display: flex; align-items: center; gap: 8px; background: #fafafa; border: 1.5px solid #eee; border-radius: 9px; padding: 10px 12px; margin-top: 6px; }
+  .link-box input { border: none; background: transparent; padding: 0; font-size: 12.5px; }
+  .link-box input:focus { box-shadow: none; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box { width: 100%; max-width: 440px; background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.3); max-height: 90vh; display: flex; flex-direction: column; }
+  .modal-box.wide { max-width: 640px; }
+  .modal-head { padding: 20px 22px 14px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 17px; font-weight: 800; }
+  .modal-close { width: 28px; height: 28px; border-radius: 50%; border: none; background: #f3f4f6; cursor: pointer; font-size: 15px; color: #666; }
+  .modal-body { padding: 20px 22px; overflow-y: auto; }
+  .modal-foot { padding: 16px 22px 22px; display: flex; gap: 10px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .file-drop {
+    border: 1.5px dashed #ddd; border-radius: 10px; padding: 14px; text-align: center;
+    cursor: pointer; font-size: 12.5px; color: #888; transition: all 0.15s;
+  }
+  .file-drop:hover { border-color: #EAB308; background: #fffbeb; }
+  .file-drop.has-file { border-style: solid; border-color: #EAB308; background: #fffbeb; color: #92400e; font-weight: 600; }
+
+  .loading-block { text-align: center; padding: 60px 20px; color: #aaa; font-size: 13px; }
+  .spin-lg { width: 26px; height: 26px; border: 3px solid #f0f0f0; border-top-color: #EAB308; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+
+  @media (max-width: 640px) {
+    main.content { padding: 16px 12px 60px; }
+
+    header.topbar { height: auto; min-height: 56px; padding: 8px 12px; flex-wrap: wrap; row-gap: 8px; }
+    .topbar-logo-text, .topbar-tag, .user-chip .user-email { display: none; }
+    .user-chip { gap: 6px; }
+    .topbar-right { gap: 8px; }
+
+    .section-pills { width: 100%; max-width: 100%; overflow-x: auto; margin: 14px 0 0; -webkit-overflow-scrolling: touch; }
+    .section-pills .pill-btn { font-size: 12px; padding: 9px 13px; white-space: nowrap; }
+
+    .stats-row { grid-template-columns: 1fr; }
+    .row-2 { grid-template-columns: 1fr; }
+
+    .toolbar-row { flex-direction: column; align-items: stretch; }
+    .tab-pills, .period-pills { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab-pills .pill-btn, .period-pills .pill-btn { white-space: nowrap; }
+
+    .panel-toolbar { flex-direction: column; align-items: stretch; }
+    .panel-toolbar .search-input { max-width: none; }
+    .panel-toolbar > .btn { width: 100%; }
+
+    .card-box { max-width: 100%; padding: 16px; }
+    .link-box { flex-wrap: wrap; }
+    .link-box input { flex-basis: 100%; }
+
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal-box, .modal-box.wide { max-width: 100%; width: 100%; border-radius: 16px 16px 0 0; max-height: 94vh; }
+    .modal-head { padding: 16px 16px 12px; }
+    .modal-body { padding: 16px; }
+    .modal-foot { padding: 12px 16px 16px; flex-direction: column; }
+    .modal-foot > .btn { flex: none !important; width: 100%; }
+
+    #crmDetailTabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+    #crmDetailTabs .pill-btn { white-space: nowrap; }
+
+    .notes-add-row { flex-direction: column; }
+    .notes-add-row .btn { width: 100%; }
+
+    .seg-row { flex-wrap: wrap; }
+    .seg-notas { flex-basis: 100%; order: 3; margin-top: 2px; }
+
+    .activity-item { flex-wrap: wrap; }
+    .activity-item .row-actions { margin-top: 8px; }
+
+    table.data-table thead { display: none; }
+    table.data-table, table.data-table tbody, table.data-table tr, table.data-table td { display: block; width: 100%; }
+    table.data-table tr { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+    table.data-table td { padding: 3px 0; border: none; }
+    table.data-table td[data-label]::before { content: attr(data-label); font-weight: 700; color: #999; font-size: 10.5px; text-transform: uppercase; display: block; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark"><img src="/assets/images/Automanize%20(4).png" alt="Automanize" /></div>
+      <span class="login-logo-text">Automanize</span>
+    </div>
+    <div class="login-title">Panel interno</div>
+    <div class="login-sub">Inicia sesión para gestionar finanzas, altas de agencia y el seguimiento de clientes.</div>
+    <div id="loginAlertErr" class="alert alert-err"></div>
+    <form id="loginForm" onsubmit="return false;">
+      <div class="field">
+        <label class="field-label">Email</label>
+        <input type="email" id="loginEmail" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label class="field-label">Contraseña</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn" onclick="doLogin()">Iniciar sesión</button>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="topbar">
+    <a href="https://automanize.com" class="topbar-logo">
+      <div class="topbar-logo-mark"><img src="/assets/images/Automanize%20(4).png" alt="Automanize" /></div>
+      <span class="topbar-logo-text">Automanize</span>
+    </a>
+    <span class="topbar-tag" style="margin-right:auto">Panel interno</span>
+    <div class="topbar-right">
+      <div class="bell-wrap" id="bellWrap">
+        <button class="icon-btn bell-btn" id="bellBtn" onclick="toggleBellDropdown()" title="Recordatorios">
+          🔔
+          <span class="bell-badge" id="bellBadge" style="display:none">0</span>
+        </button>
+        <div class="bell-dropdown" id="bellDropdown" style="display:none">
+          <div class="bell-dropdown-head">Recordatorios próximos</div>
+          <div id="bellDropdownList"></div>
+        </div>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div>
+          <div class="user-name" id="userName">—</div>
+          <div class="user-email" id="userEmail">—</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Salir</button>
+    </div>
+  </header>
+
+  <nav class="section-pills">
+    <button class="pill-btn active" data-section="finanzas" onclick="switchSection('finanzas')">Finanzas</button>
+    <button class="pill-btn" data-section="altas" onclick="switchSection('altas')">Altas de agencia</button>
+    <button class="pill-btn" data-section="crm" onclick="switchSection('crm')">Seguimiento de clientes</button>
+    <button class="pill-btn" data-section="recordatorios" onclick="switchSection('recordatorios')">Recordatorios</button>
+  </nav>
+
+  <main class="content">
+
+    <!-- ═══════════ SECCIÓN: FINANZAS ═══════════ -->
+    <div class="section active" id="section-finanzas">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Ingresos totales</div>
+          <div class="stat-value ok" id="statIngresos">0,00 €</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Gastos totales</div>
+          <div class="stat-value bad" id="statGastos">0,00 €</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Dinero total (balance)</div>
+          <div class="stat-value" id="statBalance">0,00 €</div>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <div class="tab-pills">
+          <button class="pill-btn active" data-fintab="gastos" onclick="finSwitchTab('gastos')">Gastos</button>
+          <button class="pill-btn" data-fintab="ingresos" onclick="finSwitchTab('ingresos')">Ingresos</button>
+          <button class="pill-btn" data-fintab="actividad" onclick="finSwitchTab('actividad')">Actividad</button>
+        </div>
+        <div class="period-pills">
+          <button class="pill-btn active" data-finperiod="todo" onclick="finSwitchPeriod('todo')">Todo</button>
+          <button class="pill-btn" data-finperiod="mes" onclick="finSwitchPeriod('mes')">Este mes</button>
+          <button class="pill-btn" data-finperiod="anio" onclick="finSwitchPeriod('anio')">Este año</button>
+        </div>
+      </div>
+
+      <div class="panel active" id="panel-fin-gastos">
+        <div class="panel-toolbar">
+          <input type="text" class="search-input" id="searchGastos" placeholder="Buscar gasto..." oninput="finRenderGastos()" />
+          <button class="btn btn-accent" onclick="finOpenForm('gasto')">+ Nuevo gasto</button>
+        </div>
+        <div id="gastosWrap"></div>
+      </div>
+
+      <div class="panel" id="panel-fin-ingresos">
+        <div class="panel-toolbar">
+          <input type="text" class="search-input" id="searchIngresos" placeholder="Buscar ingreso..." oninput="finRenderIngresos()" />
+          <button class="btn btn-accent" onclick="finOpenForm('ingreso')">+ Nuevo ingreso</button>
+        </div>
+        <div id="ingresosWrap"></div>
+      </div>
+
+      <div class="panel" id="panel-fin-actividad">
+        <div class="activity-card">
+          <div id="actividadWrap"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════ SECCIÓN: ALTAS DE AGENCIA ═══════════ -->
+    <div class="section" id="section-altas">
+
+      <div class="toolbar-row">
+        <div class="tab-pills">
+          <button class="pill-btn active" data-altatab="solicitudes" onclick="altaSwitchTab('solicitudes')">Solicitudes recibidas</button>
+          <button class="pill-btn" data-altatab="tokens" onclick="altaSwitchTab('tokens')">Generar token</button>
+        </div>
+      </div>
+
+      <div class="panel active" id="panel-alta-solicitudes">
+        <div id="solicitudesWrap"></div>
+      </div>
+
+      <div class="panel" id="panel-alta-tokens">
+        <div class="card-box">
+          <h3>Nuevo enlace de alta</h3>
+          <div id="tokenAlertErr" class="alert alert-err"></div>
+          <div class="field">
+            <label class="field-label">Nombre de la agencia</label>
+            <input type="text" id="tNombreAgencia" placeholder="Ej. InvictaRent" />
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Email de contacto (opcional)</label>
+            <input type="email" id="tEmail" placeholder="contacto@agencia.com" />
+          </div>
+          <button class="btn btn-accent" style="width:100%;margin-top:16px" id="btnCrearToken" onclick="altaCrearToken()">Generar enlace</button>
+          <div id="nuevoLinkWrap" style="display:none;margin-top:16px">
+            <label class="field-label">Enlace para enviar al cliente</label>
+            <div class="link-box">
+              <input type="text" id="nuevoLinkInput" readonly />
+              <button class="btn btn-ghost btn-sm" onclick="altaCopiarLink()">Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tokensWrap"></div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════ SECCIÓN: SEGUIMIENTO DE CLIENTES ═══════════ -->
+    <div class="section" id="section-crm">
+
+      <div class="stats-row" style="grid-template-columns: repeat(2, 1fr)">
+        <div class="stat-card">
+          <div class="stat-label">Clientes activos</div>
+          <div class="stat-value" id="crmStatActivos">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">En seguimiento</div>
+          <div class="stat-value" id="crmStatProspectos">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <div class="tab-pills">
+          <button class="pill-btn active" data-crmtipo="cliente" onclick="crmSwitchTipoTab('cliente')">Clientes</button>
+          <button class="pill-btn" data-crmtipo="prospecto" onclick="crmSwitchTipoTab('prospecto')">En seguimiento</button>
+        </div>
+      </div>
+
+      <div class="panel-toolbar">
+        <input type="text" class="search-input" id="crmSearchClientes" placeholder="Buscar..." oninput="crmRenderClientes()" />
+        <button class="btn btn-accent" onclick="crmOpenClienteModal(null, crmActiveTipoTab)">+ Nuevo</button>
+      </div>
+      <div id="crmClientesWrap"></div>
+
+    </div>
+
+    <!-- ═══════════ SECCIÓN: RECORDATORIOS ═══════════ -->
+    <div class="section" id="section-recordatorios">
+
+      <div class="stats-row" style="grid-template-columns: repeat(2, 1fr)">
+        <div class="stat-card">
+          <div class="stat-label">Vencidos</div>
+          <div class="stat-value bad" id="recStatVencidos">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Próximos 7 días</div>
+          <div class="stat-value" id="recStatProximos">0</div>
+        </div>
+      </div>
+
+      <div class="panel-toolbar">
+        <input type="text" class="search-input" id="recSearch" placeholder="Buscar por cliente o título..." oninput="recRenderList()" />
+        <button class="btn btn-accent" onclick="recOpenForm()">+ Nuevo recordatorio</button>
+      </div>
+      <div id="recListWrap"></div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL: nombre (primer login) -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal-box" style="max-width:360px">
+    <div class="modal-head">
+      <div class="modal-title">¿Cómo te llamas?</div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#888;margin-bottom:14px">Tu nombre aparecerá en el registro de actividad, notas y recordatorios que crees.</p>
+      <div id="nameAlertErr" class="alert alert-err"></div>
+      <div class="field">
+        <label class="field-label">Nombre</label>
+        <input type="text" id="nameInput" placeholder="Ej. Gabriel" />
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" id="nameSaveBtn" onclick="saveDisplayName()">Guardar y continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: gasto/ingreso -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="formModalTitle">Nuevo gasto</div>
+      <button class="modal-close" onclick="finCloseForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="formAlertErr" class="alert alert-err"></div>
+      <div class="field">
+        <label class="field-label" id="formNombreLabel">Nombre del gasto</label>
+        <input type="text" id="formNombre" list="nombreSuggestions" placeholder="Ej. Suscripción n8n" />
+        <datalist id="nombreSuggestions"></datalist>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label class="field-label" id="formTipoLabel">Tipo de gasto</label>
+          <input type="text" id="formTipo" list="tipoSuggestions" placeholder="Ej. Software" />
+          <datalist id="tipoSuggestions"></datalist>
+        </div>
+        <div class="field">
+          <label class="field-label">Importe (€)</label>
+          <input type="text" inputmode="decimal" id="formImporte" placeholder="0,00 o ej. 150+50*2" onblur="finEvalImporteField()" />
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Fecha</label>
+        <input type="date" id="formFecha" />
+      </div>
+      <div class="field" id="recurrenteWrap" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:0">
+          <input type="checkbox" id="formRecurrente" style="width:auto" onchange="finToggleRecurrenteOpts()" />
+          Ingreso recurrente
+        </label>
+        <div class="row-2" id="recurrenteOpts" style="display:none;margin-top:10px">
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Frecuencia</label>
+            <select id="formFrecuencia">
+              <option value="semanal">Semanal</option>
+              <option value="quincenal">Quincenal</option>
+              <option value="mensual" selected>Mensual</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Repeticiones</label>
+            <input type="number" id="formRepeticiones" min="2" max="60" value="12" />
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Factura (PDF) — opcional</label>
+        <div class="file-drop" id="fileDrop" onclick="document.getElementById('formFile').click()">📎 Adjuntar PDF</div>
+        <input type="file" id="formFile" accept="application/pdf" style="display:none" onchange="finOnFileSelected()" />
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label">Notas — opcional</label>
+        <textarea id="formNotas" rows="2" placeholder="Detalle adicional..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" style="flex:1" onclick="finCloseForm()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" id="formSaveBtn" onclick="finSaveForm()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: cliente (seguimiento) -->
+<div class="modal-overlay" id="crmClienteModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div class="modal-title" id="crmClienteModalTitle">Nuevo cliente</div>
+      <button class="modal-close" onclick="crmCloseClienteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="crmClienteAlertErr" class="alert alert-err"></div>
+
+      <div class="tab-pills" id="crmDetailTabs" style="display:none;margin-bottom:16px">
+        <button class="pill-btn active" data-detailtab="info" onclick="crmSwitchDetailTab('info')">Info</button>
+        <button class="pill-btn" data-detailtab="pagos" onclick="crmSwitchDetailTab('pagos')">Pagos</button>
+        <button class="pill-btn" data-detailtab="notas" onclick="crmSwitchDetailTab('notas')">Notas</button>
+        <button class="pill-btn" data-detailtab="seguimiento" onclick="crmSwitchDetailTab('seguimiento')">Seguimiento mensual</button>
+      </div>
+
+      <!-- INFO -->
+      <div class="panel active" id="detail-info">
+        <div class="field">
+          <label class="field-label">Nombre de la agencia</label>
+          <input type="text" id="crmNombreAgencia" placeholder="Ej. InvictaRent" />
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label class="field-label">Tipo</label>
+            <select id="crmTipo">
+              <option value="prospecto">En seguimiento (todavía no es cliente)</option>
+              <option value="cliente">Cliente (ya dentro de la empresa)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Estado</label>
+            <select id="crmEstado">
+              <option value="activo">Activo</option>
+              <option value="pausado">Pausado</option>
+              <option value="baja">Baja</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label class="field-label">Persona de contacto</label>
+            <input type="text" id="crmContactoNombre" />
+          </div>
+          <div class="field"></div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label class="field-label">Email</label>
+            <input type="email" id="crmEmail" />
+          </div>
+          <div class="field">
+            <label class="field-label">Teléfono</label>
+            <input type="text" id="crmTelefono" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label class="field-label">Plan</label>
+            <input type="text" id="crmPlan" placeholder="Ej. Nize Pro" />
+          </div>
+          <div class="field">
+            <label class="field-label">Fecha de alta</label>
+            <input type="date" id="crmFechaAlta" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label class="field-label">Día de pago (opcional)</label>
+            <input type="number" min="1" max="31" id="crmDiaPago" placeholder="Ej. 5" />
+          </div>
+          <div class="field">
+            <label class="field-label">Mensualidad (€, opcional)</label>
+            <input type="text" inputmode="decimal" id="crmMensualidad" placeholder="Ej. 150" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Notas generales</label>
+          <textarea id="crmNotasGenerales" rows="3"></textarea>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="width:100%;display:none" id="crmVerRecBtn" onclick="crmVerRecordatoriosDeEsteCliente()">🔔 Ver recordatorios de este cliente</button>
+      </div>
+
+      <!-- PAGOS -->
+      <div class="panel" id="detail-pagos">
+        <div class="tab-pills" style="margin-bottom:16px">
+          <button class="pill-btn active" data-pagostab="mensualidad" onclick="crmSwitchPagosTab('mensualidad')">Mensualidad</button>
+          <button class="pill-btn" data-pagostab="setup" onclick="crmSwitchPagosTab('setup')">Pago inicial</button>
+        </div>
+
+        <!-- PAGO INICIAL (SETUP) -->
+        <div class="panel" id="pagos-setup">
+          <div class="card-box" style="max-width:none">
+            <h3>Dividir en partes iguales</h3>
+            <div id="crmSetupAlertErr" class="alert alert-err"></div>
+            <div class="row-2">
+              <div class="field">
+                <label class="field-label">Importe total (€)</label>
+                <input type="text" inputmode="decimal" id="crmSetupTotal" placeholder="Ej. 600" />
+              </div>
+              <div class="field">
+                <label class="field-label">Nº de cuotas</label>
+                <input type="number" min="1" max="24" id="crmSetupCuotas" value="1" />
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label">Empezar a cobrar en</label>
+              <input type="month" id="crmSetupMesInicio" />
+            </div>
+            <button class="btn btn-accent btn-sm" style="width:100%;margin-top:14px" onclick="crmGuardarSetup()">Dividir y programar</button>
+          </div>
+
+          <div class="card-box" style="max-width:none">
+            <h3>O añadir/ajustar un mes a mano</h3>
+            <p style="font-size:12px;color:#888;margin-top:-10px;margin-bottom:14px">Útil si un mes se paga una cantidad distinta a los demás. Si ya existe una cuota ese mes, se sobrescribe.</p>
+            <div id="crmSetupCuotaAlertErr" class="alert alert-err"></div>
+            <div class="row-2" style="margin-bottom:0">
+              <div class="field">
+                <label class="field-label">Mes</label>
+                <input type="month" id="crmSetupCuotaMes" />
+              </div>
+              <div class="field">
+                <label class="field-label">Importe (€)</label>
+                <input type="text" inputmode="decimal" id="crmSetupCuotaImporte" placeholder="Ej. 200" />
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:14px" onclick="crmGuardarCuotaManual('setup')">Guardar ese mes</button>
+          </div>
+
+          <div class="stats-row" style="grid-template-columns:repeat(2,1fr)" id="crmSetupStatsWrap"></div>
+          <div id="crmSetupPagosWrap"></div>
+        </div>
+
+        <!-- MENSUALIDAD -->
+        <div class="panel active" id="pagos-mensualidad">
+          <p style="font-size:12.5px;color:#888;margin-bottom:14px">El importe por defecto se configura en la pestaña Info y se programa solo mes a mes. Aquí puedes ajustar un mes concreto (por ejemplo, un descuento puntual) o añadir uno que falte.</p>
+
+          <div class="card-box" style="max-width:none">
+            <h3>Añadir/ajustar un mes a mano</h3>
+            <div id="crmMensualidadCuotaAlertErr" class="alert alert-err"></div>
+            <div class="row-2" style="margin-bottom:0">
+              <div class="field">
+                <label class="field-label">Mes</label>
+                <input type="month" id="crmMensualidadCuotaMes" />
+              </div>
+              <div class="field">
+                <label class="field-label">Importe (€)</label>
+                <input type="text" inputmode="decimal" id="crmMensualidadCuotaImporte" placeholder="Ej. 150" />
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:14px" onclick="crmGuardarCuotaManual('mensualidad')">Guardar ese mes</button>
+          </div>
+
+          <div class="stats-row" style="grid-template-columns:repeat(2,1fr)" id="crmMensualidadStatsWrap"></div>
+          <div id="crmMensualidadPagosWrap"></div>
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <div class="panel" id="detail-notas">
+        <div id="crmNotasWrap"></div>
+        <div class="notes-add-row">
+          <textarea id="crmNuevaNota" rows="2" placeholder="Escribe una nota..."></textarea>
+          <button class="btn btn-accent btn-sm" onclick="crmAddNota()">Añadir</button>
+        </div>
+      </div>
+
+      <!-- SEGUIMIENTO MENSUAL -->
+      <div class="panel" id="detail-seguimiento">
+        <div id="crmSeguimientoWrap"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" style="flex:1" onclick="crmCloseClienteModal()">Cerrar</button>
+      <button class="btn btn-primary" style="flex:2" id="crmSaveClienteBtn" onclick="crmSaveCliente()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: nuevo recordatorio (global) -->
+<div class="modal-overlay" id="recFormModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Nuevo recordatorio</div>
+      <button class="modal-close" onclick="recCloseForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="recFormAlertErr" class="alert alert-err"></div>
+      <div class="field">
+        <label class="field-label">Cliente</label>
+        <select id="recFormCliente"></select>
+      </div>
+      <div class="field">
+        <label class="field-label">Título</label>
+        <input type="text" id="recFormTitulo" placeholder="Ej. Revisar renovación de contrato" />
+      </div>
+      <div class="field">
+        <label class="field-label">Fecha</label>
+        <input type="date" id="recFormFecha" />
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label">Notas — opcional</label>
+        <textarea id="recFormNotas" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" style="flex:1" onclick="recCloseForm()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" id="recFormSaveBtn" onclick="recSaveForm()">Guardar recordatorio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
+  const { createClient } = window.supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+
+  // ══════════════════════════════ AUTH (compartido) ══════════════════════════════
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) return;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Entrando...';
+    hideEl('loginAlertErr');
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesión';
+    if (error) { showErr('loginAlertErr', 'Email o contraseña incorrectos.'); return; }
+    await onAuthenticated(data.user);
+  }
+
+  async function doLogout() {
+    await db.auth.signOut();
+    location.reload();
+  }
+
+  async function onAuthenticated(user) {
+    currentUser = user;
+    const nombre = user.user_metadata?.nombre;
+    if (!nombre) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('nameModal').classList.add('show');
+      return;
+    }
+    showApp();
+  }
+
+  async function saveDisplayName() {
+    const nombre = document.getElementById('nameInput').value.trim();
+    if (!nombre) { showErr('nameAlertErr', 'Escribe tu nombre.'); return; }
+    const btn = document.getElementById('nameSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Guardando...';
+    const { data, error } = await db.auth.updateUser({ data: { nombre } });
+    btn.disabled = false; btn.textContent = 'Guardar y continuar';
+    if (error) { showErr('nameAlertErr', 'No se pudo guardar. Inténtalo de nuevo.'); return; }
+    currentUser = data.user;
+    document.getElementById('nameModal').classList.remove('show');
+    showApp();
+  }
+
+  function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const nombre = currentUser.user_metadata?.nombre || currentUser.email;
+    document.getElementById('userName').textContent = nombre;
+    document.getElementById('userEmail').textContent = currentUser.email;
+    document.getElementById('userAvatar').textContent = nombre.trim().charAt(0).toUpperCase();
+    finLoadData();
+    altaLoadData();
+    crmLoadAll();
+    pedirPermisoNotificaciones();
+  }
+
+  function switchSection(section) {
+    document.querySelectorAll('.section-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.section === section));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + section).classList.add('active');
+  }
+
+  // ══════════════════════════════ CAMPANA DE RECORDATORIOS ══════════════════════════════
+  const BELL_NOTIFICADOS_KEY = 'crmRecordatoriosNotificados';
+
+  function bellUrgentes() {
+    const hoy = new Date().toISOString().slice(0, 10);
+    return crmRecordatoriosGlobal
+      .filter(r => !r.completado && r.fecha <= addDays(hoy, 7))
+      .sort((a, b) => a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : 0));
+  }
+
+  function renderBell() {
+    const urgentes = bellUrgentes();
+    const badge = document.getElementById('bellBadge');
+    if (urgentes.length) { badge.textContent = urgentes.length; badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+
+    const hoy = new Date().toISOString().slice(0, 10);
+    const list = document.getElementById('bellDropdownList');
+    if (!urgentes.length) { list.innerHTML = '<div class="bell-empty">Sin recordatorios próximos 🎉</div>'; }
+    else {
+      list.innerHTML = urgentes.map(r => {
+        const vencido = r.fecha < hoy;
+        return `<button class="bell-item ${vencido ? 'overdue' : ''}" onclick="bellJumpToRecordatorio('${escJs(r.cliente_id)}')">
+          <div class="bell-item-title">${r.es_pago ? '💳 ' : ''}${escHtml(r.titulo)}</div>
+          <div class="bell-item-sub">${escHtml(r.nombre_agencia)} · ${fmtDate(r.fecha)}${vencido ? ' · Vencido' : ''}</div>
+        </button>`;
+      }).join('');
+    }
+
+    notificarRecordatoriosNuevos(urgentes);
+  }
+
+  function toggleBellDropdown() {
+    const dd = document.getElementById('bellDropdown');
+    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function bellJumpToRecordatorio(clienteId) {
+    document.getElementById('bellDropdown').style.display = 'none';
+    switchSection('recordatorios');
+    const c = crmClientes.find(x => x.id === clienteId);
+    document.getElementById('recSearch').value = c ? c.nombre_agencia : '';
+    recRenderList();
+  }
+
+  document.addEventListener('click', e => {
+    const wrap = document.getElementById('bellWrap');
+    if (wrap && !wrap.contains(e.target)) document.getElementById('bellDropdown').style.display = 'none';
+  });
+
+  function pedirPermisoNotificaciones() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  function bellGetNotificados() {
+    try { return new Set(JSON.parse(localStorage.getItem(BELL_NOTIFICADOS_KEY) || '[]')); }
+    catch { return new Set(); }
+  }
+
+  function notificarRecordatoriosNuevos(urgentes) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const hoy = new Date().toISOString().slice(0, 10);
+    const notificados = bellGetNotificados();
+    let huboNuevos = false;
+    urgentes
+      .filter(r => r.fecha <= hoy) // solo avisa de vencidos o de hoy mismo, para no saturar con los de "próximos 7 días"
+      .forEach(r => {
+        if (notificados.has(r.id)) return;
+        new Notification((r.es_pago ? '💳 ' : '⏰ ') + r.titulo, {
+          body: r.nombre_agencia + ' · ' + fmtDate(r.fecha),
+          tag: r.id,
+        });
+        notificados.add(r.id);
+        huboNuevos = true;
+      });
+    if (huboNuevos) localStorage.setItem(BELL_NOTIFICADOS_KEY, JSON.stringify([...notificados]));
+  }
+
+  setInterval(() => { if (currentUser) crmLoadRecordatoriosGlobal(); }, 5 * 60 * 1000);
+
+  // ══════════════════════════════ HELPERS (compartidos) ══════════════════════════════
+  function fmtMoney(n) { return Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }); }
+  function fmtDate(d) { return new Date(d + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); }
+  function fmtDateTime(d) { return new Date(d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+  function fmtMes(mesStr) { return new Date(mesStr + 'T00:00:00').toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }); }
+  function addDays(dateStr, n) { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+  function escHtml(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function escJs(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+  function loadingBlock() { return `<div class="loading-block"><div class="spin-lg"></div>Cargando...</div>`; }
+  function emptyState(icon, msg) { return `<div class="empty-state"><div class="icon">${icon}</div>${msg}</div>`; }
+  function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
+  function hideEl(id) { document.getElementById(id).style.display = 'none'; }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // SECCIÓN: FINANZAS
+  // ══════════════════════════════════════════════════════════════════════════════
+  const TIPOS_SUGERIDOS = ['Software', 'Marketing', 'Nóminas', 'Oficina', 'Servicios', 'Infraestructura', 'Formación', 'Viajes', 'Cliente', 'Otros'];
+  document.getElementById('tipoSuggestions').innerHTML = TIPOS_SUGERIDOS.map(t => `<option value="${t}">`).join('');
+
+  let gastos = [];
+  let ingresos = [];
+  let finActiveTab = 'gastos';
+  let finActivePeriod = 'todo';
+  let finFormTipo = 'gasto';
+  let finEditingId = null;
+  let finEditingFacturaActual = null;
+  let finSelectedFile = null;
+
+  async function finLoadData() {
+    document.getElementById('gastosWrap').innerHTML = loadingBlock();
+    document.getElementById('ingresosWrap').innerHTML = loadingBlock();
+    document.getElementById('actividadWrap').innerHTML = loadingBlock();
+
+    const [gRes, iRes] = await Promise.all([
+      db.rpc('finanzas_list_gastos'),
+      db.rpc('finanzas_list_ingresos'),
+    ]);
+
+    if (gRes.error || iRes.error) {
+      document.getElementById('gastosWrap').innerHTML = emptyState('⚠️', 'Error al cargar los datos.');
+      document.getElementById('ingresosWrap').innerHTML = '';
+      return;
+    }
+
+    gastos = gRes.data || [];
+    ingresos = iRes.data || [];
+    finRenderAll();
+  }
+
+  function finPeriodFilter(list) {
+    if (finActivePeriod === 'todo') return list;
+    const now = new Date();
+    return list.filter(r => {
+      const d = new Date(r.fecha + 'T00:00:00');
+      if (finActivePeriod === 'mes') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      if (finActivePeriod === 'anio') return d.getFullYear() === now.getFullYear();
+      return true;
+    });
+  }
+
+  function finUltimosNombres(tipo) {
+    const list = tipo === 'gasto' ? gastos : ingresos;
+    const ordenado = [...list].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const vistos = new Set();
+    const nombres = [];
+    for (const r of ordenado) {
+      const clave = r.nombre.trim().toLowerCase();
+      if (vistos.has(clave)) continue;
+      vistos.add(clave);
+      nombres.push(r.nombre);
+      if (nombres.length === 5) break;
+    }
+    return nombres;
+  }
+
+  function finRenderAll() {
+    finRenderStats();
+    finRenderGastos();
+    finRenderIngresos();
+    finRenderActividad();
+  }
+
+  function finRenderStats() {
+    const g = finPeriodFilter(gastos).reduce((s, r) => s + Number(r.importe), 0);
+    const i = finPeriodFilter(ingresos).reduce((s, r) => s + Number(r.importe), 0);
+    const balance = i - g;
+    document.getElementById('statIngresos').textContent = fmtMoney(i);
+    document.getElementById('statGastos').textContent = fmtMoney(g);
+    const balEl = document.getElementById('statBalance');
+    balEl.textContent = fmtMoney(balance);
+    balEl.className = 'stat-value ' + (balance >= 0 ? 'ok' : 'bad');
+  }
+
+  function finRenderGastos() {
+    const q = document.getElementById('searchGastos').value.trim().toLowerCase();
+    let list = finPeriodFilter(gastos);
+    if (q) list = list.filter(r => r.nombre.toLowerCase().includes(q) || r.tipo.toLowerCase().includes(q));
+    const wrap = document.getElementById('gastosWrap');
+    if (!list.length) { wrap.innerHTML = emptyState('💸', 'No hay gastos registrados todavía.'); return; }
+    wrap.innerHTML = finRenderTable(list, 'gasto');
+  }
+
+  function finRenderIngresos() {
+    const q = document.getElementById('searchIngresos').value.trim().toLowerCase();
+    let list = finPeriodFilter(ingresos);
+    if (q) list = list.filter(r => r.nombre.toLowerCase().includes(q) || r.tipo.toLowerCase().includes(q));
+    const wrap = document.getElementById('ingresosWrap');
+    if (!list.length) { wrap.innerHTML = emptyState('💰', 'No hay ingresos registrados todavía.'); return; }
+    wrap.innerHTML = finRenderTable(list, 'ingreso');
+  }
+
+  function finRenderTable(list, tipo) {
+    const amountClass = tipo === 'gasto' ? 'amount-gasto' : 'amount-ingreso';
+    const sign = tipo === 'gasto' ? '-' : '+';
+    return `<table class="data-table">
+      <thead><tr>
+        <th>Nombre</th><th>Tipo</th><th>Fecha</th><th>Importe</th><th>Factura</th><th>Añadido por</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${list.map(r => `
+          <tr>
+            <td data-label="Nombre"><strong>${escHtml(r.nombre)}</strong>${r.notas ? `<div style="font-size:11.5px;color:#999;margin-top:2px">${escHtml(r.notas)}</div>` : ''}</td>
+            <td data-label="Tipo"><span class="type-tag">${escHtml(r.tipo)}</span></td>
+            <td data-label="Fecha">${fmtDate(r.fecha)}</td>
+            <td data-label="Importe" class="${amountClass}">${sign}${fmtMoney(r.importe)}</td>
+            <td data-label="Factura">${r.factura_url
+              ? `<a class="factura-link" href="#" onclick="finViewFactura('${escJs(r.factura_url)}');return false;">📄 Ver PDF</a>`
+              : `<span class="no-factura">Sin factura</span>`}</td>
+            <td data-label="Añadido por">${escHtml(r.creado_por_nombre || r.creado_por_email || '—')}</td>
+            <td data-label="">
+              <div class="row-actions">
+                <button class="icon-btn" title="Editar" onclick='finOpenForm("${tipo}", ${JSON.stringify(r).replace(/'/g, "&#39;")})'>✏️</button>
+                <button class="icon-btn" title="Duplicar" onclick='finDuplicateRecord("${tipo}", ${JSON.stringify(r).replace(/'/g, "&#39;")})'>📋</button>
+                <button class="icon-btn" title="Eliminar" onclick="finDeleteRecord('${tipo}', '${r.id}', ${r.factura_url ? `'${escJs(r.factura_url)}'` : 'null'})">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  function finRenderActividad() {
+    const items = [
+      ...gastos.map(r => ({ ...r, _tipo: 'gasto' })),
+      ...ingresos.map(r => ({ ...r, _tipo: 'ingreso' })),
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    const wrap = document.getElementById('actividadWrap');
+    if (!items.length) { wrap.innerHTML = emptyState('📋', 'Todavía no hay actividad registrada.'); return; }
+
+    wrap.innerHTML = items.map(r => {
+      const quien = r.creado_por_nombre || r.creado_por_email || 'Alguien';
+      const accion = r._tipo === 'gasto' ? 'añadió un gasto de' : 'registró un ingreso de';
+      const signClass = r._tipo === 'gasto' ? 'amount-gasto' : 'amount-ingreso';
+      return `<div class="activity-item">
+        <div class="activity-avatar">${quien.trim().charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="activity-text">
+            <b>${escHtml(quien)}</b> ${accion} <span class="${signClass}">${fmtMoney(r.importe)}</span>
+            — ${escHtml(r.nombre)} <span class="type-tag">${escHtml(r.tipo)}</span>
+          </div>
+          <div class="activity-time">${fmtDateTime(r.created_at)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function finSwitchTab(tab) {
+    finActiveTab = tab;
+    document.querySelectorAll('#section-finanzas .tab-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.fintab === tab));
+    document.querySelectorAll('#section-finanzas .panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-fin-' + tab).classList.add('active');
+  }
+
+  function finSwitchPeriod(period) {
+    finActivePeriod = period;
+    document.querySelectorAll('#section-finanzas .period-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.finperiod === period));
+    finRenderAll();
+  }
+
+  function finOpenForm(tipo, record) {
+    finFormTipo = tipo;
+    finEditingId = record ? record.id : null;
+    finEditingFacturaActual = record && record.factura_url ? { path: record.factura_url, nombre: record.factura_nombre } : null;
+    finSelectedFile = null;
+
+    document.getElementById('formModalTitle').textContent = (finEditingId ? 'Editar ' : 'Nuevo ') + (tipo === 'gasto' ? 'gasto' : 'ingreso');
+    document.getElementById('formNombreLabel').textContent = 'Nombre del ' + tipo;
+    document.getElementById('formTipoLabel').textContent = 'Tipo de ' + tipo;
+    document.getElementById('formNombre').value = record ? record.nombre : '';
+    document.getElementById('nombreSuggestions').innerHTML = finUltimosNombres(tipo).map(n => `<option value="${escHtml(n)}">`).join('');
+    document.getElementById('formTipo').value = record ? record.tipo : '';
+    document.getElementById('formImporte').value = record ? record.importe : '';
+    document.getElementById('formFecha').value = record ? record.fecha : new Date().toISOString().slice(0, 10);
+    document.getElementById('formNotas').value = record ? (record.notas || '') : '';
+    document.getElementById('formFile').value = '';
+    const drop = document.getElementById('fileDrop');
+    if (finEditingFacturaActual) {
+      drop.textContent = '📄 ' + finEditingFacturaActual.nombre + ' (haz clic para cambiar)';
+      drop.classList.add('has-file');
+    } else {
+      drop.textContent = '📎 Adjuntar PDF';
+      drop.classList.remove('has-file');
+    }
+    document.getElementById('recurrenteWrap').style.display = (tipo === 'ingreso' && !finEditingId) ? 'block' : 'none';
+    document.getElementById('formRecurrente').checked = false;
+    document.getElementById('formFrecuencia').value = 'mensual';
+    document.getElementById('formRepeticiones').value = 12;
+    document.getElementById('recurrenteOpts').style.display = 'none';
+
+    hideEl('formAlertErr');
+    document.getElementById('formModal').classList.add('show');
+  }
+
+  function finToggleRecurrenteOpts() {
+    document.getElementById('recurrenteOpts').style.display = document.getElementById('formRecurrente').checked ? 'grid' : 'none';
+  }
+
+  function finDuplicateRecord(tipo, record) {
+    finOpenForm(tipo, record);
+    finEditingId = null;
+    finEditingFacturaActual = null;
+    finSelectedFile = null;
+    document.getElementById('formModalTitle').textContent = 'Duplicar ' + (tipo === 'gasto' ? 'gasto' : 'ingreso');
+    document.getElementById('formFecha').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('formFile').value = '';
+    const drop = document.getElementById('fileDrop');
+    drop.textContent = '📎 Adjuntar PDF';
+    drop.classList.remove('has-file');
+    document.getElementById('recurrenteWrap').style.display = tipo === 'ingreso' ? 'block' : 'none';
+  }
+
+  function finCloseForm() {
+    document.getElementById('formModal').classList.remove('show');
+  }
+
+  function finOnFileSelected() {
+    const input = document.getElementById('formFile');
+    const file = input.files[0];
+    const drop = document.getElementById('fileDrop');
+    if (!file) return;
+    if (file.type !== 'application/pdf') { showErr('formAlertErr', 'Solo se admiten archivos PDF.'); input.value = ''; return; }
+    finSelectedFile = file;
+    drop.textContent = '📄 ' + file.name;
+    drop.classList.add('has-file');
+  }
+
+  async function finSaveForm() {
+    const nombre = document.getElementById('formNombre').value.trim();
+    const tipo = document.getElementById('formTipo').value.trim();
+    const importe = finEvalMathExpression(document.getElementById('formImporte').value);
+    const fecha = document.getElementById('formFecha').value;
+    const notas = document.getElementById('formNotas').value.trim();
+
+    if (!nombre || !tipo || isNaN(importe) || importe < 0 || !fecha) {
+      showErr('formAlertErr', 'Completa nombre, tipo, fecha e importe (admite operaciones como 150+50*2).');
+      return;
+    }
+
+    const esRecurrente = finFormTipo === 'ingreso' && !finEditingId && document.getElementById('formRecurrente').checked;
+    const frecuencia = document.getElementById('formFrecuencia').value;
+    const repeticiones = esRecurrente
+      ? Math.max(2, Math.min(60, parseInt(document.getElementById('formRepeticiones').value, 10) || 2))
+      : 1;
+
+    const btn = document.getElementById('formSaveBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Guardando...';
+    hideEl('formAlertErr');
+
+    try {
+      let facturaPath = finEditingFacturaActual ? finEditingFacturaActual.path : null;
+      let facturaNombre = finEditingFacturaActual ? finEditingFacturaActual.nombre : null;
+
+      if (finSelectedFile) {
+        if (finEditingFacturaActual) {
+          await db.storage.from('finanzas-facturas').remove([finEditingFacturaActual.path]);
+        }
+        const path = `${finFormTipo}s/${crypto.randomUUID()}-${finSelectedFile.name}`;
+        const { error: upErr } = await db.storage.from('finanzas-facturas').upload(path, finSelectedFile);
+        if (upErr) throw new Error('No se pudo subir el PDF: ' + upErr.message);
+        facturaPath = path;
+        facturaNombre = finSelectedFile.name;
+      }
+
+      const fnName = finFormTipo === 'gasto' ? 'finanzas_upsert_gasto' : 'finanzas_upsert_ingreso';
+
+      for (let i = 0; i < repeticiones; i++) {
+        const fechaOcurrencia = i === 0 ? fecha : finAddFrequency(fecha, frecuencia, i);
+        const { error } = await db.rpc(fnName, {
+          p_id: i === 0 ? finEditingId : null,
+          p_nombre: nombre,
+          p_tipo: tipo,
+          p_importe: importe,
+          p_fecha: fechaOcurrencia,
+          p_notas: notas || null,
+          p_factura_url: i === 0 ? facturaPath : null,
+          p_factura_nombre: i === 0 ? facturaNombre : null,
+        });
+        if (error) throw error;
+      }
+
+      finCloseForm();
+      await finLoadData();
+    } catch (err) {
+      showErr('formAlertErr', err.message || 'Error al guardar.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    }
+  }
+
+  async function finDeleteRecord(tipo, id, facturaPath) {
+    if (!confirm('¿Seguro que quieres eliminar este ' + tipo + '? Esta acción no se puede deshacer.')) return;
+    const fnName = tipo === 'gasto' ? 'finanzas_delete_gasto' : 'finanzas_delete_ingreso';
+    if (facturaPath) await db.storage.from('finanzas-facturas').remove([facturaPath]);
+    const { error } = await db.rpc(fnName, { p_id: id });
+    if (error) { alert('No se pudo eliminar: ' + error.message); return; }
+    await finLoadData();
+  }
+
+  async function finViewFactura(path) {
+    const { data, error } = await db.storage.from('finanzas-facturas').createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) { alert('No se pudo abrir la factura.'); return; }
+    window.open(data.signedUrl, '_blank');
+  }
+
+  function finEvalMathExpression(expr) {
+    const clean = String(expr || '').trim();
+    if (!clean) return NaN;
+    if (!/^[0-9+\-*/().\s]+$/.test(clean)) return NaN;
+    try {
+      const result = Function('"use strict"; return (' + clean + ')')();
+      return typeof result === 'number' && isFinite(result) ? Math.round(result * 100) / 100 : NaN;
+    } catch {
+      return NaN;
+    }
+  }
+
+  function finEvalImporteField() {
+    const el = document.getElementById('formImporte');
+    const val = el.value.trim();
+    if (!val) return;
+    const result = finEvalMathExpression(val);
+    if (!isNaN(result)) el.value = result;
+  }
+
+  function finAddFrequency(fechaBase, frecuencia, i) {
+    const d = new Date(fechaBase + 'T00:00:00');
+    if (frecuencia === 'semanal') d.setDate(d.getDate() + 7 * i);
+    else if (frecuencia === 'quincenal') d.setDate(d.getDate() + 14 * i);
+    else if (frecuencia === 'anual') d.setFullYear(d.getFullYear() + i);
+    else d.setMonth(d.getMonth() + i);
+    return d.toISOString().slice(0, 10);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // SECCIÓN: ALTAS DE AGENCIA (schema onboarding)
+  // ══════════════════════════════════════════════════════════════════════════════
+  let respuestas = [];
+  let tokens = [];
+
+  async function altaLoadData() {
+    document.getElementById('solicitudesWrap').innerHTML = loadingBlock();
+    document.getElementById('tokensWrap').innerHTML = '';
+
+    const [rRes, tRes] = await Promise.all([
+      db.schema('onboarding').from('respuestas').select('*').order('created_at', { ascending: false }),
+      db.schema('onboarding').from('tokens').select('*').order('created_at', { ascending: false }),
+    ]);
+
+    if (rRes.error) {
+      document.getElementById('solicitudesWrap').innerHTML = emptyState('⚠️', 'Error al cargar las solicitudes.');
+    } else {
+      respuestas = rRes.data || [];
+      altaRenderSolicitudes();
+    }
+
+    tokens = tRes.data || [];
+    altaRenderTokens();
+  }
+
+  function altaRenderSolicitudes() {
+    const wrap = document.getElementById('solicitudesWrap');
+    if (!respuestas.length) { wrap.innerHTML = emptyState('📭', 'Todavía no ha llegado ninguna ficha.'); return; }
+
+    wrap.innerHTML = `<table class="data-table">
+      <thead><tr>
+        <th>Agencia</th><th>Fiscal</th><th>Persona</th><th>Contacto</th><th>IBAN</th><th>Fecha</th><th>Logo</th><th>Archivos</th><th>Notas</th><th>Recibido</th>
+      </tr></thead>
+      <tbody>
+        ${respuestas.map(r => `
+          <tr>
+            <td data-label="Agencia"><strong>${escHtml(r.nombre_agencia)}</strong>${r.razon_social ? `<div style="font-size:11.5px;color:#999">${escHtml(r.razon_social)}</div>` : ''}</td>
+            <td data-label="Fiscal">${r.nif ? escHtml(r.nif) : '<span class="no-factura">—</span>'}</td>
+            <td data-label="Persona">${escHtml(r.persona_rellena)}</td>
+            <td data-label="Contacto">${escHtml(r.email_contacto || '—')}${r.telefono_admin ? `<div style="font-size:11.5px;color:#999">${escHtml(r.telefono_admin)}</div>` : ''}${r.telefono_whatsapp ? `<div style="font-size:11.5px;color:#999">WA: ${escHtml(r.telefono_whatsapp)}</div>` : ''}</td>
+            <td data-label="IBAN">${r.iban ? escHtml(r.iban) : '<span class="no-factura">—</span>'}</td>
+            <td data-label="Fecha">${fmtDate(r.fecha)}</td>
+            <td data-label="Logo">${r.logo_path ? `<a class="factura-link" href="#" onclick="altaVerArchivo('${escJs(r.logo_path)}');return false;">🖼️ Ver</a>` : '<span class="no-factura">—</span>'}</td>
+            <td data-label="Archivos">${altaRenderArchivos(r.archivos)}</td>
+            <td data-label="Notas">${r.notas ? escHtml(r.notas) : '<span class="no-factura">—</span>'}</td>
+            <td data-label="Recibido">${fmtDateTime(r.created_at)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  function altaRenderArchivos(archivos) {
+    if (!archivos || !archivos.length) return '<span class="no-factura">Sin archivos</span>';
+    return archivos.map(a => `<a class="factura-link" href="#" onclick="altaVerArchivo('${escJs(a.path)}');return false;">📎 ${escHtml(a.nombre)}</a>`).join('<br/>');
+  }
+
+  async function altaVerArchivo(path) {
+    const { data, error } = await db.storage.from('onboarding-archivos').createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) { alert('No se pudo abrir el archivo.'); return; }
+    window.open(data.signedUrl, '_blank');
+  }
+
+  function altaRenderTokens() {
+    const wrap = document.getElementById('tokensWrap');
+    if (!tokens.length) { wrap.innerHTML = ''; return; }
+
+    wrap.innerHTML = `<table class="data-table" style="margin-top:8px">
+      <thead><tr>
+        <th>Agencia</th><th>Contacto</th><th>Estado</th><th>Creado</th><th>Por</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${tokens.map(t => `
+          <tr>
+            <td data-label="Agencia"><strong>${escHtml(t.nombre_agencia)}</strong></td>
+            <td data-label="Contacto">${escHtml(t.email_contacto || '—')}</td>
+            <td data-label="Estado"><span class="type-tag ${t.usado ? 'tag-usado' : 'tag-pendiente'}">${t.usado ? 'Usado' : 'Pendiente'}</span></td>
+            <td data-label="Creado">${fmtDateTime(t.created_at)}</td>
+            <td data-label="Por">${escHtml(t.creado_por_email || '—')}</td>
+            <td data-label="">${t.usado
+              ? '<span class="no-factura">—</span>'
+              : `<button class="btn btn-ghost btn-sm" onclick="altaEliminarToken('${escJs(t.id)}', '${escJs(t.nombre_agencia)}')">🗑️ Borrar</button>`}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  function altaSwitchTab(tab) {
+    document.querySelectorAll('#section-altas .tab-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.altatab === tab));
+    document.querySelectorAll('#section-altas .panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-alta-' + tab).classList.add('active');
+  }
+
+  async function altaCrearToken() {
+    const nombreAgencia = document.getElementById('tNombreAgencia').value.trim();
+    const email = document.getElementById('tEmail').value.trim();
+    hideEl('tokenAlertErr');
+    if (!nombreAgencia) { showErr('tokenAlertErr', 'Escribe el nombre de la agencia.'); return; }
+
+    const btn = document.getElementById('btnCrearToken');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Generando...';
+
+    const { data, error } = await db.schema('onboarding').rpc('crear_token', {
+      p_nombre_agencia: nombreAgencia,
+      p_email_contacto: email || null,
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Generar enlace';
+
+    if (error) { showErr('tokenAlertErr', 'No se pudo generar el token: ' + error.message); return; }
+
+    const link = `${location.origin}/alta-agencia.html?token=${data}`;
+    document.getElementById('nuevoLinkInput').value = link;
+    document.getElementById('nuevoLinkWrap').style.display = 'block';
+    document.getElementById('tNombreAgencia').value = '';
+    document.getElementById('tEmail').value = '';
+
+    await altaLoadData();
+  }
+
+  async function altaEliminarToken(id, nombre) {
+    if (!confirm(`¿Borrar el enlace de "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    const { error } = await db.schema('onboarding').from('tokens').delete().eq('id', id);
+    if (error) { alert('No se pudo borrar: ' + error.message); return; }
+    await altaLoadData();
+  }
+
+  function altaCopiarLink() {
+    const input = document.getElementById('nuevoLinkInput');
+    input.select();
+    navigator.clipboard?.writeText(input.value).catch(() => document.execCommand('copy'));
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // SECCIÓN: SEGUIMIENTO DE CLIENTES (schema crm_agencias vía RPCs)
+  // ══════════════════════════════════════════════════════════════════════════════
+  let crmClientes = [];
+  let crmRecordatoriosGlobal = [];
+  let crmActiveClienteId = null;
+  let crmNotas = [];
+  let crmSeguimientos = [];
+  let crmPagos = [];
+  let crmActiveTipoTab = 'cliente';
+
+  const SEG_CICLO = { pendiente: 'hecho', hecho: 'omitido', omitido: 'pendiente' };
+
+  async function crmLoadAll() {
+    document.getElementById('crmClientesWrap').innerHTML = loadingBlock();
+    const { data, error } = await db.rpc('crm_list_clientes');
+    if (error) { document.getElementById('crmClientesWrap').innerHTML = emptyState('⚠️', 'Error al cargar los clientes.'); return; }
+    crmClientes = data || [];
+    crmRenderClientes();
+    crmRenderStatActivos();
+    await crmLoadRecordatoriosGlobal();
+  }
+
+  function crmRenderStatActivos() {
+    document.getElementById('crmStatActivos').textContent = crmClientes.filter(c => c.tipo === 'cliente' && c.estado === 'activo').length;
+    document.getElementById('crmStatProspectos').textContent = crmClientes.filter(c => c.tipo === 'prospecto').length;
+  }
+
+  function crmSwitchTipoTab(tipo) {
+    crmActiveTipoTab = tipo;
+    document.querySelectorAll('#section-crm .tab-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.crmtipo === tipo));
+    crmRenderClientes();
+  }
+
+  function crmRenderClientes() {
+    const q = document.getElementById('crmSearchClientes').value.trim().toLowerCase();
+    let list = crmClientes.filter(c => c.tipo === crmActiveTipoTab);
+    if (q) list = list.filter(c => c.nombre_agencia.toLowerCase().includes(q) || (c.contacto_nombre || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q));
+    const wrap = document.getElementById('crmClientesWrap');
+    if (!list.length) {
+      wrap.innerHTML = emptyState('🗂️', crmActiveTipoTab === 'cliente' ? 'No hay clientes todavía.' : 'No hay nadie en seguimiento todavía.');
+      return;
+    }
+    wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Agencia</th><th>Contacto</th><th>Estado</th><th>Mensualidad</th><th>Fecha de alta</th><th></th></tr></thead>
+      <tbody>
+        ${list.map(c => `
+          <tr>
+            <td data-label="Agencia" class="client-name-link" onclick="crmOpenClienteModal('${escJs(c.id)}')"><strong>${escHtml(c.nombre_agencia)}</strong></td>
+            <td data-label="Contacto">${escHtml(c.contacto_nombre || '—')}${c.email ? `<div style="font-size:11.5px;color:#999">${escHtml(c.email)}</div>` : ''}</td>
+            <td data-label="Estado"><span class="type-tag badge-${escHtml(c.estado)}">${escHtml(c.estado)}</span></td>
+            <td data-label="Mensualidad">${c.mensualidad ? fmtMoney(c.mensualidad) : '<span class="no-factura">—</span>'}</td>
+            <td data-label="Fecha de alta">${fmtDate(c.fecha_alta)}</td>
+            <td data-label="">
+              <div class="row-actions">
+                <button class="icon-btn" title="Abrir ficha" onclick="crmOpenClienteModal('${escJs(c.id)}')">✏️</button>
+                <button class="icon-btn" title="Eliminar" onclick="crmDeleteCliente('${escJs(c.id)}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  async function crmOpenClienteModal(id, tipoDefault) {
+    crmActiveClienteId = id;
+    const c = id ? crmClientes.find(x => x.id === id) : null;
+
+    document.getElementById('crmClienteModalTitle').textContent = c ? c.nombre_agencia : 'Nuevo cliente';
+    document.getElementById('crmNombreAgencia').value = c ? c.nombre_agencia : '';
+    document.getElementById('crmTipo').value = c ? c.tipo : (tipoDefault || 'prospecto');
+    document.getElementById('crmContactoNombre').value = c ? (c.contacto_nombre || '') : '';
+    document.getElementById('crmEstado').value = c ? c.estado : 'activo';
+    document.getElementById('crmEmail').value = c ? (c.email || '') : '';
+    document.getElementById('crmTelefono').value = c ? (c.telefono || '') : '';
+    document.getElementById('crmPlan').value = c ? (c.plan || '') : '';
+    document.getElementById('crmFechaAlta').value = c ? c.fecha_alta : new Date().toISOString().slice(0, 10);
+    document.getElementById('crmDiaPago').value = c && c.dia_pago ? c.dia_pago : '';
+    document.getElementById('crmMensualidad').value = c && c.mensualidad ? c.mensualidad : '';
+    document.getElementById('crmNotasGenerales').value = c ? (c.notas_generales || '') : '';
+    hideEl('crmClienteAlertErr');
+
+    document.getElementById('crmSetupTotal').value = c && c.setup_total ? c.setup_total : '';
+    document.getElementById('crmSetupCuotas').value = c && c.setup_cuotas ? c.setup_cuotas : 1;
+    document.getElementById('crmSetupMesInicio').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('crmSetupCuotaMes').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('crmSetupCuotaImporte').value = '';
+    document.getElementById('crmMensualidadCuotaMes').value = new Date().toISOString().slice(0, 7);
+    document.getElementById('crmMensualidadCuotaImporte').value = '';
+    hideEl('crmSetupAlertErr');
+    hideEl('crmSetupCuotaAlertErr');
+    hideEl('crmMensualidadCuotaAlertErr');
+
+    document.getElementById('crmDetailTabs').style.display = c ? 'flex' : 'none';
+    document.getElementById('crmVerRecBtn').style.display = c ? 'block' : 'none';
+    crmSwitchDetailTab('info');
+    crmSwitchPagosTab('mensualidad');
+
+    if (c) {
+      await Promise.all([crmLoadNotas(id), crmLoadSeguimientos(id), crmLoadPagos(id)]);
+    }
+
+    document.getElementById('crmClienteModal').classList.add('show');
+  }
+
+  function crmCloseClienteModal() {
+    document.getElementById('crmClienteModal').classList.remove('show');
+  }
+
+  function crmSwitchDetailTab(tab) {
+    document.querySelectorAll('#crmDetailTabs .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.detailtab === tab));
+    document.querySelectorAll('#crmClienteModal .modal-body > .panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('detail-' + tab).classList.add('active');
+  }
+
+  async function crmSaveCliente() {
+    const nombre = document.getElementById('crmNombreAgencia').value.trim();
+    if (!nombre) { showErr('crmClienteAlertErr', 'Escribe el nombre de la agencia.'); return; }
+
+    const diaPagoRaw = document.getElementById('crmDiaPago').value.trim();
+    const diaPago = diaPagoRaw ? parseInt(diaPagoRaw, 10) : null;
+    if (diaPagoRaw && (isNaN(diaPago) || diaPago < 1 || diaPago > 31)) {
+      showErr('crmClienteAlertErr', 'El día de pago debe estar entre 1 y 31.');
+      return;
+    }
+
+    const mensualidadRaw = document.getElementById('crmMensualidad').value.trim();
+    const mensualidad = mensualidadRaw ? finEvalMathExpression(mensualidadRaw) : null;
+    if (mensualidadRaw && (isNaN(mensualidad) || mensualidad < 0)) {
+      showErr('crmClienteAlertErr', 'Importe de mensualidad no válido.');
+      return;
+    }
+
+    const btn = document.getElementById('crmSaveClienteBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Guardando...';
+
+    const { data, error } = await db.rpc('crm_upsert_cliente', {
+      p_id: crmActiveClienteId,
+      p_nombre_agencia: nombre,
+      p_contacto_nombre: document.getElementById('crmContactoNombre').value.trim() || null,
+      p_email: document.getElementById('crmEmail').value.trim() || null,
+      p_telefono: document.getElementById('crmTelefono').value.trim() || null,
+      p_estado: document.getElementById('crmEstado').value,
+      p_plan: document.getElementById('crmPlan').value.trim() || null,
+      p_fecha_alta: document.getElementById('crmFechaAlta').value || null,
+      p_notas_generales: document.getElementById('crmNotasGenerales').value.trim() || null,
+      p_dia_pago: diaPago,
+      p_mensualidad: mensualidad,
+      p_tipo: document.getElementById('crmTipo').value,
+    });
+
+    btn.disabled = false; btn.textContent = 'Guardar';
+
+    if (error) { showErr('crmClienteAlertErr', error.message || 'Error al guardar.'); return; }
+
+    const eraNuevo = !crmActiveClienteId;
+    await crmLoadAll();
+    if (eraNuevo) {
+      await crmOpenClienteModal(data.id);
+    } else {
+      await crmLoadPagos(crmActiveClienteId);
+    }
+  }
+
+  async function crmDeleteCliente(id) {
+    if (!confirm('¿Eliminar este cliente? Se borrarán también sus notas, recordatorios y seguimiento. Esta acción no se puede deshacer.')) return;
+    const { error } = await db.rpc('crm_delete_cliente', { p_id: id });
+    if (error) { alert('No se pudo eliminar: ' + error.message); return; }
+    crmCloseClienteModal();
+    await crmLoadAll();
+  }
+
+  async function crmLoadNotas(clienteId) {
+    document.getElementById('crmNotasWrap').innerHTML = loadingBlock();
+    const { data, error } = await db.rpc('crm_list_notas', { p_cliente_id: clienteId });
+    crmNotas = error ? [] : (data || []);
+    crmRenderNotas();
+  }
+
+  function crmRenderNotas() {
+    const wrap = document.getElementById('crmNotasWrap');
+    if (!crmNotas.length) { wrap.innerHTML = emptyState('📝', 'Todavía no hay notas.'); return; }
+    wrap.innerHTML = crmNotas.map(n => `
+      <div class="activity-item">
+        <div class="activity-avatar">${(n.creado_por_nombre || n.creado_por_email || '?').trim().charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="activity-text"><b>${escHtml(n.creado_por_nombre || n.creado_por_email || 'Alguien')}</b>
+            <div style="margin-top:4px;white-space:pre-wrap">${escHtml(n.texto)}</div>
+          </div>
+          <div class="activity-time">${fmtDateTime(n.created_at)} · <a href="#" onclick="crmDeleteNota('${escJs(n.id)}');return false;" style="color:#b91c1c">Eliminar</a></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function crmAddNota() {
+    const texto = document.getElementById('crmNuevaNota').value.trim();
+    if (!texto || !crmActiveClienteId) return;
+    const { error } = await db.rpc('crm_add_nota', { p_cliente_id: crmActiveClienteId, p_texto: texto });
+    if (error) { alert('No se pudo guardar la nota: ' + error.message); return; }
+    document.getElementById('crmNuevaNota').value = '';
+    await crmLoadNotas(crmActiveClienteId);
+  }
+
+  async function crmDeleteNota(id) {
+    if (!confirm('¿Eliminar esta nota?')) return;
+    const { error } = await db.rpc('crm_delete_nota', { p_id: id });
+    if (error) { alert('No se pudo eliminar: ' + error.message); return; }
+    await crmLoadNotas(crmActiveClienteId);
+  }
+
+  function crmLast12Months() {
+    const arr = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      arr.push(d.toISOString().slice(0, 10));
+    }
+    return arr;
+  }
+
+  async function crmLoadPagos(clienteId) {
+    document.getElementById('crmSetupPagosWrap').innerHTML = loadingBlock();
+    document.getElementById('crmMensualidadPagosWrap').innerHTML = loadingBlock();
+    await db.rpc('crm_asegurar_pagos_mensualidad', { p_cliente_id: clienteId });
+    const { data, error } = await db.rpc('crm_list_pagos', { p_cliente_id: clienteId });
+    crmPagos = error ? [] : (data || []);
+    crmRenderPagos();
+  }
+
+  function crmRenderPagos() {
+    crmRenderPagosGrupo('setup', 'crmSetupStatsWrap', 'crmSetupPagosWrap', 'No hay ningún pago inicial configurado. Usa el formulario de arriba para dividirlo en cuotas.');
+    crmRenderPagosGrupo('mensualidad', 'crmMensualidadStatsWrap', 'crmMensualidadPagosWrap', 'No hay mensualidad configurada. Añade el importe en la pestaña Info.');
+  }
+
+  function crmRenderPagosGrupo(concepto, statsId, tableId, emptyMsg) {
+    const lista = crmPagos.filter(p => p.concepto === concepto);
+
+    const pendiente = lista.filter(p => !p.pagado).reduce((s, p) => s + Number(p.importe), 0);
+    const cobrado = lista.filter(p => p.pagado).reduce((s, p) => s + Number(p.importe), 0);
+    document.getElementById(statsId).innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Pendiente de cobro</div>
+        <div class="stat-value bad">${fmtMoney(pendiente)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cobrado</div>
+        <div class="stat-value ok">${fmtMoney(cobrado)}</div>
+      </div>
+    `;
+
+    const wrap = document.getElementById(tableId);
+    if (!lista.length) { wrap.innerHTML = emptyState('💳', emptyMsg); return; }
+
+    wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Mes</th><th>Importe</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        ${lista.map(p => `
+          <tr>
+            <td data-label="Mes">${fmtMes(p.mes)}</td>
+            <td data-label="Importe">
+              <input type="text" inputmode="decimal" class="pago-importe-input" style="max-width:110px"
+                value="${escHtml(String(p.importe))}" ${p.pagado ? 'disabled' : ''}
+                onblur="crmEditarImportePago('${escJs(p.id)}', this.value)" />
+            </td>
+            <td data-label="Estado"><span class="type-tag ${p.pagado ? 'badge-activo' : 'tag-pendiente'}">${p.pagado ? 'Pagado' : 'Pendiente'}</span></td>
+            <td data-label="">
+              <div class="row-actions">
+                <button class="icon-btn" title="${p.pagado ? 'Marcar pendiente' : 'Marcar pagado'}" onclick="crmTogglePago('${escJs(p.id)}', ${!p.pagado})">${p.pagado ? '↺' : '✓'}</button>
+                <button class="icon-btn" title="Eliminar" onclick="crmDeletePago('${escJs(p.id)}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  function crmSwitchPagosTab(tab) {
+    document.querySelectorAll('#detail-pagos > .tab-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.pagostab === tab));
+    document.querySelectorAll('#detail-pagos > .panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('pagos-' + tab).classList.add('active');
+  }
+
+  async function crmGuardarCuotaManual(concepto) {
+    const prefix = concepto === 'setup' ? 'crmSetupCuota' : 'crmMensualidadCuota';
+    const errId = prefix + 'AlertErr';
+    const mes = document.getElementById(prefix + 'Mes').value;
+    const importe = finEvalMathExpression(document.getElementById(prefix + 'Importe').value);
+
+    if (!mes || isNaN(importe) || importe < 0) {
+      showErr(errId, 'Indica el mes y un importe válido.');
+      return;
+    }
+    hideEl(errId);
+
+    const { error } = await db.rpc('crm_upsert_pago', {
+      p_id: null,
+      p_cliente_id: crmActiveClienteId,
+      p_mes: mes + '-01',
+      p_concepto: concepto,
+      p_importe: importe,
+      p_notas: null,
+    });
+    if (error) { showErr(errId, error.message || 'No se pudo guardar.'); return; }
+
+    document.getElementById(prefix + 'Importe').value = '';
+    await crmLoadPagos(crmActiveClienteId);
+  }
+
+  async function crmEditarImportePago(id, valorTexto) {
+    const importe = finEvalMathExpression(valorTexto);
+    const p = crmPagos.find(x => x.id === id);
+    if (!p) return;
+    if (isNaN(importe) || importe < 0) { alert('Importe no válido.'); crmRenderPagos(); return; }
+    if (Number(p.importe) === importe) return;
+
+    const { error } = await db.rpc('crm_upsert_pago', {
+      p_id: id,
+      p_cliente_id: crmActiveClienteId,
+      p_mes: p.mes,
+      p_concepto: p.concepto,
+      p_importe: importe,
+      p_notas: p.notas || null,
+    });
+    if (error) { alert('No se pudo actualizar: ' + error.message); }
+    await crmLoadPagos(crmActiveClienteId);
+  }
+
+  async function crmDeletePago(id) {
+    if (!confirm('¿Eliminar este mes/cuota? Esta acción no se puede deshacer.')) return;
+    const { error } = await db.rpc('crm_delete_pago', { p_id: id });
+    if (error) { alert('No se pudo eliminar: ' + error.message); return; }
+    await crmLoadPagos(crmActiveClienteId);
+  }
+
+  async function crmGuardarSetup() {
+    const total = finEvalMathExpression(document.getElementById('crmSetupTotal').value);
+    const cuotas = parseInt(document.getElementById('crmSetupCuotas').value, 10);
+    const mesInicio = document.getElementById('crmSetupMesInicio').value;
+
+    if (isNaN(total) || total <= 0 || !cuotas || cuotas < 1 || !mesInicio) {
+      showErr('crmSetupAlertErr', 'Indica un importe de setup, un número de cuotas (mínimo 1) y el mes de inicio.');
+      return;
+    }
+
+    hideEl('crmSetupAlertErr');
+    const { error } = await db.rpc('crm_configurar_setup', {
+      p_cliente_id: crmActiveClienteId,
+      p_setup_total: total,
+      p_setup_cuotas: cuotas,
+      p_mes_inicio: mesInicio + '-01',
+    });
+    if (error) { showErr('crmSetupAlertErr', error.message || 'No se pudo configurar el setup.'); return; }
+
+    await crmLoadPagos(crmActiveClienteId);
+    await crmLoadAll();
+  }
+
+  async function crmTogglePago(id, pagado) {
+    const { error } = await db.rpc('crm_set_pago_estado', { p_id: id, p_pagado: pagado });
+    if (error) { alert('No se pudo actualizar: ' + error.message); return; }
+    await crmLoadPagos(crmActiveClienteId);
+  }
+
+  async function crmLoadSeguimientos(clienteId) {
+    document.getElementById('crmSeguimientoWrap').innerHTML = loadingBlock();
+    const { data, error } = await db.rpc('crm_list_seguimientos', { p_cliente_id: clienteId });
+    crmSeguimientos = error ? [] : (data || []);
+    crmRenderSeguimientos();
+  }
+
+  function crmRenderSeguimientos() {
+    const meses = crmLast12Months();
+    const byMes = {};
+    crmSeguimientos.forEach(s => { byMes[s.mes] = s; });
+    const wrap = document.getElementById('crmSeguimientoWrap');
+    wrap.innerHTML = `<div class="activity-card">` + meses.map(mes => {
+      const s = byMes[mes];
+      const estado = s ? s.estado : 'pendiente';
+      return `<div class="seg-row" data-mes="${mes}">
+        <div class="seg-mes">${fmtMes(mes)}</div>
+        <button class="seg-pill seg-${estado}" onclick="crmCycleSeguimientoEstado('${mes}', '${estado}')">${estado}</button>
+        <input type="text" class="seg-notas" placeholder="Notas..." value="${escHtml(s ? (s.notas || '') : '')}" onblur="crmSaveSeguimientoNotas('${mes}', this.value, '${estado}')" />
+      </div>`;
+    }).join('') + `</div>`;
+  }
+
+  async function crmCycleSeguimientoEstado(mes, estadoActual) {
+    const nuevoEstado = SEG_CICLO[estadoActual];
+    const row = document.querySelector(`.seg-row[data-mes="${mes}"]`);
+    const notas = row ? row.querySelector('.seg-notas').value.trim() : '';
+    const { error } = await db.rpc('crm_upsert_seguimiento', { p_cliente_id: crmActiveClienteId, p_mes: mes, p_estado: nuevoEstado, p_notas: notas || null });
+    if (error) { alert('No se pudo actualizar: ' + error.message); return; }
+    await crmLoadSeguimientos(crmActiveClienteId);
+  }
+
+  async function crmSaveSeguimientoNotas(mes, notas, estadoActual) {
+    const { error } = await db.rpc('crm_upsert_seguimiento', { p_cliente_id: crmActiveClienteId, p_mes: mes, p_estado: estadoActual, p_notas: notas.trim() || null });
+    if (error) alert('No se pudo guardar la nota: ' + error.message);
+  }
+
+  function crmRecordatorioRow(r, mostrarCliente) {
+    const hoy = new Date().toISOString().slice(0, 10);
+    const cls = r.completado ? '' : (r.fecha < hoy ? 'reminder-overdue' : (r.fecha <= addDays(hoy, 7) ? 'reminder-soon' : ''));
+    const icono = r.completado ? '✓' : (r.es_pago ? '💳' : '⏰');
+    const avatarBg = r.completado ? '#15803d' : (r.es_pago ? '#92400e' : '#111');
+    return `<div class="activity-item ${cls}">
+      <div class="activity-avatar" style="background:${avatarBg}">${icono}</div>
+      <div style="flex:1">
+        <div class="activity-text">
+          ${mostrarCliente ? `<b class="client-name-link" onclick="crmJumpToCliente('${escJs(r.cliente_id)}')">${escHtml(r.nombre_agencia)}</b> — ` : ''}<b>${escHtml(r.titulo)}</b>
+          ${r.notas ? `<div style="font-size:12px;color:#999;margin-top:2px">${escHtml(r.notas)}</div>` : ''}
+        </div>
+        <div class="activity-time">${fmtDate(r.fecha)}${r.completado ? ' · Completado' : ''}</div>
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn" title="${r.completado ? 'Marcar pendiente' : 'Completar'}" onclick="crmToggleRecordatorioCompletado('${escJs(r.id)}', ${!r.completado})">${r.completado ? '↺' : '✓'}</button>
+        <button class="icon-btn" title="Eliminar" onclick="crmDeleteRecordatorio('${escJs(r.id)}')">🗑️</button>
+      </div>
+    </div>`;
+  }
+
+  async function crmToggleRecordatorioCompletado(id, completado) {
+    const { error } = await db.rpc('crm_set_recordatorio_completado', { p_id: id, p_completado: completado });
+    if (error) { alert('No se pudo actualizar: ' + error.message); return; }
+    await crmLoadRecordatoriosGlobal();
+  }
+
+  async function crmDeleteRecordatorio(id) {
+    if (!confirm('¿Eliminar este recordatorio?')) return;
+    const { error } = await db.rpc('crm_delete_recordatorio', { p_id: id });
+    if (error) { alert('No se pudo eliminar: ' + error.message); return; }
+    await crmLoadRecordatoriosGlobal();
+  }
+
+  async function crmLoadRecordatoriosGlobal() {
+    const { data, error } = await db.rpc('crm_list_recordatorios');
+    crmRecordatoriosGlobal = error ? [] : (data || []);
+    recRenderList();
+    renderBell();
+  }
+
+  function recRenderList() {
+    const q = document.getElementById('recSearch').value.trim().toLowerCase();
+    let list = crmRecordatoriosGlobal;
+    if (q) list = list.filter(r => r.nombre_agencia.toLowerCase().includes(q) || r.titulo.toLowerCase().includes(q));
+
+    const hoy = new Date().toISOString().slice(0, 10);
+    document.getElementById('recStatVencidos').textContent = crmRecordatoriosGlobal.filter(r => !r.completado && r.fecha < hoy).length;
+    document.getElementById('recStatProximos').textContent = bellUrgentes().length;
+
+    const wrap = document.getElementById('recListWrap');
+    if (!list.length) { wrap.innerHTML = emptyState('⏰', 'No hay recordatorios.'); return; }
+    wrap.innerHTML = `<div class="activity-card">` + list.map(r => crmRecordatorioRow(r, true)).join('') + `</div>`;
+  }
+
+  function crmJumpToCliente(clienteId) {
+    switchSection('crm');
+    crmOpenClienteModal(clienteId);
+  }
+
+  function crmVerRecordatoriosDeEsteCliente() {
+    const c = crmClientes.find(x => x.id === crmActiveClienteId);
+    crmCloseClienteModal();
+    switchSection('recordatorios');
+    document.getElementById('recSearch').value = c ? c.nombre_agencia : '';
+    recRenderList();
+  }
+
+  function recOpenForm() {
+    const sel = document.getElementById('recFormCliente');
+    if (!crmClientes.length) {
+      sel.innerHTML = '<option value="">— No hay clientes creados —</option>';
+    } else {
+      sel.innerHTML = crmClientes.map(c => `<option value="${escHtml(c.id)}">${escHtml(c.nombre_agencia)}</option>`).join('');
+    }
+    document.getElementById('recFormTitulo').value = '';
+    document.getElementById('recFormFecha').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('recFormNotas').value = '';
+    hideEl('recFormAlertErr');
+    document.getElementById('recFormModal').classList.add('show');
+  }
+
+  function recCloseForm() {
+    document.getElementById('recFormModal').classList.remove('show');
+  }
+
+  async function recSaveForm() {
+    const clienteId = document.getElementById('recFormCliente').value;
+    const titulo = document.getElementById('recFormTitulo').value.trim();
+    const fecha = document.getElementById('recFormFecha').value;
+    const notas = document.getElementById('recFormNotas').value.trim();
+
+    if (!clienteId) { showErr('recFormAlertErr', 'No hay clientes creados todavía — crea uno primero en Seguimiento de clientes.'); return; }
+    if (!titulo || !fecha) { showErr('recFormAlertErr', 'Completa el título y la fecha.'); return; }
+
+    const btn = document.getElementById('recFormSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Guardando...';
+    const { error } = await db.rpc('crm_upsert_recordatorio', {
+      p_id: null, p_cliente_id: clienteId, p_titulo: titulo, p_fecha: fecha, p_notas: notas || null,
+    });
+    btn.disabled = false; btn.textContent = 'Guardar recordatorio';
+
+    if (error) { showErr('recFormAlertErr', error.message || 'No se pudo guardar.'); return; }
+    recCloseForm();
+    await crmLoadRecordatoriosGlobal();
+  }
+
+  // ══════════════════════════════ INIT ══════════════════════════════
+  (async function init() {
+    const { data } = await db.auth.getSession();
+    if (data.session?.user) await onAuthenticated(data.session.user);
+  })();
+
+  document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveDisplayName(); });
+</script>
+</body>
+</html>

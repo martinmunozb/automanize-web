@@ -1,1 +1,3 @@
 /f/:slug   /formulario.html?t=:slug   200
+/finanzas.html   /panel-interno.html   301
+/alta-agencia-admin.html   /panel-interno.html   301

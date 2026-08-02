@@ -1,11 +1,11 @@
-# alta-agencia.html / alta-agencia-admin.html — Ficha de alta de agencias ya contratadas
+# alta-agencia.html / panel-interno.html — Ficha de alta de agencias ya contratadas
 
 ## Para qué sirve
 
 Vía para que una agencia que **ya ha contratado Nize** mande la información de alta (la misma que describe `onboarding-cliente.html` / `docs/ONBOARDING_CLIENTE.md`) sin depender de WhatsApp. El acceso lo da un token de un solo uso que genera el equipo de Automanize desde el panel interno.
 
 - **Formulario cliente**: `https://automanize.com/alta-agencia.html?token=<uuid>`
-- **Panel interno**: `https://automanize.com/alta-agencia-admin.html` (login con las mismas cuentas de Supabase Auth que `finanzas.html`)
+- **Panel interno**: `https://automanize.com/panel-interno.html` (pestaña "Altas de agencia" — login con las mismas cuentas de Supabase Auth que el resto del panel, incluida Finanzas)
 
 ---
 
@@ -23,7 +23,7 @@ Todo esto vive en un **schema propio `onboarding`** (no en `public`, para manten
 
 > Supabase Dashboard → proyecto `edjugpekcntzvqaskbmc` → **Settings → API → Exposed schemas** → añadir `onboarding` a la lista (junto a `public`, `graphql_public`).
 
-Sin este paso, cualquier llamada desde `alta-agencia.html` o `alta-agencia-admin.html` a `onboarding.*` devuelve error de PostgREST ("schema must be one of the following...").
+Sin este paso, cualquier llamada desde `alta-agencia.html` o `panel-interno.html` a `onboarding.*` devuelve error de PostgREST ("schema must be one of the following...").
 
 El bucket de Storage (`onboarding-archivos`) **no** se ve afectado por esto — Storage tiene su propia API, independiente de los schemas expuestos por PostgREST.
 
@@ -51,19 +51,19 @@ Una fila por ficha enviada: `nombre_agencia`, `razon_social`, `nif`, `email_cont
 
 ### Storage
 
-Bucket privado `onboarding-archivos`. `anon` solo puede subir (`INSERT`), nunca leer. `authenticated` puede generar signed URLs para verlos desde el panel (`createSignedUrl`, igual que `finanzas-facturas` en `finanzas.html`).
+Bucket privado `onboarding-archivos`. `anon` solo puede subir (`INSERT`), nunca leer. `authenticated` puede generar signed URLs para verlos desde el panel (`createSignedUrl`, igual que `finanzas-facturas` en `panel-interno.html`).
 
 ---
 
 ## Flujo completo
 
 ```
-1. Equipo genera un token desde alta-agencia-admin.html (pestaña "Generar token")
+1. Equipo genera un token desde panel-interno.html (pestaña "Generar token")
 2. Copia el enlace https://automanize.com/alta-agencia.html?token=<uuid> y se lo manda a la agencia
 3. La agencia abre el enlace, rellena los campos básicos y sube sus documentos
 4. Al enviar: los archivos se suben primero a Storage, luego onboarding.submit() guarda la respuesta e invalida el token
 5. El navegador dispara (best-effort) un POST a N8N_WEBHOOK_URL con un resumen — el equipo recibe un email
-6. El equipo revisa la respuesta y los archivos desde alta-agencia-admin.html
+6. El equipo revisa la respuesta y los archivos desde panel-interno.html
 ```
 
 ---
@@ -90,7 +90,7 @@ con el payload:
 
 (`content` es el archivo entero en base64, leído directamente en el navegador — no una ruta de Supabase.)
 
-**Hay que crear este workflow en n8n** (no existe todavía): un nodo Webhook (POST, path `onboarding-completado`) seguido de un nodo de email que mande ese resumen a quien corresponda, con un enlace a `alta-agencia-admin.html` para ver el detalle. Si el webhook no existe, el envío del formulario funciona igual (es best-effort) pero no llega ningún aviso.
+**Hay que crear este workflow en n8n** (no existe todavía): un nodo Webhook (POST, path `onboarding-completado`) seguido de un nodo de email que mande ese resumen a quien corresponda, con un enlace a `panel-interno.html` para ver el detalle. Si el webhook no existe, el envío del formulario funciona igual (es best-effort) pero no llega ningún aviso.
 
 ### Workflow ya exportado, listo para importar
 

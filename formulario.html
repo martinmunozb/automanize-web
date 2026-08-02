@@ -3,26 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <meta name="theme-color" content="#0D0D0D" />
+  <meta name="theme-color" content="#F7F5F0" />
   <title>Formulario de solicitud</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0D0D0D;
-      --surface:     #141414;
-      --surface2:    #1A1A1A;
-      --border:      #2A2A2A;
-      --accent:      #F0C000;
-      --accent-h:    #D9AC00;
-      --accent-dim:  rgba(240,192,0,0.08);
-      --accent-ring: rgba(240,192,0,0.25);
-      --text:        #F5F5F5;
-      --muted:       #888;
-      --light:       #444;
-      --error:       #F87171;
-      --error-bg:    rgba(248,113,113,0.08);
+      --bg:          #F7F5F0;
+      --surface:     #FFFFFF;
+      --surface2:    #F2EFE8;
+      --border:      #E5E1D6;
+      --accent:      #D9A404;
+      --accent-h:    #C29103;
+      --accent-dim:  rgba(217,164,4,0.10);
+      --accent-ring: rgba(217,164,4,0.28);
+      --text:        #1A1815;
+      --muted:       #837C6C;
+      --light:       #BDB6A4;
+      --error:       #DC2626;
+      --error-bg:    rgba(220,38,38,0.06);
+      --shadow:      0 20px 45px -12px rgba(60,50,20,0.16);
     }
 
     html, body {
@@ -30,9 +31,9 @@
       font-family: 'Inter', -apple-system, sans-serif; font-size: 16px;
       background-color: var(--bg);
       background-image:
-        radial-gradient(560px circle at 12% -8%, rgba(240,192,0,0.12), transparent 60%),
-        radial-gradient(480px circle at 110% 20%, rgba(240,192,0,0.07), transparent 60%),
-        radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+        radial-gradient(620px circle at 12% -8%, rgba(217,164,4,0.14), transparent 60%),
+        radial-gradient(520px circle at 110% 15%, rgba(217,164,4,0.08), transparent 60%),
+        radial-gradient(rgba(30,25,10,0.05) 1px, transparent 1px);
       background-size: auto, auto, 26px 26px;
       background-repeat: no-repeat, no-repeat, repeat;
       background-attachment: fixed, fixed, fixed;
@@ -47,7 +48,9 @@
     .screen-center {
       flex: 1; display: flex; flex-direction: column; align-items: center;
       justify-content: center; text-align: center; padding: 40px 28px; gap: 12px;
+      animation: screenIn .5s cubic-bezier(.16,1,.3,1) both;
     }
+    @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     .screen-icon { font-size: 48px; line-height: 1; margin-bottom: 8px; }
     .screen-center h2 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; }
     .screen-center p  { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 280px; }
@@ -105,27 +108,61 @@
       padding-bottom: 16px;
       border-bottom: 1px solid var(--border);
     }
+    .wizard-brand-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
     .wizard-brand {
       font-family: 'Inter', sans-serif; font-weight: 800;
       font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 14px;
+      color: var(--muted);
+      animation: fadeIn .5s cubic-bezier(.16,1,.3,1) both;
     }
     .wizard-brand span { color: var(--accent); }
+    .wizard-step-label {
+      font-size: 11px; font-weight: 700; color: var(--light);
+      letter-spacing: .04em; white-space: nowrap; flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .wizard-progress-track { height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .wizard-progress-fill {
+      height: 100%; background: var(--accent); border-radius: 999px;
+      transition: width .5s cubic-bezier(.16,1,.3,1);
+    }
 
     /* ── Wizard layout ── */
     .wizard { flex: 1; display: flex; flex-direction: column; max-width: 540px; width: 100%; margin: 0 auto; }
-    .wizard-body { flex: 1; padding: 24px 20px 12px; display: flex; flex-direction: column; }
+    .wizard-body {
+      flex: 1; padding: 20px 16px 16px; display: flex; flex-direction: column;
+      justify-content: center; overflow: hidden;
+    }
 
     .step-card {
-      flex: 1; display: flex; flex-direction: column; gap: 20px;
-      animation: fadeIn .18s ease;
+      display: flex; flex-direction: column; gap: 18px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 22px;
+      padding: 30px 24px 26px; box-shadow: var(--shadow);
+      animation: slideInFwd .42s cubic-bezier(.16,1,.3,1) both;
     }
+    .step-card.dir-back { animation-name: slideInBack; }
+    .step-card.no-anim { animation: none; }
+    .step-card.no-anim .step-icon { animation: none; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    @keyframes slideInFwd  { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+    @keyframes slideInBack { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+
+    .step-icon {
+      width: 46px; height: 46px; border-radius: 13px;
+      background: var(--accent-dim); border: 1px solid var(--accent-ring);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 21px; margin-bottom: 2px;
+      animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
 
     .step-q {
       font-family: 'Inter', sans-serif; font-weight: 800;
       font-size: clamp(19px, 5vw, 24px); line-height: 1.3;
       color: var(--text); text-wrap: balance;
+    }
+    .step-sub {
+      font-size: 14px; color: var(--muted); line-height: 1.55;
+      margin-top: -10px;
     }
     .input-area { display: flex; flex-direction: column; gap: 8px; }
 
@@ -134,8 +171,8 @@
     input[type="number"] {
       width: 100%; padding: 16px 16px; font-size: 16px;
       font-family: 'Inter', sans-serif;
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
-      color: var(--text); transition: border-color .2s, box-shadow .2s;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); transition: border-color .2s cubic-bezier(.16,1,.3,1), box-shadow .2s cubic-bezier(.16,1,.3,1);
       -webkit-appearance: none; appearance: none;
     }
     input[type="number"] { -moz-appearance: textfield; }
@@ -149,31 +186,40 @@
     .phone-group select {
       flex: 0 0 auto; padding: 16px 10px; font-size: 15px;
       font-family: 'Inter', sans-serif;
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
       color: var(--text); -webkit-appearance: none; appearance: none;
+      transition: border-color .2s cubic-bezier(.16,1,.3,1);
     }
     .phone-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
     .phone-group input[type="tel"] {
       flex: 1; width: 100%; padding: 16px 16px; font-size: 16px;
       font-family: 'Inter', sans-serif;
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
       color: var(--text); -webkit-appearance: none; appearance: none;
+      transition: border-color .2s cubic-bezier(.16,1,.3,1);
     }
     .phone-group input[type="tel"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+    /* ── Opciones: entrada escalonada compartida ── */
+    @keyframes optIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 
     /* ── Single select ── */
     .opt {
       display: flex; align-items: center; gap: 14px;
       padding: 15px 16px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 4px; cursor: pointer; font-size: 15px; font-family: 'Inter', sans-serif;
-      color: var(--text); text-align: left; transition: border-color .15s, background .15s; width: 100%;
+      border-radius: 10px; cursor: pointer; font-size: 15px; font-family: 'Inter', sans-serif;
+      color: var(--text); text-align: left; width: 100%;
       min-height: 52px;
+      animation: optIn .38s cubic-bezier(.16,1,.3,1) both;
+      transition: border-color .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1),
+                  transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1);
     }
-    .opt:active { transform: scale(.99); }
+    .opt:hover { border-color: var(--muted); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
+    .opt:active { transform: translateY(0) scale(.98); box-shadow: none; }
     .opt.sel { border-color: var(--accent); background: var(--accent-dim); }
     .opt-dot {
       width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 50%;
-      flex-shrink: 0; transition: border-color .15s, background .15s;
+      flex-shrink: 0; transition: border-color .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1);
     }
     .opt.sel .opt-dot { border-color: var(--accent); background: var(--accent); box-shadow: inset 0 0 0 3px var(--surface2); }
 
@@ -181,18 +227,22 @@
     .chk {
       display: flex; align-items: center; gap: 14px;
       padding: 15px 16px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 4px; cursor: pointer; font-size: 15px; font-family: 'Inter', sans-serif;
-      color: var(--text); text-align: left; transition: border-color .15s, background .15s; width: 100%;
+      border-radius: 10px; cursor: pointer; font-size: 15px; font-family: 'Inter', sans-serif;
+      color: var(--text); text-align: left; width: 100%;
       min-height: 52px;
+      animation: optIn .38s cubic-bezier(.16,1,.3,1) both;
+      transition: border-color .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1),
+                  transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1);
     }
-    .chk:active { transform: scale(.99); }
+    .chk:hover { border-color: var(--muted); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
+    .chk:active { transform: translateY(0) scale(.98); box-shadow: none; }
     .chk.sel { border-color: var(--accent); background: var(--accent-dim); }
     .chk-box {
-      width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 3px;
+      width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 5px;
       flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      transition: border-color .15s, background .15s;
+      transition: border-color .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1), transform .18s cubic-bezier(.34,1.56,.64,1);
     }
-    .chk.sel .chk-box { border-color: var(--accent); background: var(--accent); }
+    .chk.sel .chk-box { border-color: var(--accent); background: var(--accent); transform: scale(1.05); }
     .chk.sel .chk-box::after {
       content: ''; display: block; width: 4px; height: 8px;
       border: 2px solid #000; border-top: none; border-left: none;
@@ -203,22 +253,32 @@
     .bool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .bool-btn {
       padding: 24px 12px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 4px; cursor: pointer; font-size: 16px; font-family: 'Inter', sans-serif;
+      border-radius: 10px; cursor: pointer; font-size: 16px; font-family: 'Inter', sans-serif;
       font-weight: 700; text-align: center; color: var(--text); line-height: 1.3;
-      transition: border-color .15s, background .15s;
       min-height: 80px; display: flex; align-items: center; justify-content: center;
+      animation: optIn .38s cubic-bezier(.16,1,.3,1) both;
+      transition: border-color .18s cubic-bezier(.16,1,.3,1), background .18s cubic-bezier(.16,1,.3,1),
+                  transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1), color .18s;
     }
-    .bool-btn:active { transform: scale(.98); }
+    .bool-btn:hover { border-color: var(--muted); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
+    .bool-btn:active { transform: translateY(0) scale(.97); box-shadow: none; }
     .bool-btn.sel { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
 
     /* ── Empty ── */
     .no-opts { font-size: 14px; color: var(--muted); padding: 12px 0; }
 
     /* ── Error ── */
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
     .field-err {
       font-size: 13px; color: var(--error);
-      background: var(--error-bg); border-radius: 4px;
+      background: var(--error-bg); border-radius: 10px;
       padding: 10px 14px; border: 1px solid rgba(248,113,113,0.15);
+      animation: shake .4s cubic-bezier(.36,.07,.19,.97) both;
     }
 
     /* ── Consentimiento RGPD ── */
@@ -241,19 +301,23 @@
     }
     .btn-back {
       flex: 0 0 auto; padding: 0 20px; height: 52px;
-      background: transparent; border: 1px solid var(--border); border-radius: 4px;
+      background: transparent; border: 1px solid var(--border); border-radius: 10px;
       font-size: 14px; font-family: 'Inter', sans-serif; font-weight: 600;
-      color: var(--muted); cursor: pointer; transition: border-color .15s, color .15s;
+      color: var(--muted); cursor: pointer;
+      transition: border-color .18s cubic-bezier(.16,1,.3,1), color .18s cubic-bezier(.16,1,.3,1), transform .18s cubic-bezier(.16,1,.3,1);
     }
     .btn-back:hover { border-color: var(--muted); color: var(--text); }
+    .btn-back:active { transform: scale(.97); }
     .btn-next {
       flex: 1; height: 52px;
-      background: var(--accent); border: none; border-radius: 4px;
+      background: var(--accent); border: none; border-radius: 10px;
       font-size: 13px; font-family: 'Inter', sans-serif; font-weight: 700;
       letter-spacing: .08em; text-transform: uppercase;
-      color: #000; cursor: pointer; transition: background .15s; position: relative;
+      color: #000; cursor: pointer; position: relative;
+      transition: background .18s cubic-bezier(.16,1,.3,1), transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s cubic-bezier(.16,1,.3,1);
     }
-    .btn-next:hover:not(:disabled) { background: var(--accent-h); }
+    .btn-next:hover:not(:disabled) { background: var(--accent-h); box-shadow: 0 8px 22px rgba(240,192,0,.22); }
+    .btn-next:active:not(:disabled) { transform: scale(.98); box-shadow: none; }
     .btn-next:disabled { opacity: .45; cursor: not-allowed; }
     .btn-next.loading { color: transparent; }
     /* Dentro de .step-card (columna) el botón no debe crecer para llenar el alto */
@@ -292,6 +356,16 @@
     { value: '39',  label: '🇮🇹 +39' },
     { value: '351', label: '🇵🇹 +351' },
   ];
+
+  const STEP_ICONS = {
+    text: '✏️',
+    number: '🔢',
+    single_select: '📋',
+    multi_select: '✅',
+    dynamic_zone_multi_select: '📍',
+    boolean: '🤔',
+    phone_prefix: '📱',
+  };
 
   // ─── API helpers ────────────────────────────────────────────────────────────
 
@@ -332,6 +406,7 @@
     token:      null,
     steps:      [],        // [{clave, campo_clientes, textoMostrar, tipo_input, opciones}]
     step:       0,
+    direction:  'fwd',     // fwd | back — controla el sentido de la transición entre pasos
     answers:    {},        // { campo_clientes → value }
     submitting: false,
     fieldErr:   '',
@@ -406,6 +481,7 @@
     const isLast   = S.step === total - 1;
     const inlineBtn = KEYBOARD_STEP_TYPES.includes(step.tipo_input);
     const showNav   = S.step > 0 || !inlineBtn;
+    const pct       = Math.round(((S.step + 1) / total) * 100);
 
     const nextBtn = (extraClass = '') => `
       <button class="btn-next${extraClass}${S.submitting ? ' loading' : ''}" id="bNext" ${S.submitting ? 'disabled' : ''}>
@@ -415,12 +491,18 @@
     app.innerHTML = `
       <div class="wizard">
         <div class="wizard-head">
-          <div class="wizard-brand">${esc(S.tenantName)} <span>·</span> Solicitud</div>
+          <div class="wizard-brand-row">
+            <div class="wizard-brand">${esc(S.tenantName)} <span>·</span> Solicitud</div>
+            <div class="wizard-step-label">${S.step + 1} / ${total}</div>
+          </div>
+          <div class="wizard-progress-track"><div class="wizard-progress-fill" style="width:${pct}%"></div></div>
         </div>
 
         <div class="wizard-body">
-          <div class="step-card">
+          <div class="step-card${S.direction === 'back' ? ' dir-back' : ''}${S.skipEnterAnim ? ' no-anim' : ''}">
+            <div class="step-icon">${STEP_ICONS[step.tipo_input] || '💬'}</div>
             <div class="step-q">${esc(step.textoMostrar)}</div>
+            ${step.subtext ? `<div class="step-sub">${esc(step.subtext)}</div>` : ''}
             <div class="input-area" id="ia">${renderField(step)}</div>
             ${isLast ? renderPrivacyConsent() : ''}
             ${S.fieldErr ? `<div class="field-err">${esc(S.fieldErr)}</div>` : ''}
@@ -435,6 +517,7 @@
         </div>` : ''}
       </div>`;
 
+    S.skipEnterAnim = false;
     bindField(step);
     document.getElementById('bNext')?.addEventListener('click', () => onNext(step, isLast));
     document.getElementById('bBack')?.addEventListener('click', onBack);
@@ -447,6 +530,7 @@
       chk?.addEventListener('click', () => {
         S.privacyAccepted = !S.privacyAccepted;
         if (S.privacyAccepted) S.fieldErr = '';
+        S.skipEnterAnim = true;
         render();
       });
       chk?.addEventListener('keydown', e => {
@@ -487,8 +571,8 @@
 
       case 'single_select':
         if (!step.opciones.length) return `<p class="no-opts">Sin opciones disponibles.</p>`;
-        return step.opciones.map(o => `
-          <button class="opt${val === o.value ? ' sel' : ''}" data-v="${esc(o.value)}">
+        return step.opciones.map((o, i) => `
+          <button class="opt${val === o.value ? ' sel' : ''}" data-v="${esc(o.value)}" style="animation-delay:${i * 40}ms">
             <span class="opt-dot"></span>${esc(o.label)}
           </button>`).join('');
 
@@ -496,16 +580,16 @@
       case 'dynamic_zone_multi_select': {
         if (!step.opciones.length) return `<p class="no-opts">No hay opciones disponibles.</p>`;
         const sel = val ? val.split(',').map(s => s.trim()) : [];
-        return step.opciones.map(o => `
-          <button class="chk${sel.includes(o.value) ? ' sel' : ''}" data-v="${esc(o.value)}">
+        return step.opciones.map((o, i) => `
+          <button class="chk${sel.includes(o.value) ? ' sel' : ''}" data-v="${esc(o.value)}" style="animation-delay:${i * 40}ms">
             <span class="chk-box"></span>${esc(o.label)}
           </button>`).join('');
       }
 
       case 'boolean':
         if (!step.opciones.length) return `<p class="no-opts">Sin opciones.</p>`;
-        return `<div class="bool-grid">${step.opciones.map(o => `
-          <button class="bool-btn${val === o.value ? ' sel' : ''}" data-v="${esc(o.value)}">${esc(o.label)}</button>`
+        return `<div class="bool-grid">${step.opciones.map((o, i) => `
+          <button class="bool-btn${val === o.value ? ' sel' : ''}" data-v="${esc(o.value)}" style="animation-delay:${i * 40}ms">${esc(o.label)}</button>`
         ).join('')}</div>`;
 
       case 'phone_prefix': {
@@ -555,6 +639,7 @@
           if (idx === -1) cur.push(v); else cur.splice(idx, 1);
           S.answers[campo_clientes] = cur.filter(Boolean).join(',');
           S.fieldErr = '';
+          S.skipEnterAnim = true;
           render();
         });
       });
@@ -578,7 +663,7 @@
   // ─── Navigation ──────────────────────────────────────────────────────────────
 
   function onBack() {
-    if (S.step > 0) { S.step--; S.fieldErr = ''; render(); }
+    if (S.step > 0) { S.direction = 'back'; S.step--; S.fieldErr = ''; render(); }
   }
 
   async function onNext(step, isLast) {
@@ -589,21 +674,23 @@
       const val = S.answers[step.campo_clientes];
       empty = val === undefined || val === null || String(val).trim() === '';
     }
-    if (empty) { S.fieldErr = 'Por favor, responde esta pregunta antes de continuar.'; render(); return; }
+    if (empty) { S.fieldErr = 'Por favor, responde esta pregunta antes de continuar.'; S.skipEnterAnim = true; render(); return; }
 
     if (isLast && !S.privacyAccepted) {
       S.fieldErr = 'Debes aceptar la Política de Privacidad para continuar.';
+      S.skipEnterAnim = true;
       render();
       return;
     }
 
     S.fieldErr = '';
     if (isLast) { await submit(); }
-    else        { S.step++; render(); }
+    else        { S.direction = 'fwd'; S.step++; render(); }
   }
 
   async function submit() {
     S.submitting = true;
+    S.skipEnterAnim = true;
     render();
 
     try {
@@ -652,6 +739,7 @@
       console.error(err);
       S.submitting = false;
       S.fieldErr = 'No se pudo enviar el formulario. Inténtalo de nuevo.';
+      S.skipEnterAnim = true;
       render();
     }
   }
@@ -749,8 +837,8 @@
       // Modo público: nombre y teléfono van primero, no vienen del catálogo
       if (S.mode === 'public') {
         S.steps.unshift(
-          { pregunta_id: null, clave: 'telefono_publico', campo_clientes: '__telefonoNum', textoMostrar: '¿Cuál es tu número de teléfono?', tipo_input: 'phone_prefix', opciones: [] },
-          { pregunta_id: null, clave: 'nombre_publico',   campo_clientes: '__nombre',       textoMostrar: '¿Cómo te llamas?',                 tipo_input: 'text',         opciones: [] },
+          { pregunta_id: null, clave: 'telefono_publico', campo_clientes: '__telefonoNum', textoMostrar: '¿Cuál es tu número de teléfono?', subtext: 'Te avisaremos por WhatsApp en cuanto tengamos opciones para ti. Nunca lo compartimos con terceros.', tipo_input: 'phone_prefix', opciones: [] },
+          { pregunta_id: null, clave: 'nombre_publico',   campo_clientes: '__nombre',       textoMostrar: '¿Cómo te llamas?',                 subtext: 'Así podremos dirigirnos a ti correctamente.',                                                    tipo_input: 'text',         opciones: [] },
         );
       }
 
