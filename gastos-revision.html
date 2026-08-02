@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Revisión de gastos · NIZE</title>
+  <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #090B0F;
+      --surface:      #FCFBF8;
+      --surface-soft: #F3F1EC;
+      --border:       #DDD6C8;
+      --accent:       #C69733;
+      --accent-hover: #A87820;
+      --accent-dim:   rgba(198,151,51,0.12);
+      --accent-ring:  rgba(198,151,51,0.34);
+      --text:         #14171C;
+      --text-muted:   #626A76;
+      --text-light:   #8A929E;
+      --error:        #D94848;
+      --error-dim:    rgba(217,72,72,0.10);
+      --ok:           #2F8F5B;
+      --ok-dim:       rgba(47,143,91,0.12);
+      --shadow:       0 28px 90px rgba(0,0,0,0.34);
+    }
+
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; }
+    body { display: flex; flex-direction: column; overflow-x: hidden; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background: linear-gradient(145deg, #090B0F 0%, #171A20 52%, #08090D 100%);
+    }
+
+    .navbar {
+      background: rgba(15,17,21,0.84);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      height: 64px; padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(16px);
+    }
+    .brand-lockup { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark { width: 28px; height: 28px; border-radius: 7px; object-fit: cover; background: #fff; padding: 3px; }
+    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: 0.16em; text-transform: uppercase; color: #FFFFFF; white-space: nowrap; }
+    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+    .main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 36px 18px 60px; }
+    .shell { width: 100%; max-width: 720px; }
+
+    .head { color: #fff; margin-bottom: 22px; }
+    .head h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; margin-bottom: 6px; }
+    .head p { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+    .loading-state, .error-state, .empty-state { text-align: center; padding: 60px 20px; background: var(--surface); border-radius: 8px; box-shadow: var(--shadow); }
+    .spinner { width: 30px; height: 30px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-state p, .empty-state p { font-size: 14px; color: var(--text-muted); }
+    .error-state h2, .empty-state h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 19px; margin-bottom: 8px; }
+    .error-state p { font-size: 14px; color: var(--text-muted); }
+    .empty-state { display: none; }
+    .error-state { display: none; }
+
+    .lista { display: none; display: grid; gap: 16px; }
+
+    .item-card {
+      background: var(--surface);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .item-card.hecha { opacity: 0; transform: scale(0.98); pointer-events: none; }
+
+    .item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .item-nombre { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
+    .item-ver { font-size: 12px; color: var(--accent); text-decoration: none; white-space: nowrap; }
+    .item-ver:hover { text-decoration: underline; }
+
+    .badges-ia { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .badge-ia { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: var(--surface-soft); border: 1px solid var(--border); color: var(--text-muted); }
+    .badge-ia.baja { background: var(--error-dim); border-color: rgba(217,72,72,0.25); color: var(--error); }
+
+    .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .campo-full { grid-column: 1 / -1; }
+    label { display: block; font-size: 10.5px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    input, select {
+      width: 100%; padding: 10px 12px; font-size: 14px; font-family: inherit;
+      background: #fff; border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+    .item-acciones { display: flex; gap: 10px; }
+    .btn-confirmar, .btn-rechazar {
+      flex: 1; padding: 12px; font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 8px; cursor: pointer; border: none; transition: background 0.2s, transform 0.2s;
+    }
+    .btn-confirmar { background: var(--accent); color: #101010; }
+    .btn-confirmar:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-rechazar { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-rechazar:hover:not(:disabled) { border-color: var(--error); color: var(--error); }
+    .btn-confirmar:disabled, .btn-rechazar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .item-msg { font-size: 12.5px; margin-top: 10px; }
+    .item-msg.ok { color: var(--ok); }
+    .item-msg.error { color: var(--error); }
+
+    .footer { border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; text-align: center; background: rgba(15,17,21,0.72); }
+    .footer span { font-size: 12px; color: rgba(255,255,255,0.48); }
+
+    @media (max-width: 560px) {
+      .navbar { padding: 12px 16px; }
+      .main { padding: 24px 12px 40px; }
+      .campos { grid-template-columns: 1fr; }
+      .item-card { padding: 18px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <span class="brand-lockup">
+    <img class="brand-mark" src="assets/images/nize.png" alt="" />
+    <span class="nav-logo">NIZE · Gastos</span>
+  </span>
+  <span class="nav-sub" id="tenantNombre"></span>
+</nav>
+
+<main class="main">
+  <div class="shell">
+    <div class="head">
+      <h1>Revisión de gastos</h1>
+      <p>Comprueba lo que detectó la IA, corrige si hace falta y confirma para archivar.</p>
+    </div>
+
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <p>Cargando gastos pendientes...</p>
+    </div>
+
+    <div class="error-state" id="errorState">
+      <h2>Enlace no válido</h2>
+      <p>Este enlace no existe o ya se revisó por completo. Pide uno nuevo desde el próximo aviso de WhatsApp.</p>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <h2>Ya está todo revisado</h2>
+      <p>No queda ningún gasto pendiente en esta tanda.</p>
+    </div>
+
+    <div class="lista" id="lista"></div>
+  </div>
+</main>
+
+<footer class="footer">
+  <span>Gestionado por NIZE</span>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
+  const WEBHOOK_SUBMIT = 'https://backend.automanize.com/webhook/gastos-revision-submit';
+  const CONCEPTOS_ESTANDAR = ['Agua', 'Alarma', 'Comunidad', 'Gas', 'IBI', 'Luz', 'Mensualidades Hipoteca', 'Seguro de hogar', 'Seguro de impagos', 'Seguro de vida', 'Servicio de limpieza', 'Wifi', 'Otros'];
+
+  const token = new URLSearchParams(window.location.search).get('token');
+
+  const loadingState = document.getElementById('loadingState');
+  const errorState   = document.getElementById('errorState');
+  const emptyState   = document.getElementById('emptyState');
+  const lista        = document.getElementById('lista');
+  const tenantNombreEl = document.getElementById('tenantNombre');
+
+  function sbRpc(name, body) {
+    return fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then((r) => r.json());
+  }
+
+  function mostrarSoloEsto(el) {
+    [loadingState, errorState, emptyState, lista].forEach((e) => { e.style.display = 'none'; });
+    el.style.display = el === lista ? 'grid' : 'block';
+  }
+
+  if (!token) {
+    mostrarSoloEsto(errorState);
+  } else {
+    cargar();
+  }
+
+  async function cargar() {
+    let data;
+    try {
+      data = await sbRpc('get_gastos_revision_portal_data', { p_token: token });
+    } catch {
+      mostrarSoloEsto(errorState);
+      return;
+    }
+
+    if (!data) {
+      mostrarSoloEsto(errorState);
+      return;
+    }
+
+    tenantNombreEl.textContent = data.tenantNombre || '';
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    const unidades = Array.isArray(data.unidades) ? data.unidades : [];
+
+    if (!items.length) {
+      mostrarSoloEsto(emptyState);
+      return;
+    }
+
+    lista.innerHTML = '';
+    items.forEach((item) => lista.appendChild(crearTarjeta(item, unidades)));
+    mostrarSoloEsto(lista);
+  }
+
+  function opcionesConcepto(seleccionado) {
+    const set = new Set(CONCEPTOS_ESTANDAR);
+    if (seleccionado) set.add(seleccionado);
+    return [...set].map((c) => `<option value="${c}" ${c === seleccionado ? 'selected' : ''}>${c}</option>`).join('');
+  }
+
+  function opcionesUnidad(unidades, sugeridoId, sugeridoTipo) {
+    const vacio = `<option value="">— sin asignar —</option>`;
+    const resto = unidades
+      .map((u) => {
+        const value = `${u.inmuebleId}|${u.unidadTipo}`;
+        const seleccionado = u.inmuebleId === sugeridoId && u.unidadTipo === sugeridoTipo ? 'selected' : '';
+        return `<option value="${value}" ${seleccionado}>${u.label || u.inmuebleId}</option>`;
+      })
+      .join('');
+    return vacio + resto;
+  }
+
+  function crearTarjeta(item, unidades) {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+
+    const confianzaPct = item.confianza != null ? Math.round(item.confianza * 100) : null;
+    const badgeConfianza = confianzaPct != null
+      ? `<span class="badge-ia ${confianzaPct < 60 ? 'baja' : ''}">Confianza IA: ${confianzaPct}%</span>`
+      : '';
+    const badgeDireccion = item.direccion_detectada ? `<span class="badge-ia">Dirección detectada: ${item.direccion_detectada}</span>` : '';
+    const badgeNombre = item.nombre_detectado ? `<span class="badge-ia">Nombre detectado: ${item.nombre_detectado}</span>` : '';
+
+    card.innerHTML = `
+      <div class="item-top">
+        <span class="item-nombre">${item.archivo_nombre || 'Archivo'}</span>
+        ${item.archivo_url ? `<a class="item-ver" href="${item.archivo_url}" target="_blank" rel="noopener">Ver documento</a>` : ''}
+      </div>
+      <div class="badges-ia">${badgeConfianza}${badgeDireccion}${badgeNombre}</div>
+      <div class="campos">
+        <div>
+          <label>Categoría</label>
+          <input list="conceptos-${item.id}" class="campo-concepto" value="${item.concepto_sugerido || ''}" />
+          <datalist id="conceptos-${item.id}">${opcionesConcepto(item.concepto_sugerido)}</datalist>
+        </div>
+        <div>
+          <label>Importe (€)</label>
+          <input type="number" step="0.01" class="campo-importe" value="${item.importe_sugerido ?? ''}" />
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input type="date" class="campo-fecha" value="${item.fecha_sugerida || ''}" />
+        </div>
+        <div>
+          <label>Inmueble</label>
+          <select class="campo-inmueble">${opcionesUnidad(unidades, item.inmueble_id_sugerido, item.unidad_tipo_sugerido)}</select>
+        </div>
+      </div>
+      <div class="item-acciones">
+        <button class="btn-confirmar" type="button">Confirmar</button>
+        <button class="btn-rechazar" type="button">Rechazar</button>
+      </div>
+      <div class="item-msg" style="display:none"></div>
+    `;
+
+    const btnConfirmar = card.querySelector('.btn-confirmar');
+    const btnRechazar  = card.querySelector('.btn-rechazar');
+    const msg          = card.querySelector('.item-msg');
+
+    function setBusy(busy) {
+      btnConfirmar.disabled = busy;
+      btnRechazar.disabled  = busy;
+    }
+
+    function mostrarMsg(texto, tipo) {
+      msg.textContent = texto;
+      msg.className = `item-msg ${tipo}`;
+      msg.style.display = 'block';
+    }
+
+    async function enviarDecision(accion) {
+      setBusy(true);
+      msg.style.display = 'none';
+
+      const inmuebleValor = card.querySelector('.campo-inmueble').value;
+      const [inmuebleId, unidadTipo] = inmuebleValor ? inmuebleValor.split('|') : [null, null];
+
+      const decision = {
+        id: item.id,
+        accion,
+        correccion: accion === 'confirmar' ? {
+          concepto: card.querySelector('.campo-concepto').value || null,
+          importe: Number(card.querySelector('.campo-importe').value) || null,
+          fecha: card.querySelector('.campo-fecha').value || null,
+          inmuebleId: inmuebleId || null,
+          unidadTipo: unidadTipo || null,
+        } : undefined,
+      };
+
+      try {
+        const res = await fetch(WEBHOOK_SUBMIT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, decisiones: [decision] }),
+        });
+        const data = await res.json().catch(() => ({}));
+        const resultado = data?.resultados?.[0];
+
+        if (!res.ok || !resultado?.ok) {
+          mostrarMsg(mensajeError(resultado?.motivo), 'error');
+          setBusy(false);
+          return;
+        }
+
+        card.classList.add('hecha');
+        setTimeout(() => {
+          card.remove();
+          if (!lista.querySelector('.item-card')) mostrarSoloEsto(emptyState);
+        }, 260);
+      } catch {
+        mostrarMsg('Error de conexión. Inténtalo de nuevo.', 'error');
+        setBusy(false);
+      }
+    }
+
+    function mensajeError(motivo) {
+      if (motivo === 'ya_revisada') return 'Ya se revisó desde otro dispositivo.';
+      if (motivo === 'datos_incompletos') return 'Falta categoría, importe o inmueble.';
+      if (motivo === 'inmueble_sin_carpeta_gastos') return 'Ese inmueble no tiene carpeta de Gastos configurada en Drive.';
+      return 'No se pudo guardar. Inténtalo de nuevo.';
+    }
+
+    btnConfirmar.addEventListener('click', () => enviarDecision('confirmar'));
+    btnRechazar.addEventListener('click', () => enviarDecision('rechazar'));
+
+    return card;
+  }
+</script>
+</body>
+</html>
