@@ -55,7 +55,13 @@
       animation: screenIn .5s cubic-bezier(.16,1,.3,1) both;
     }
     @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-    .screen-icon { font-size: 48px; line-height: 1; margin-bottom: 8px; }
+    .screen-icon {
+      width: 58px; height: 58px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 8px; color: var(--accent);
+      background: var(--accent-dim); border: 1px solid var(--accent-ring);
+    }
+    .screen-icon svg { width: 30px; height: 30px; stroke: currentColor; }
     .screen-center h2 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; }
     .screen-center p  { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 280px; }
 
@@ -83,11 +89,12 @@
     .success-badge-icon {
       position: relative; width: 72px; height: 72px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 34px;
+      color: var(--accent);
       background: radial-gradient(circle at 30% 30%, var(--accent-dim), var(--surface2));
       border: 1px solid var(--border);
       box-shadow: 0 0 0 4px var(--bg);
     }
+    .success-badge-icon svg { width: 34px; height: 34px; stroke: currentColor; }
     .success-title {
       font-family: 'Inter', sans-serif; font-weight: 800; font-size: 24px;
       color: var(--text); margin-top: 4px;
@@ -155,9 +162,10 @@
       width: 46px; height: 46px; border-radius: 13px;
       background: var(--accent-dim); border: 1px solid var(--accent-ring);
       display: flex; align-items: center; justify-content: center;
-      font-size: 21px; margin-bottom: 2px;
+      color: var(--accent); margin-bottom: 2px;
       animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
     }
+    .step-icon svg { width: 22px; height: 22px; stroke: currentColor; }
 
     .step-q {
       font-family: 'Inter', sans-serif; font-weight: 800;
@@ -360,31 +368,47 @@
   const N8N_WEBHOOK_URL  = 'https://backend.automanize.com/webhook/formulario';
 
   const PREFIJOS = [
-    { value: '34',  label: '🇪🇸 +34' },
-    { value: '52',  label: '🇲🇽 +52' },
-    { value: '54',  label: '🇦🇷 +54' },
-    { value: '57',  label: '🇨🇴 +57' },
-    { value: '56',  label: '🇨🇱 +56' },
-    { value: '51',  label: '🇵🇪 +51' },
-    { value: '598', label: '🇺🇾 +598' },
-    { value: '595', label: '🇵🇾 +595' },
-    { value: '591', label: '🇧🇴 +591' },
-    { value: '1',   label: '🇺🇸 +1' },
-    { value: '44',  label: '🇬🇧 +44' },
-    { value: '33',  label: '🇫🇷 +33' },
-    { value: '49',  label: '🇩🇪 +49' },
-    { value: '39',  label: '🇮🇹 +39' },
-    { value: '351', label: '🇵🇹 +351' },
+    { value: '34',  label: 'ES +34' },
+    { value: '52',  label: 'MX +52' },
+    { value: '54',  label: 'AR +54' },
+    { value: '57',  label: 'CO +57' },
+    { value: '56',  label: 'CL +56' },
+    { value: '51',  label: 'PE +51' },
+    { value: '598', label: 'UY +598' },
+    { value: '595', label: 'PY +595' },
+    { value: '591', label: 'BO +591' },
+    { value: '1',   label: 'US +1' },
+    { value: '44',  label: 'GB +44' },
+    { value: '33',  label: 'FR +33' },
+    { value: '49',  label: 'DE +49' },
+    { value: '39',  label: 'IT +39' },
+    { value: '351', label: 'PT +351' },
   ];
 
+  const iconSvg = paths => `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+  const ICONS = {
+    pen: iconSvg('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
+    numbers: iconSvg('<path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/>'),
+    list: iconSvg('<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>'),
+    check: iconSvg('<path d="M20 6 9 17l-5-5"/>'),
+    pin: iconSvg('<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/>'),
+    question: iconSvg('<path d="M9.1 9a3 3 0 1 1 5.8 1c-.8 1.2-2.9 1.7-2.9 3.5"/><path d="M12 18h.01"/><circle cx="12" cy="12" r="10"/>'),
+    phone: iconSvg('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.35 1.89.67 2.78a2 2 0 0 1-.45 2.11L8.09 9.85a16 16 0 0 0 6.06 6.06l1.24-1.24a2 2 0 0 1 2.11-.45c.89.32 1.82.54 2.78.67A2 2 0 0 1 22 16.92Z"/>'),
+    home: iconSvg('<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>'),
+    link: iconSvg('<path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L11 4.93"/><path d="M14 11a5 5 0 0 0-7.07 0L4.81 13.12a5 5 0 0 0 7.07 7.07L13 19.07"/>'),
+    clock: iconSvg('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+    alert: iconSvg('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+    message: iconSvg('<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/>'),
+  };
+
   const STEP_ICONS = {
-    text: '✏️',
-    number: '🔢',
-    single_select: '📋',
-    multi_select: '✅',
-    dynamic_zone_multi_select: '📍',
-    boolean: '🤔',
-    phone_prefix: '📱',
+    text: ICONS.pen,
+    number: ICONS.numbers,
+    single_select: ICONS.list,
+    multi_select: ICONS.check,
+    dynamic_zone_multi_select: ICONS.pin,
+    boolean: ICONS.question,
+    phone_prefix: ICONS.phone,
   };
 
   // ─── API helpers ────────────────────────────────────────────────────────────
@@ -454,7 +478,7 @@
       <div class="screen-center success-screen">
         <div class="success-badge">
           <span class="success-badge-ring"></span>
-          <span class="success-badge-icon">🏠</span>
+          <span class="success-badge-icon">${ICONS.home}</span>
         </div>
         <h2 class="success-title">¡Solicitud enviada!</h2>
         <p class="success-text">Hemos recibido todos tus datos.</p>
@@ -467,10 +491,10 @@
 
   function renderError() {
     const map = {
-      notfound: ['🔗', 'Enlace no válido',   'Este enlace no existe o ha sido eliminado. Pide a la inmobiliaria que te reenvíe el formulario.'],
-      expired:  ['⏰', 'Enlace caducado',     'Este formulario ya no está disponible. Contacta con la inmobiliaria para recibir uno nuevo.'],
-      used:     ['✅', 'Ya completado',       'Ya habías enviado este formulario. Pronto recibirás respuesta de la inmobiliaria.'],
-      generic:  ['⚠️', 'Algo ha fallado',    'No hemos podido cargar el formulario. Inténtalo de nuevo más tarde.'],
+      notfound: [ICONS.link, 'Enlace no válido',   'Este enlace no existe o ha sido eliminado. Pide a la inmobiliaria que te reenvíe el formulario.'],
+      expired:  [ICONS.clock, 'Enlace caducado',     'Este formulario ya no está disponible. Contacta con la inmobiliaria para recibir uno nuevo.'],
+      used:     [ICONS.check, 'Ya completado',       'Ya habías enviado este formulario. Pronto recibirás respuesta de la inmobiliaria.'],
+      generic:  [ICONS.alert, 'Algo ha fallado',    'No hemos podido cargar el formulario. Inténtalo de nuevo más tarde.'],
     };
     const [icon, title, body] = map[S.errorKey] ?? map.generic;
     app.innerHTML = `
@@ -520,7 +544,7 @@
 
         <div class="wizard-body">
           <div class="step-card${S.direction === 'back' ? ' dir-back' : ''}${S.skipEnterAnim ? ' no-anim' : ''}">
-            <div class="step-icon">${STEP_ICONS[step.tipo_input] || '💬'}</div>
+            <div class="step-icon">${STEP_ICONS[step.tipo_input] || ICONS.message}</div>
             <div class="step-q">${esc(step.textoMostrar)}</div>
             ${step.subtext ? `<div class="step-sub">${esc(step.subtext)}</div>` : ''}
             <div class="input-area" id="ia">${renderField(step)}</div>
@@ -726,9 +750,10 @@
         respuestas[s.pregunta_id] = String(v);
       });
 
+      let formToken;
       if (S.mode === 'public') {
         S.telefono = Number(S.answers.__prefijo + S.answers.__telefonoNum);
-        await sbRpc('crear_lead_publico', {
+        const res = await sbRpc('crear_lead_publico', {
           p_tenant_id:  S.tenantId,
           p_nombre:     S.answers.__nombre || null,
           p_prefijo:    S.answers.__prefijo,
@@ -736,21 +761,29 @@
           p_respuestas: respuestas,
           p_privacidad_aceptada: S.privacyAccepted,
         });
+        formToken = res?.form_token;
       } else {
-        await sbRpc('submit_formulario', {
+        const res = await sbRpc('submit_formulario', {
           p_token: S.token,
           p_respuestas: respuestas,
           p_privacidad_aceptada: S.privacyAccepted,
         });
+        formToken = res?.form_token;
       }
 
-      // n8n webhook — best-effort, no bloquea si falla
+      // Aviso al backend (WhatsApp al tenant + matching de propiedades).
+      // El endpoint exige el token del cliente para autenticar la llamada;
+      // sin él responde 401 y no se envía nada. Es best-effort respecto al
+      // resultado (no bloquea la pantalla de éxito), pero el error se
+      // registra siempre para poder detectarlo.
       if (N8N_WEBHOOK_URL) {
         fetch(N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tenant_id: S.tenantId, telefono: S.telefono }),
-        }).catch(() => {});
+          body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono }),
+        }).then(r => {
+          if (!r.ok) console.error('Aviso al tenant fallido:', r.status, r.statusText);
+        }).catch(err => console.error('Aviso al tenant fallido:', err));
       }
 
       S.screen = 'success';
