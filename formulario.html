@@ -776,14 +776,26 @@
       // sin él responde 401 y no se envía nada. Es best-effort respecto al
       // resultado (no bloquea la pantalla de éxito), pero el error se
       // registra siempre para poder detectarlo.
-      if (N8N_WEBHOOK_URL) {
+      if (N8N_WEBHOOK_URL && formToken) {
         fetch(N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono }),
         }).then(r => {
           if (!r.ok) console.error('Aviso al tenant fallido:', r.status, r.statusText);
-        }).catch(err => console.error('Aviso al tenant fallido:', err));
+          return sbRpc('registrar_estado_webhook_formulario', {
+            p_form_token: formToken,
+            p_status: r.ok ? 'enviado' : 'error',
+            p_error: r.ok ? null : `HTTP ${r.status} ${r.statusText}`,
+          });
+        }).catch(err => {
+          console.error('Aviso al tenant fallido:', err);
+          return sbRpc('registrar_estado_webhook_formulario', {
+            p_form_token: formToken,
+            p_status: 'error',
+            p_error: String(err),
+          });
+        }).catch(() => {});
       }
 
       S.screen = 'success';
