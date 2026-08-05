@@ -8,119 +8,193 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
   <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #090B0F;
-      --surface:      #FCFBF8;
-      --surface-soft: #F3F1EC;
-      --border:       #DDD6C8;
-      --accent:       #C69733;
-      --accent-hover: #A87820;
-      --accent-dim:   rgba(198,151,51,0.12);
-      --accent-ring:  rgba(198,151,51,0.34);
-      --text:         #14171C;
-      --text-muted:   #626A76;
-      --text-light:   #8A929E;
-      --error:        #D94848;
-      --error-dim:    rgba(217,72,72,0.10);
-      --ok:           #2F8F5B;
-      --ok-dim:       rgba(47,143,91,0.12);
-      --shadow:       0 28px 90px rgba(0,0,0,0.34);
+      --page:         #F6F3EC;
+      --surface:      #FFFFFF;
+      --surface-soft: #F3EFE4;
+      --border:       #E7E1D2;
+      --accent:       #C0902E;
+      --accent-hover: #A5771F;
+      --accent-dim:   rgba(192,144,46,0.12);
+      --accent-ring:  rgba(192,144,46,0.28);
+      --text:         #1D1B16;
+      --text-muted:   #6C6459;
+      --text-light:   #9C9483;
+      --error:        #C6473F;
+      --error-dim:    rgba(198,71,63,0.10);
+      --ok:           #3C8657;
+      --ok-dim:       rgba(60,134,87,0.12);
+      --shadow:       0 24px 60px rgba(30,22,10,0.10);
     }
 
-    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; }
+    html, body { min-height: 100vh; background: var(--page); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; }
     body { display: flex; flex-direction: column; overflow-x: hidden; }
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: -1;
-      background: linear-gradient(145deg, #090B0F 0%, #171A20 52%, #08090D 100%);
-    }
 
     .navbar {
-      background: rgba(15,17,21,0.84);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      height: 64px; padding: 0 40px;
+      background: rgba(246,243,236,0.9);
+      border-bottom: 1px solid var(--border);
+      height: 60px; padding: 0 40px;
       display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 10;
-      backdrop-filter: blur(16px);
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(10px);
     }
     .brand-lockup { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
-    .brand-mark { width: 28px; height: 28px; border-radius: 7px; object-fit: cover; background: #fff; padding: 3px; }
-    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: 0.16em; text-transform: uppercase; color: #FFFFFF; white-space: nowrap; }
-    .nav-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; background: #fff; padding: 3px; border: 1px solid var(--border); }
+    .nav-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); white-space: nowrap; }
+    .nav-sub { font-size: 12px; color: var(--text-muted); }
 
-    .main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 36px 18px 60px; }
-    .shell { width: 100%; max-width: 720px; }
+    /* Hero */
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 230px;
+      display: flex; align-items: center;
+      overflow: hidden;
+      background-color: var(--page);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('assets/images/gastos-hero.png');
+      background-size: cover;
+      background-position: center right;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg,
+        var(--page) 0%,
+        var(--page) 34%,
+        rgba(246,243,236,0.82) 46%,
+        rgba(246,243,236,0.35) 60%,
+        rgba(246,243,236,0) 74%);
+    }
+    .hero-inner {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 780px; margin: 0 auto;
+      padding: 0 20px;
+    }
+    .hero-eyebrow {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 12px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .hero h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 32px; color: var(--text); margin-bottom: 10px; letter-spacing: -0.01em; }
+    .hero p { font-size: 14.5px; line-height: 1.55; color: var(--text-muted); max-width: 380px; }
 
-    .head { color: #fff; margin-bottom: 22px; }
-    .head h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; margin-bottom: 6px; }
-    .head p { font-size: 14px; color: rgba(255,255,255,0.6); }
+    .main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0 18px 60px; }
+    .shell { width: 100%; max-width: 780px; margin-top: -46px; position: relative; z-index: 2; }
 
-    .loading-state, .error-state, .empty-state { text-align: center; padding: 60px 20px; background: var(--surface); border-radius: 8px; box-shadow: var(--shadow); }
+    .loading-state, .error-state, .empty-state { text-align: center; padding: 60px 24px; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
     .spinner { width: 30px; height: 30px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-state p, .empty-state p { font-size: 14px; color: var(--text-muted); }
-    .error-state h2, .empty-state h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 19px; margin-bottom: 8px; }
+    .error-state h2, .empty-state h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 19px; margin-bottom: 8px; }
     .error-state p { font-size: 14px; color: var(--text-muted); }
     .empty-state { display: none; }
     .error-state { display: none; }
 
-    .lista { display: none; display: grid; gap: 16px; }
+    .lista { display: none; flex-direction: column; gap: 20px; }
 
     .item-card {
       background: var(--surface);
-      border-radius: 8px;
+      border-radius: 20px;
       box-shadow: var(--shadow);
-      padding: 22px 24px;
+      border: 1px solid var(--border);
+      padding: 28px 30px;
       transition: opacity 0.25s, transform 0.25s;
     }
     .item-card.hecha { opacity: 0; transform: scale(0.98); pointer-events: none; }
 
-    .item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .item-nombre { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
-    .item-ver { font-size: 12px; color: var(--accent); text-decoration: none; white-space: nowrap; }
+    .card-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+    .file-icon {
+      flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      color: var(--accent);
+    }
+    .file-icon svg { width: 18px; height: 18px; }
+    .file-icon span { font-size: 8.5px; font-weight: 700; letter-spacing: 0.04em; color: var(--error); }
+    .file-info { flex: 1; min-width: 0; }
+    .item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .item-nombre { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15.5px; overflow-wrap: anywhere; }
+    .item-ver { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--accent); text-decoration: none; white-space: nowrap; font-weight: 500; }
+    .item-ver svg { width: 13px; height: 13px; }
     .item-ver:hover { text-decoration: underline; }
 
-    .badges-ia { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .badge-ia { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: var(--surface-soft); border: 1px solid var(--border); color: var(--text-muted); }
-    .badge-ia.baja { background: var(--error-dim); border-color: rgba(217,72,72,0.25); color: var(--error); }
+    .badges-ia { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge-ia {
+      font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px;
+      background: var(--ok-dim); color: var(--ok);
+    }
+    .badge-ia.neutral { background: var(--surface-soft); color: var(--text-muted); font-weight: 500; border: 1px solid var(--border); }
+    .badge-ia.baja { background: var(--error-dim); color: var(--error); }
 
-    .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .campo-full { grid-column: 1 / -1; }
-    label { display: block; font-size: 10.5px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .divider { height: 1px; background: var(--border); margin-bottom: 22px; }
+
+    .campos { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 18px; margin-bottom: 26px; }
+    .campo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .campo-icon {
+      flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+      background: var(--surface-soft); display: flex; align-items: center; justify-content: center;
+      color: var(--text); border: 1px solid var(--border);
+    }
+    .campo-icon svg { width: 17px; height: 17px; }
+    .campo-body { flex: 1; min-width: 0; position: relative; }
+    .campo-body.chevron::after {
+      content: '';
+      position: absolute; right: 2px; top: 50%; width: 8px; height: 8px;
+      border-right: 1.5px solid var(--text-light); border-bottom: 1.5px solid var(--text-light);
+      transform: translateY(-70%) rotate(45deg); pointer-events: none;
+    }
+    label { display: block; font-size: 10px; font-weight: 600; color: var(--text-light); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.07em; }
+
     input, select {
-      width: 100%; padding: 10px 12px; font-size: 14px; font-family: inherit;
-      background: #fff; border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+      width: 100%; padding: 2px 20px 4px 0; font-size: 14.5px; font-weight: 500; font-family: inherit;
+      background: transparent; border: none; border-bottom: 1.5px solid transparent; border-radius: 0; color: var(--text);
+      appearance: none; -webkit-appearance: none;
     }
-    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    select { cursor: pointer; }
+    input:focus, select:focus { outline: none; border-bottom-color: var(--accent); }
 
-    .item-acciones { display: flex; gap: 10px; }
+    .item-acciones { display: flex; gap: 12px; }
     .btn-confirmar, .btn-rechazar {
-      flex: 1; padding: 12px; font-family: 'Syne', sans-serif; font-weight: 700;
-      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
-      border-radius: 8px; cursor: pointer; border: none; transition: background 0.2s, transform 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 13px; letter-spacing: 0.02em;
+      border-radius: 12px; cursor: pointer; transition: background 0.2s, transform 0.2s, border-color 0.2s, color 0.2s;
     }
-    .btn-confirmar { background: var(--accent); color: #101010; }
-    .btn-confirmar:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
-    .btn-rechazar { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-confirmar svg, .btn-rechazar svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .btn-confirmar { flex: 1.8; background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+    .btn-confirmar:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); transform: translateY(-1px); }
+    .btn-rechazar { flex: 1; background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
     .btn-rechazar:hover:not(:disabled) { border-color: var(--error); color: var(--error); }
     .btn-confirmar:disabled, .btn-rechazar:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .item-msg { font-size: 12.5px; margin-top: 10px; }
+    .item-msg { font-size: 12.5px; margin-top: 12px; font-weight: 500; }
     .item-msg.ok { color: var(--ok); }
     .item-msg.error { color: var(--error); }
 
-    .footer { border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px; text-align: center; background: rgba(15,17,21,0.72); }
-    .footer span { font-size: 12px; color: rgba(255,255,255,0.48); }
+    .footer { border-top: 1px solid var(--border); padding: 16px 40px; text-align: center; background: var(--page); }
+    .footer span { font-size: 12px; color: var(--text-light); }
+
+    @media (max-width: 640px) {
+      .hero::before, .hero::after { display: none; }
+      .hero { min-height: 0; padding: 30px 0 40px; }
+    }
 
     @media (max-width: 560px) {
       .navbar { padding: 12px 16px; }
-      .main { padding: 24px 12px 40px; }
+      .hero-inner { padding: 0 14px; }
+      .hero h1 { font-size: 26px; }
+      .shell { margin-top: -30px; padding: 0 4px; }
       .campos { grid-template-columns: 1fr; }
-      .item-card { padding: 18px 16px; }
+      .item-card { padding: 22px 18px; }
+      .card-head { gap: 10px; }
     }
   </style>
 </head>
@@ -134,13 +208,16 @@
   <span class="nav-sub" id="tenantNombre"></span>
 </nav>
 
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Gastos</div>
+    <h1>Revisión de gastos</h1>
+    <p>Revisa los detalles del gasto detectados por la IA, corrige si es necesario y confirma para archivar.</p>
+  </div>
+</section>
+
 <main class="main">
   <div class="shell">
-    <div class="head">
-      <h1>Revisión de gastos</h1>
-      <p>Comprueba lo que detectó la IA, corrige si hace falta y confirma para archivar.</p>
-    </div>
-
     <div class="loading-state" id="loadingState">
       <div class="spinner"></div>
       <p>Cargando gastos pendientes...</p>
@@ -170,6 +247,17 @@
   const WEBHOOK_SUBMIT = 'https://backend.automanize.com/webhook/gastos-revision-submit';
   const CONCEPTOS_ESTANDAR = ['Agua', 'Alarma', 'Comunidad', 'Gas', 'IBI', 'Luz', 'Mensualidades Hipoteca', 'Seguro de hogar', 'Seguro de impagos', 'Seguro de vida', 'Servicio de limpieza', 'Wifi', 'Otros'];
 
+  const ICONS = {
+    tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.59 2.59 20 10a2 2 0 0 1 0 2.83l-6.17 6.17a2 2 0 0 1-2.83 0L3 11V3h8l1.59-.41Z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+    euro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.5a6 6 0 1 0 0 11"/><path d="M4 10h9M4 14h7"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>',
+    building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="12" height="18" rx="1.5"/><path d="M9 8h2M9 12h2M9 16h2M16 11h3.5a1 1 0 0 1 1 1v8h-4.5"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5h7L19 8v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="M14 2.5V8h5"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  };
+
   const token = new URLSearchParams(window.location.search).get('token');
 
   const loadingState = document.getElementById('loadingState');
@@ -188,7 +276,7 @@
 
   function mostrarSoloEsto(el) {
     [loadingState, errorState, emptyState, lista].forEach((e) => { e.style.display = 'none'; });
-    el.style.display = el === lista ? 'grid' : 'block';
+    el.style.display = el === lista ? 'flex' : 'block';
   }
 
   if (!token) {
@@ -252,37 +340,58 @@
     const badgeConfianza = confianzaPct != null
       ? `<span class="badge-ia ${confianzaPct < 60 ? 'baja' : ''}">Confianza IA: ${confianzaPct}%</span>`
       : '';
-    const badgeDireccion = item.direccion_detectada ? `<span class="badge-ia">Dirección detectada: ${item.direccion_detectada}</span>` : '';
-    const badgeNombre = item.nombre_detectado ? `<span class="badge-ia">Nombre detectado: ${item.nombre_detectado}</span>` : '';
+    const badgeDireccion = item.direccion_detectada ? `<span class="badge-ia neutral">Dirección detectada: ${item.direccion_detectada}</span>` : '';
+    const badgeNombre = item.nombre_detectado ? `<span class="badge-ia neutral">Nombre detectado: ${item.nombre_detectado}</span>` : '';
+
+    const nombreArchivo = item.archivo_nombre || 'Archivo';
+    const ext = (nombreArchivo.split('.').pop() || 'DOC').toUpperCase().slice(0, 4);
 
     card.innerHTML = `
-      <div class="item-top">
-        <span class="item-nombre">${item.archivo_nombre || 'Archivo'}</span>
-        ${item.archivo_url ? `<a class="item-ver" href="${item.archivo_url}" target="_blank" rel="noopener">Ver documento</a>` : ''}
+      <div class="card-head">
+        <div class="file-icon">${ICONS.file}<span>${ext}</span></div>
+        <div class="file-info">
+          <div class="item-top">
+            <span class="item-nombre">${nombreArchivo}</span>
+            ${item.archivo_url ? `<a class="item-ver" href="${item.archivo_url}" target="_blank" rel="noopener">${ICONS.eye}Ver documento</a>` : ''}
+          </div>
+          <div class="badges-ia">${badgeConfianza}${badgeDireccion}${badgeNombre}</div>
+        </div>
       </div>
-      <div class="badges-ia">${badgeConfianza}${badgeDireccion}${badgeNombre}</div>
+      <div class="divider"></div>
       <div class="campos">
-        <div>
-          <label>Categoría</label>
-          <input list="conceptos-${item.id}" class="campo-concepto" value="${item.concepto_sugerido || ''}" />
-          <datalist id="conceptos-${item.id}">${opcionesConcepto(item.concepto_sugerido)}</datalist>
+        <div class="campo">
+          <span class="campo-icon">${ICONS.tag}</span>
+          <div class="campo-body chevron">
+            <label>Categoría</label>
+            <input list="conceptos-${item.id}" class="campo-concepto" value="${item.concepto_sugerido || ''}" />
+            <datalist id="conceptos-${item.id}">${opcionesConcepto(item.concepto_sugerido)}</datalist>
+          </div>
         </div>
-        <div>
-          <label>Importe (€)</label>
-          <input type="number" step="0.01" class="campo-importe" value="${item.importe_sugerido ?? ''}" />
+        <div class="campo">
+          <span class="campo-icon">${ICONS.euro}</span>
+          <div class="campo-body">
+            <label>Importe (€)</label>
+            <input type="number" step="0.01" class="campo-importe" value="${item.importe_sugerido ?? ''}" />
+          </div>
         </div>
-        <div>
-          <label>Fecha</label>
-          <input type="date" class="campo-fecha" value="${item.fecha_sugerida || ''}" />
+        <div class="campo">
+          <span class="campo-icon">${ICONS.calendar}</span>
+          <div class="campo-body">
+            <label>Fecha</label>
+            <input type="date" class="campo-fecha" value="${item.fecha_sugerida || ''}" />
+          </div>
         </div>
-        <div>
-          <label>Inmueble</label>
-          <select class="campo-inmueble">${opcionesUnidad(unidades, item.inmueble_id_sugerido, item.unidad_tipo_sugerido)}</select>
+        <div class="campo">
+          <span class="campo-icon">${ICONS.building}</span>
+          <div class="campo-body chevron">
+            <label>Inmueble</label>
+            <select class="campo-inmueble">${opcionesUnidad(unidades, item.inmueble_id_sugerido, item.unidad_tipo_sugerido)}</select>
+          </div>
         </div>
       </div>
       <div class="item-acciones">
-        <button class="btn-confirmar" type="button">Confirmar</button>
-        <button class="btn-rechazar" type="button">Rechazar</button>
+        <button class="btn-confirmar" type="button">${ICONS.check}Confirmar y archivar</button>
+        <button class="btn-rechazar" type="button">${ICONS.x}Rechazar</button>
       </div>
       <div class="item-msg" style="display:none"></div>
     `;
