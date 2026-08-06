@@ -34,17 +34,24 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 ## Flujo completo
 
 ```
-1. n8n detecta nuevo lead en WhatsApp
-2. n8n crea registro en clientes con form_token y form_token_expira (24h)
-3. n8n envía el enlace al lead por WhatsApp
-4. Lead abre el enlace en el móvil
-5. formulario.html carga y valida el token
-6. Muestra wizard con las preguntas activas del tenant
-7. Lead responde paso a paso
-8. Al enviar: submit_formulario() guarda respuestas + invalida token
-9. POST al webhook de n8n con { tenant_id, telefono }
-10. n8n hace matching de propiedades con IA y notifica al gestor
+1. n8n detecta nuevo lead en WhatsApp (o el propio lead entra por /f/<slug>)
+2. Se crea el registro en clientes con form_token (uuid, gen_random_uuid())
+   - modo token: n8n ya lo crea al detectar el lead, con form_token_expira (24h)
+   - modo público: lo crea crear_lead_publico() al enviar el wizard
+3. Lead abre el enlace en el móvil y responde el wizard
+4. Al enviar: submit_formulario()/crear_lead_publico() guarda respuestas,
+   invalida el token de reenvío y devuelve { id, form_token } (no un booleano)
+5. POST a backend.automanize.com/webhook/formulario con { token, tenant_id, telefono }
+6. El backend Node.js (no n8n) hace matching de propiedades con IA y envía
+   el WhatsApp real al gestor — solo responde ok:true si el WhatsApp
+   llegó de verdad a Meta (ver "Aviso al gestor" más abajo)
+7. El resultado (éxito o error) se guarda en clientes.webhook_formulario_status
+   vía la RPC registrar_estado_webhook_formulario, para poder verlo/reintentarlo
+   desde Nize (repo automanize-app, docs/CLIENTES.md → "Reenvío de notificación
+   WhatsApp al gestor")
 ```
+
+**Nota histórica (corregida el 4 de agosto de 2026):** hasta esa fecha el paso 5 no incluía `token` en el body — el backend lo exige para autenticar la llamada, así que la petición fallaba siempre con 401 y el error se tragaba en silencio (`.catch(() => {})`). El lead se guardaba bien en `clientes`, pero el WhatsApp nunca llegaba al gestor. Nadie lo detectó porque no había ningún registro del fallo — por eso ahora el paso 7 existe: cualquier fallo futuro queda guardado y visible.
 
 ---
 
@@ -113,8 +120,29 @@ La función `submit_formulario` castea automáticamente:
 ## Constantes configuradas
 
 ```js
-const N8N_WEBHOOK_URL = 'https://n8n.automanize.com/webhook/formulario-completado';
+// El nombre de la variable quedó de cuando esto pasaba por n8n; desde el
+// cutover del 22 de julio de 2026, n8n está inerte para este flujo y el
+// destino real es el backend Node.js.
+const N8N_WEBHOOK_URL = 'https://backend.automanize.com/webhook/formulario';
 ```
+
+---
+
+## Aviso al gestor tras el envío
+
+Tras guardar el lead, `submit()` llama a `N8N_WEBHOOK_URL` con `{ token, tenant_id, telefono }` — el `token` es el `form_token` que acaba de devolver `submit_formulario`/`crear_lead_publico`, obligatorio para que el backend acepte la llamada.
+
+Esa llamada es **best-effort respecto a la pantalla de éxito** (nunca bloquea al lead viendo "¡Solicitud enviada!"), pero su resultado **sí se registra siempre**:
+
+```js
+fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {...}, body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono }) })
+  .then(r => registrar_estado_webhook_formulario({ p_form_token: formToken, p_status: r.ok ? 'enviado' : 'error', p_error: ... }))
+  .catch(err => registrar_estado_webhook_formulario({ p_form_token: formToken, p_status: 'error', p_error: String(err) }));
+```
+
+- `registrar_estado_webhook_formulario` (RPC, `SECURITY DEFINER`, otorgada a `anon`) escribe en `clientes.webhook_formulario_status` (`'pendiente'|'enviado'|'error'`), `webhook_formulario_error` y `webhook_formulario_enviado_en`.
+- El backend (`automanize-backend`, `src/flows/interactivo.js`) **espera** a que el WhatsApp se envíe de verdad a la API de Meta antes de responder `ok:true` — si el envío falla, responde error. Por eso `enviado` es una señal fiable de entrega real, no solo de que la petición HTTP llegó.
+- Desde Nize (repo `automanize-app`), la ficha del interesado muestra este estado con un banner y permite reenviar el aviso con el mismo `form_token` sin tener que tocar la base de datos a mano — ver `docs/CLIENTES.md` → "Reenvío de notificación WhatsApp al gestor" en ese repo.
 
 ---
 
