@@ -46,13 +46,13 @@ Devuelve `{ id, nombre }` del tenant si está activo. Sin exponer tokens ni conf
 ### `submit_formulario(p_token uuid, p_respuestas jsonb)`
 Modo token (lead ya identificado por WhatsApp). Valida el token, guarda las respuestas del formulario en `clientes` (solo columnas mapeadas en `preguntas_catalogo`) y marca `formulario_enviado = true` + invalida el token.
 - `p_respuestas`: `{ "pregunta_id_uuid": "valor_string" }` — valores siempre como string, la función castea internamente.
-- Devuelve `true` en éxito, lanza excepción si el token no es válido o ha caducado.
+- Devuelve `{ id, form_token }` en éxito, y lanza excepción si el token no es válido o ha caducado.
 
-### `crear_lead_publico(p_tenant_id uuid, p_nombre text, p_prefijo text, p_telefono bigint, p_respuestas jsonb)`
-Modo público (link `/f/<slug>`, sin cliente previo). Valida que el tenant esté activo, y hace upsert en `clientes` por `(telefono, tenant_id)` (actualiza si ya existía ese teléfono para ese tenant, en vez de duplicar) con `formulario_enviado = true`. Castea `p_respuestas` igual que `submit_formulario`.
+### `crear_lead_publico(p_tenant_id uuid, p_nombre text, p_prefijo text, p_telefono bigint, p_respuestas jsonb, p_privacidad_aceptada boolean, p_email text default null)`
+Modo público (link `/f/<slug>`, sin cliente previo). Valida que el tenant esté activo y la aceptación de privacidad. Para tenants con WhatsApp hace upsert por `(telefono, tenant_id)`; para tenants sin WhatsApp acepta `p_telefono = null` y usa `p_email` como identidad del lead. Devuelve `{ id, form_token }` y castea `p_respuestas` igual que `submit_formulario`.
 
 ### `get_tenant_by_slug(p_slug text)`
-Devuelve `{ id, nombre }` del tenant si `slug` coincide y está activo. Usada por `formulario.html` en modo público para resolver el slug de la URL al `tenant_id` real.
+Devuelve `{ id, nombre, email_contacto, tiene_whatsapp }` del tenant si `slug` coincide y está activo. Usada por `formulario.html` en modo público para resolver el slug de la URL al `tenant_id` real y determinar si debe pedir teléfono o email.
 
 ### `get_tenant_id()`
 Función interna. Lee `perfiles_app.tenant_id` donde `user_id = auth.uid()`. Usada en las políticas RLS del panel de escritorio.
