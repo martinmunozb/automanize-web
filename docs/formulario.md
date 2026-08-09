@@ -43,8 +43,9 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
    invalida el token de reenvío y devuelve { id, form_token } (no un booleano)
 5. POST a backend.automanize.com/webhook/formulario con { token, tenant_id, telefono, cliente_id }
    (`telefono` es `null` para un tenant que solo usa email).
-6. El backend Node.js (no n8n) hace matching de propiedades con IA y avisa
-   al gestor por el canal disponible.
+6. El backend Node.js (no n8n) hace matching de propiedades con IA. Si el
+   tenant tiene WhatsApp, avisa al gestor por ese canal; si solo usa email,
+   no envía ese aviso y el gestor revisa el lead desde Nize.
 7. El resultado (éxito o error) se guarda en clientes.webhook_formulario_status
    vía la RPC registrar_estado_webhook_formulario, para poder verlo/reintentarlo
    desde Nize (repo automanize-app, docs/CLIENTES.md → "Reenvío de notificación
@@ -143,7 +144,7 @@ fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {...}, body: JSON.stringify({ 
 
 - `registrar_estado_webhook_formulario` (RPC, `SECURITY DEFINER`, otorgada a `anon`) escribe en `clientes.webhook_formulario_status` (`'pendiente'|'enviado'|'error'`), `webhook_formulario_error` y `webhook_formulario_enviado_en`.
 - El backend procesa el matching y registra el resultado antes de responder `ok:true`; el canal del envío de opciones depende de la configuración WhatsApp del tenant.
-- Desde Nize (repo `automanize-app`), la ficha del interesado muestra este estado con un banner y permite reenviar el aviso con el mismo `form_token` sin tener que tocar la base de datos a mano — ver `docs/CLIENTES.md` → "Reenvío de notificación WhatsApp al gestor" en ese repo.
+- Para tenants con WhatsApp, Nize (repo `automanize-app`) muestra este estado con un banner y permite reenviar el aviso con el mismo `form_token` sin tocar la base de datos — ver `docs/CLIENTES.md` → "Reenvío de notificación WhatsApp al gestor". Para tenants solo email no hay aviso que reenviar: el gestor revisa el lead desde Nize.
 
 ---
 

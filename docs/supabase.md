@@ -52,7 +52,7 @@ Modo token (lead ya identificado por WhatsApp). Valida el token, guarda las resp
 Modo público (link `/f/<slug>`, sin cliente previo). Valida que el tenant esté activo y la aceptación de privacidad. Para tenants con WhatsApp hace upsert por `(telefono, tenant_id)`; para tenants sin WhatsApp acepta `p_telefono = null` y usa `p_email` como identidad del lead. Devuelve `{ id, form_token }` y castea `p_respuestas` igual que `submit_formulario`.
 
 ### `get_tenant_by_slug(p_slug text)`
-Devuelve `{ id, nombre }` del tenant si `slug` coincide y está activo. Usada por `formulario.html` en modo público para resolver el slug de la URL al `tenant_id` real.
+Devuelve `{ id, nombre, email_contacto, tiene_whatsapp }` del tenant si `slug` coincide y está activo. Usada por `formulario.html` en modo público para resolver el slug de la URL al `tenant_id` real y determinar si debe pedir teléfono o email.
 
 ### `get_tenant_id()`
 Función interna. Lee `perfiles_app.tenant_id` donde `user_id = auth.uid()`. Usada en las políticas RLS del panel de escritorio.
