@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <!-- three.js servido desde 'self' (assets/js/): sin dominios externos de script -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" />
+    <title>Hero WebGL — preview · Automanize</title>
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <!-- Montserrat: geométrica de palo seco, la más cercana al logotipo original -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #FFAB00;
+            --bg: #ffffff;
+            --text: #111114;
+            --muted: #6b6b75;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Spline Sans", system-ui, sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+
+            /* Anclado al viewport: el degradado cubre siempre la pantalla
+               completa, así que no hay costura posible en ningún punto del
+               scroll. Sobre la altura del documento las manchas se estiraban
+               varios miles de píxeles y se diluían hasta desaparecer — por
+               eso el azul dejaba de verse. */
+            background-color: hsla(0, 0%, 100%, 1);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-image:
+                radial-gradient(circle at 5% 5%,   hsla(56, 100%, 91%, 1) 0%, transparent 50%),
+                radial-gradient(circle at 95% 5%,  hsla(202, 100%, 89%, 1) 0%, transparent 37.374378938380175%),
+                radial-gradient(circle at 3% 95%,  hsla(24, 100%, 82%, 1) 4.6685340802987865%, transparent 50%),
+                radial-gradient(circle at 70% 68%, hsla(180, 100%, 96%, 1) 0%, transparent 50%);
+            background-blend-mode: normal, normal, normal, normal;
+        }
+
+        /* ===== ESCENARIO DE SCROLL =====
+           El bloque es alto; el hero queda pegado (sticky) mientras
+           se recorre. Ese recorrido es lo que hace girar el círculo. */
+        .scroll-stage {
+            position: relative;
+            height: 340vh;   /* ↑ más alto = giro más lento */
+        }
+
+        .hero {
+            position: sticky;
+            top: 0;
+            height: 100svh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #gl {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 1;
+        }
+
+        /* Viñeta: funde bordes y protege la legibilidad del texto */
+        /* La viñeta del hero se ha eliminado a propósito. Era una capa blanca
+           que cubría justo el alto del hero y se cortaba en seco en su borde
+           inferior: ESA era la línea horizontal que partía la página en dos,
+           no el fondo. La legibilidad del texto la sostiene su propio halo
+           (text-shadow), así que no hacía falta. */
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .hero-inner { pointer-events: auto; }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 1.4rem;
+        }
+        .eyebrow::before, .eyebrow::after {
+            content: ''; width: 26px; height: 1px; background: var(--primary); opacity: .6;
+        }
+
+        h1 {
+            font-size: clamp(2.1rem, 5.4vw, 4rem);
+            font-weight: 800;
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.3rem;
+            text-shadow: 0 2px 26px rgba(255,255,255,.95), 0 0 60px rgba(255,255,255,.8);
+        }
+
+        h1 .accent {
+            background: linear-gradient(100deg, #FFAB00, #ffd166 55%, #FFAB00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub {
+            font-size: clamp(.98rem, 1.5vw, 1.12rem);
+            line-height: 1.65;
+            color: var(--muted);
+            max-width: 30rem;
+            margin: 0 auto 2.2rem;
+            text-shadow: 0 2px 20px rgba(255,255,255,.95), 0 0 40px rgba(255,255,255,.85);
+        }
+
+        .cta-row { display: flex; flex-wrap: wrap; gap: .9rem; justify-content: center; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            height: 3.1rem; padding: 0 2rem; border-radius: 999px;
+            font-size: .95rem; font-weight: 700; text-decoration: none;
+            transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s, background .3s;
+        }
+        .btn-primary { background: var(--primary); color: #111; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,171,0,.35); }
+        .btn-ghost {
+            background: rgba(255,255,255,.7); color: var(--text);
+            border: 1px solid rgba(0,0,0,.14); backdrop-filter: blur(10px);
+        }
+        .btn-ghost:hover { background: #fff; border-color: rgba(0,0,0,.28); transform: translateY(-2px); }
+
+        /* ===== LOGOTIPO — recreado con tipografía =====
+           Montserrat Light con tracking amplio. Los puntos ámbar de las
+           dos "A" son pseudoelementos, así escalan con la fuente. */
+        .brand {
+            position: absolute;
+            left: 50%;
+            top: 6%;
+            transform: translateX(-50%);
+            z-index: 3;
+            text-align: center;
+            pointer-events: none;
+            width: max-content;
+            max-width: 94vw;
+        }
+
+        .brand-name {
+            font-family: "Montserrat", "Spline Sans", sans-serif;
+            font-weight: 300;
+            font-size: clamp(1.75rem, 5.8vw, 4.3rem);
+            letter-spacing: 0.155em;
+            /* compensa el tracking sobrante tras la última letra */
+            text-indent: 0.155em;
+            color: #1b2030;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        /* La "A" del logotipo NO lleva travesaño: son dos diagonales en
+           punta con el punto ámbar en el hueco. Ninguna fuente trae ese
+           glifo, así que se dibuja como SVG y se alinea con la caja alta. */
+        .glyph-a {
+            height: 0.72em;          /* altura de mayúsculas de Montserrat */
+            width: auto;
+            display: inline-block;
+            vertical-align: baseline;
+            overflow: visible;
+        }
+
+        .glyph-a .stroke {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 6.6;       /* grosor equivalente al peso Light */
+            stroke-linejoin: miter;
+            stroke-miterlimit: 12;
+        }
+
+        .glyph-a .dot { fill: var(--primary); }
+
+        .brand-tagline {
+            margin-top: clamp(.7rem, 1.6vw, 1.15rem);
+            font-family: "Montserrat", "Spline Sans", sans-serif;
+            font-weight: 400;
+            font-size: clamp(.56rem, 1.1vw, .8rem);
+            letter-spacing: 0.255em;
+            text-transform: uppercase;
+            color: #262b38;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(.7rem, 1.8vw, 1.25rem);
+            white-space: nowrap;
+        }
+
+        .brand-tagline::before,
+        .brand-tagline::after {
+            content: '';
+            flex: none;
+            width: clamp(16px, 3vw, 32px);
+            height: 1.5px;
+            background: var(--primary);
+        }
+
+        /* ===== ETIQUETAS FLOTANTES — una por tarjeta, a su derecha =====
+           Antes había un único pie de foto compartido abajo, que cambiaba
+           de texto al relevar la protagonista. Ahora cada tarjeta lleva su
+           propio nombre + frase, posicionados en JS cada frame proyectando
+           la posición 3D de la tarjeta a coordenadas de pantalla, y con
+           opacidad ligada a lo "de frente" que esté esa tarjeta — así
+           aparecen y desaparecen junto con su imagen, no de golpe. */
+        .side-label {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 3;
+            transform: translate(0, -50%);
+            width: 190px;
+            pointer-events: none;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        .side-label-kicker {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: .35rem;
+            text-shadow: 0 1px 12px rgba(255,255,255,.9);
+        }
+
+        .side-label-line {
+            font-size: .92rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.34;
+            color: var(--text);
+            text-shadow: 0 2px 14px rgba(255,255,255,.95), 0 0 26px rgba(255,255,255,.85);
+        }
+
+        @media (max-width: 720px) {
+            .side-label { display: none; }   /* sin espacio a los lados en móvil */
+        }
+
+        /* El logotipo va con nowrap: en pantallas muy estrechas hay que
+           apretar el tracking o se sale del viewport. */
+        @media (max-width: 480px) {
+            .brand { top: 8%; }
+            .brand-name { letter-spacing: .1em; text-indent: .1em; }
+            .brand-tagline { letter-spacing: .16em; gap: .55rem; }
+            .brand-tagline::before, .brand-tagline::after { width: 14px; }
+        }
+
+        /* Pista de scroll */
+        .scroll-hint {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            bottom: 6.5rem; z-index: 3;
+            font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+            color: var(--muted);
+            display: flex; flex-direction: column; align-items: center; gap: .5rem;
+            transition: opacity .4s;
+        }
+        .scroll-hint span { display: block; width: 1px; height: 26px;
+            background: linear-gradient(to bottom, var(--primary), transparent);
+            animation: drop 1.8s ease-in-out infinite; }
+        @keyframes drop { 0%,100% { opacity: .2; transform: scaleY(.5); transform-origin: top; }
+                          50%     { opacity: 1;  transform: scaleY(1);  transform-origin: top; } }
+
+        /* ===== EMPRESAS QUE CONFÍAN — portada desde index.html.
+           Allí usa clases de Tailwind; aquí va en CSS plano porque este
+           preview no carga Tailwind (se quitó al eliminar la navbar). ===== */
+        .clientes {
+            position: relative;
+            z-index: 4;
+            /* Transparente: el degradado de color vive en el body y estas
+               secciones lo taparían con blanco sólido. */
+            background: transparent;
+            padding: 4rem 1.5rem 4.5rem;
+        }
+
+        .clientes-inner { max-width: 1200px; margin: 0 auto; }
+
+        .clientes-titulo {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 3rem;
+        }
+
+        .clientes-logos {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .clientes-logos img {
+            height: 2.25rem;
+            width: auto;
+            object-fit: contain;
+            transition: transform .3s ease;
+        }
+        .clientes-logos img:hover { transform: scale(1.1); }
+        /* El de TMM viene con más aire alrededor, se compensa a ojo */
+        .clientes-logos .logo-tmm { height: 2rem; }
+        .clientes-logos .logo-invicta { border-radius: .5rem; }
+        /* Vortex viene en blanco sobre azul marino: quitarle el fondo dejaría
+           el texto invisible sobre la página, así que se trata como insignia
+           con esquinas redondeadas, igual que Invicta. Es muy apaisado, así
+           que se le da algo más de alto para que no quede diminuto. */
+        .clientes-logos .logo-vortex { height: 2.6rem; border-radius: .4rem; }
+
+        @media (min-width: 640px) { .clientes-logos { gap: 2.5rem; } }
+        @media (min-width: 768px) {
+            .clientes { padding: 5rem 1.5rem 5.5rem; }
+            .clientes-logos { gap: 4rem; }
+        }
+
+        /* ===== FOOTER — portado de index.html. Los iconos de correo y
+           teléfono allí son Material Symbols; aquí van como SVG en línea,
+           porque este preview no carga esa fuente. ===== */
+        .site-footer {
+            position: relative;
+            z-index: 4;
+            background: transparent;
+            /* El padding inferior extra deja sitio al dock flotante, que es
+               fixed y si no taparía los enlaces legales. */
+            padding: 3rem 0 7rem;
+        }
+
+        .footer-top {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .footer-brand { display: flex; flex-direction: column; gap: 1rem; }
+
+        .footer-brand-link {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            text-decoration: none;
+        }
+        .footer-brand-link img {
+            width: 2rem; height: 2rem;
+            border-radius: .375rem;
+            object-fit: cover;
+        }
+        .footer-brand-link h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .footer-brand p {
+            font-size: .875rem;
+            color: var(--muted);
+            max-width: 20rem;
+            line-height: 1.6;
+        }
+
+        .footer-contacto { display: flex; flex-direction: column; gap: .5rem; }
+        .footer-contacto a {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 500;
+            color: var(--text);
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .footer-contacto a:hover { color: var(--primary); }
+        .footer-contacto svg { width: 20px; height: 20px; color: var(--primary); flex: none; }
+
+        .footer-legal {
+            max-width: 1200px;
+            margin: 2.5rem auto 0;
+            padding: 1.5rem 1rem 0;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            font-size: .875rem;
+            color: var(--muted);
+        }
+        .footer-legal-links { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+        .footer-legal-links a { color: inherit; text-decoration: none; transition: color .2s; }
+        .footer-legal-links a:hover { color: var(--primary); }
+
+        @media (min-width: 768px) {
+            .footer-top, .footer-legal { padding-left: 2.5rem; padding-right: 2.5rem; flex-direction: row; align-items: center; }
+            .footer-contacto { align-items: flex-end; }
+        }
+
+        .preview-note {
+            position: fixed; top: 1rem; left: 1rem; z-index: 50;
+            background: rgba(255,171,0,.14); border: 1px solid rgba(255,171,0,.45);
+            color: #8a5d00; font-size: 11px; padding: .5rem .85rem;
+            border-radius: .6rem; backdrop-filter: blur(8px);
+            max-width: 250px; line-height: 1.5;
+        }
+
+        .no-webgl {
+            position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(135deg, rgba(255,171,0,.08), transparent 60%), var(--bg);
+        }
+
+        /* ===== FLOATING DOCK — adaptado de Aceternity UI (React) a HTML/CSS/JS
+           vanilla, este archivo no tiene React montado. Mismo efecto de
+           magnificación tipo dock de macOS, resuelto a mano con mousemove
+           en vez de Framer Motion. Solo para ver el aspecto: los enlaces
+           van a "#" tal cual el ejemplo original, no están cableados. ===== */
+        .floating-dock {
+            position: fixed;
+            left: 50%;
+            bottom: 1.4rem;
+            z-index: 60;
+            display: flex;
+            align-items: flex-end;
+            gap: .55rem;
+            padding: .55rem .7rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,.68);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(0,0,0,.08);
+            box-shadow: 0 14px 44px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.05);
+            /* Estado en reposo: la barra entera empieza minimizada.
+               transform-origin en la base para que crezca hacia arriba,
+               no hacia dentro del borde de la pantalla. */
+            transform: translateX(-50%) scale(.8);
+            transform-origin: 50% 100%;
+            opacity: .78;
+            transition: transform .38s cubic-bezier(.34, 1.56, .64, 1), opacity .25s ease;
+        }
+
+        /* La clase la pone JS al entrar/salir el ratón (mouseenter/leave),
+           no ":hover" en CSS puro, para poder sincronizarla con el reset
+           de los iconos individuales en el mismo momento. */
+        .floating-dock.is-expanded {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+
+        .dock-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.045);
+            color: #3a3a44;
+            text-decoration: none;
+            flex: none;
+            transform-origin: bottom center;
+            transition: transform .12s ease-out, background .2s;
+        }
+        .dock-item:hover,
+        .dock-item:focus-visible { background: rgba(255,171,0,.16); color: #8a5d00; outline: none; }
+
+        .dock-icon { width: 20px; height: 20px; pointer-events: none; }
+        .dock-item img.dock-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; }
+
+        .dock-tooltip {
+            position: absolute;
+            bottom: calc(100% + 11px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: #17171b;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: .32rem .65rem;
+            border-radius: .45rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .15s ease, transform .15s ease;
+        }
+        .dock-item:hover .dock-tooltip,
+        .dock-item:focus-visible .dock-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Submenú de Servicios. Posicionado por JS en coordenadas de
+           pantalla (position: fixed), para no heredar la escala del dock.
+
+           Va en dos capas a propósito:
+           - .dock-panel (esta) es el ÁREA HOVEABLE. Incluye un
+             padding-bottom que rellena el hueco hasta tocar el icono, sin
+             ningún hueco muerto entre ambos — así el ratón nunca deja de
+             estar sobre "algo" al subir del icono al panel, y no depende de
+             ganar una carrera contra un temporizador.
+           - .dock-panel-card es la tarjeta visible (fondo, borde, sombra).
+           Sin esta separación, para dejar aire visual entre el icono y el
+           panel habría que separarlos con un margen real, que es
+           precisamente el hueco que rompía el hover. */
+        .dock-panel {
+            position: fixed;
+            z-index: 70;
+            width: 216px;
+            padding-bottom: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .2s ease, visibility 0s .2s;
+        }
+
+        .dock-panel.is-open {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .2s ease, visibility 0s;
+        }
+
+        .dock-panel-card {
+            position: relative;
+            padding: .4rem;
+            border-radius: .85rem;
+            background: rgba(255, 255, 255, .96);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 0, 0, .08);
+            box-shadow: 0 20px 48px -14px rgba(0, 0, 0, .28);
+            display: flex;
+            flex-direction: column;
+            gap: .1rem;
+            transform: translateY(8px);
+            transition: transform .28s cubic-bezier(.16, 1, .3, 1);
+        }
+        .dock-panel.is-open .dock-panel-card { transform: translateY(0); }
+
+        .dock-panel a {
+            display: block;
+            padding: .5rem .7rem;
+            border-radius: .5rem;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #515154;
+            text-decoration: none;
+            line-height: 1.3;
+            transition: background .18s, color .18s;
+        }
+        .dock-panel a:hover { background: rgba(0, 0, 0, .05); color: #1d1d1f; }
+
+        /* Punta que lo une visualmente con el icono */
+        .dock-panel-card::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: var(--punta-x, 50%);
+            transform: translateX(-50%) rotate(45deg);
+            margin-top: -5px;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, .96);
+            border-right: 1px solid rgba(0, 0, 0, .08);
+            border-bottom: 1px solid rgba(0, 0, 0, .08);
+        }
+
+        /* Con el panel abierto sobra el globo pequeño del icono */
+        .dock-item.has-panel-open .dock-tooltip { opacity: 0; }
+
+        @media (max-width: 640px) {
+            .floating-dock { gap: .4rem; padding: .45rem .55rem; bottom: 1rem; }
+            .dock-item { width: 38px; height: 38px; }
+            .dock-icon { width: 18px; height: 18px; }
+            .dock-panel { width: min(216px, calc(100vw - 2rem)); }
+        }
+
+        /* ===== ANIMATED BEAM — adaptado de Magic UI (React + Framer Motion)
+           a SVG + JS vanilla. En vez de animar coordenadas de gradiente con
+           Framer Motion, se usa la técnica clásica de SVG: stroke-dasharray
+           fijo (el "cometa") + stroke-dashoffset animado por rAF, que recorre
+           el trazado calculado con path.getTotalLength(). Recalcula las
+           curvas si cambia el tamaño del contenedor (ResizeObserver). ===== */
+        .beam-demo-wrap {
+            padding: 2rem 1.5rem 6rem;
+            background: transparent;
+        }
+
+        .beam-badge {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            width: fit-content;
+            margin: 0 auto 1.2rem;
+            padding: .45rem .95rem;
+            border-radius: 999px;
+            background: rgba(255, 171, 0, .12);
+            border: 1px solid rgba(255, 171, 0, .32);
+            color: #8a5d00;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .beam-heading2 {
+            text-align: center;
+            font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.22;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        .beam-heading2 .accent { color: var(--primary); }
+
+        /* ===== SHINY TEXT — equivalente CSS del componente ShinyText de
+           ReactBits. Allí es React + JS; aquí el mismo principio en CSS:
+           un gradiente recortado al texto (background-clip: text) cuya
+           posición se desplaza en bucle, creando el destello que recorre
+           las letras. Los props del componente se mapean a variables:
+             speed      → --shine-speed   (duración del recorrido)
+             spread     → --shine-spread  (ancho de la banda de brillo)
+             shineColor → --shine-color   (pico del destello)
+             direction  → sentido de los keyframes (aquí, hacia la izquierda)
+             pauseOnHover → regla :hover de abajo
+           ===== */
+        .shiny-gold {
+            /* Oro metálico de verdad: oscuro → medio → destello → medio →
+               oscuro. Un amarillo plano (#FFAB00 suelto) no lee como metal;
+               son las sombras y las luces alrededor del tono base lo que da
+               la sensación de dorado. Empieza y acaba en el mismo tono
+               oscuro para que el bucle sea continuo, sin corte visible. */
+            background-image: linear-gradient(
+                100deg,
+                #8A5A05 0%,
+                #B8801A 12%,
+                #E5A317 26%,
+                #FFC85C 40%,
+                var(--shine-color, #FFF7E2) 50%,
+                #FFC85C 60%,
+                #E5A317 74%,
+                #B8801A 88%,
+                #8A5A05 100%
+            );
+            background-size: var(--shine-spread, 200%) 100%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            animation: shinySweep var(--shine-speed, 3.4s) linear infinite;
+        }
+
+        @keyframes shinySweep {
+            0%   { background-position: 100% 50%; }
+            100% { background-position: -100% 50%; }
+        }
+
+        .shiny-gold:hover { animation-play-state: paused; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .shiny-gold { animation: none; background-position: 50% 50%; }
+        }
+
+        /* ===== SPLIT TEXT — equivalente CSS/JS del componente SplitText de
+           ReactBits (que usa GSAP). El texto se parte en caracteres y cada
+           uno entra desde abajo con un desfase en cascada, al hacer scroll.
+           Props del componente → equivalencia aquí:
+             delay={50}                 → --split-delay  (desfase entre letras)
+             duration={1.25}            → --split-duration
+             ease="power3.out"          → cubic-bezier(.165,.84,.44,1)
+                                          (power3.out de GSAP = easeOutQuart)
+             from={{opacity:0, y:40}}   → estado inicial de .split-char
+             to={{opacity:1, y:0}}      → keyframe final
+             threshold / rootMargin     → opciones del IntersectionObserver
+           El estado oculto solo se aplica DESPUÉS de que el JS parta el
+           texto (clase .is-split): si el script fallara, el texto se ve
+           igualmente en vez de quedarse invisible. ===== */
+        .split-char { display: inline-block; will-change: transform, opacity; }
+        /* Mantiene cada palabra unida: el corte de línea solo ocurre en los
+           espacios, nunca dentro de una palabra. */
+        .split-word { display: inline-block; white-space: nowrap; }
+
+        [data-split].is-split .split-char {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        [data-split].is-split.is-revealed .split-char {
+            animation: splitIn var(--split-duration, 1.25s) cubic-bezier(.165, .84, .44, 1) forwards;
+        }
+
+        /* El bloque dorado se anima como unidad y necesita SUS DOS
+           animaciones a la vez: la entrada desde abajo y el barrido del
+           brillo. Declarar solo "splitIn" en la regla de arriba pisaría el
+           shinySweep de .shiny-gold (es la misma propiedad "animation"). */
+        [data-split].is-split.is-revealed .shiny-gold.split-char {
+            animation:
+                splitIn var(--split-duration, 1.25s) cubic-bezier(.165, .84, .44, 1) forwards,
+                shinySweep var(--shine-speed, 3.4s) linear infinite;
+        }
+
+        @keyframes splitIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            [data-split].is-split .split-char { opacity: 1; transform: none; animation: none; }
+        }
+
+        .beam-sub {
+            text-align: center;
+            max-width: 40rem;
+            margin: 0 auto 3rem;
+            color: var(--muted);
+            font-size: clamp(.95rem, 1.4vw, 1.05rem);
+            line-height: 1.65;
+        }
+        .beam-sub .accent { color: var(--primary); font-weight: 600; }
+        .beam-sub strong { color: var(--text); font-weight: 700; }
+
+        /* Tarjeta contenedora: antes esto lo llevaba .beam-stage directamente;
+           ahora .beam-stage solo es el área del diagrama y la tarjeta también
+           envuelve la franja de beneficios de debajo. */
+        .beam-card {
+            max-width: 1100px;
+            margin: 0 auto;
+            border-radius: 1.75rem;
+            border: 1px solid rgba(0, 0, 0, .08);
+            background: #fff;
+            box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .14);
+            padding: clamp(1.5rem, 3vw, 2.75rem);
+        }
+
+        .beam-stage {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .beam-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+        }
+
+        .beam-track {
+            fill: none;
+            stroke: rgba(15, 15, 20, .08);
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+            /* El trazado se "dibuja" al construirse la red: el JS pone
+               dasharray/dashoffset = longitud total y lo lleva a 0. */
+            transition: stroke-dashoffset .75s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        /* ===== CONSTRUCCIÓN DE LA RED =====
+           Al entrar la sección: las tarjetas llegan desde su lado, el hub
+           aparece en el centro y después se despliegan las líneas. Cada
+           pieza arranca desplazada y el estado final lo activa .is-built. */
+        .beam-entry {
+            opacity: 0;
+            transform: translateX(var(--enter-x, -46px));
+            transition: opacity .65s cubic-bezier(.16, 1, .3, 1),
+                        transform .65s cubic-bezier(.16, 1, .3, 1);
+        }
+        .beam-entry--right { --enter-x: 46px; }
+
+        .beam-card.is-built .beam-entry {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .beam-node--center {
+            opacity: 0;
+            transform: scale(.55);
+            transition: opacity .5s ease, transform .6s cubic-bezier(.34, 1.56, .64, 1);
+        }
+        .beam-card.is-built .beam-node--center {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .beam-dot {
+            opacity: 0;
+            transition: opacity .4s ease;
+        }
+        .beam-card.is-built .beam-dot { opacity: 1; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .beam-entry, .beam-node--center, .beam-dot {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+        }
+
+        /* El impulso: más grueso y con más halo que el trazo de fondo, para
+           que lea como un pulso de energía y no como un trozo de cable. */
+        .beam-glow {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 7px currentColor) drop-shadow(0 0 14px currentColor);
+            /* Los impulsos no circulan hasta que la red está montada */
+            opacity: 0;
+            transition: opacity .4s ease;
+        }
+        .beam-card.is-built .beam-glow { opacity: 1; transition-delay: 1.35s; }
+
+        .beam-grid {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 54rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .beam-row { display: flex; align-items: center; justify-content: space-between; }
+
+        /* Cada herramienta es una TARJETA: icono a la izquierda y texto a la
+           derecha. Las dos columnas mantienen la misma orientación (no se
+           invierte la derecha) — solo cambia de lado el punto de conexión. */
+        .beam-entry {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            width: 258px;
+            padding: .8rem 1rem;
+            border-radius: 1rem;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, .07);
+            box-shadow: 0 4px 14px -6px rgba(0, 0, 0, .12);
+        }
+
+        .beam-node {
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0, 0, 0, .08);
+            background: #fff;
+            box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .4);
+            padding: .5rem;
+            flex: none;
+        }
+
+        /* object-fit:contain encoge cada imagen a su propia proporción
+           dentro del mismo círculo — así el móvil vertical, el icono+texto
+           de CRM y los iconos sueltos comparten tamaño real de nodo aunque
+           su contenido no lo ocupe entero por igual. Nada se recorta ni se
+           estira. */
+        .beam-node svg, .beam-node img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .beam-node--center {
+            width: 80px;
+            height: 80px;
+            border-width: 2px;
+            border-color: rgba(255, 171, 0, .35);
+            padding: .9rem;
+            box-shadow: 0 14px 34px -12px rgba(255, 171, 0, .5);
+        }
+
+        /* Mensaje de lo que el centro procesa en cada momento. Va justo
+           debajo del isotipo, centrado respecto al escenario. */
+        .beam-center-msg {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, 58px);
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .34rem .8rem;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, .08);
+            box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .28);
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .22s ease;
+        }
+        .beam-center-msg.is-on { opacity: 1; }
+        .beam-center-msg .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+
+        .beam-copy { display: flex; flex-direction: column; gap: .18rem; min-width: 0; }
+        .beam-copy strong { font-size: .93rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+        .beam-copy span { display: block; font-size: .78rem; line-height: 1.4; color: var(--muted); }
+
+        /* El punto de conexión real: aquí empieza/termina el beam en SVG
+           (el path apunta a este elemento, no al icono). Va pegado al borde
+           de la tarjeta que mira al centro — derecha en la columna izquierda,
+           izquierda en la derecha. */
+        .beam-dot {
+            position: absolute;
+            top: 50%;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+        .beam-entry .beam-dot { right: -4.5px; }
+        .beam-entry--right .beam-dot { right: auto; left: -4.5px; }
+
+        /* En la columna derecha el punto va primero en el HTML (para que el
+           SVG grande del icono no quede antes que el texto en el marcado),
+           pero visualmente el orden debe ser icono → texto igual que en la
+           izquierda. Se corrige con "order" en vez de reordenar el marcado. */
+        .beam-entry--right .beam-node { order: 1; }
+        .beam-entry--right .beam-copy { order: 2; }
+
+        .beam-features {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 0, 0, .07);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+        .beam-feature { display: flex; align-items: center; gap: .65rem; }
+        .beam-feature svg { width: 20px; height: 20px; flex: none; color: var(--primary); }
+        .beam-feature span { font-size: .85rem; line-height: 1.4; color: var(--muted); }
+        .beam-feature strong { color: var(--text); font-weight: 700; }
+
+        @media (max-width: 760px) {
+            .beam-features { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ===== MÓVIL: el diagrama radial no cabe en 3 columnas, así que se
+           apila en una lista. Las líneas SVG y los puntos de conexión se
+           ocultan porque, apilado, no conectan nada — el hub pasa a ser la
+           cabecera de la lista. ===== */
+        @media (max-width: 760px) {
+            .beam-card { padding: 1.1rem; border-radius: 1.25rem; }
+
+            .beam-stage { height: auto; display: block; }
+            .beam-svg { display: none; }
+            .beam-center-msg { display: none; }
+
+            .beam-grid { max-width: 100%; height: auto; gap: .7rem; }
+            .beam-row { flex-direction: column; gap: .7rem; }
+
+            .beam-entry { width: 100%; }
+            /* Apilado, ambas columnas se leen igual: icono y luego texto.
+               El "order" base (node:1, copy:2) ya lo consigue — no hay que
+               tocarlo, porque en el HTML el texto va antes que el icono. */
+            .beam-entry--right { flex-direction: row; text-align: left; }
+            .beam-dot { display: none; }
+
+            /* El isotipo encabeza la lista en vez de quedar entre dos tarjetas */
+            .beam-node--center {
+                order: -1;
+                width: 64px;
+                height: 64px;
+                padding: .7rem;
+                margin: 0 auto .4rem;
+            }
+
+            .beam-copy strong { font-size: .9rem; }
+            .beam-copy span { font-size: .76rem; }
+        }
+
+        @media (max-width: 640px) {
+            .beam-node { width: 48px; height: 48px; padding: .45rem; }
+            .beam-features { grid-template-columns: 1fr; gap: .9rem; }
+        }
+
+        /* Las tarjetas son mallas 3D, no <img>: el cursor se cambia a mano
+           por JS (raycasting) solo cuando el puntero está sobre una. */
+        #gl.is-hovering { cursor: pointer; }
+
+        /* ===== LIGHTBOX — imagen a la izquierda, descripción y CTA a la
+           derecha. Antes era todo centrado en una columna; ahora es un
+           layout de dos paneles, tipo "hoja de producto". ===== */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(1.25rem, 4vw, 3.5rem);
+            background: rgba(8, 8, 10, .93);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .35s ease, visibility 0s linear .35s;
+        }
+
+        .lightbox.is-open {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .35s ease, visibility 0s;
+        }
+
+        .lightbox-panel {
+            display: flex;
+            align-items: center;
+            gap: clamp(1.75rem, 4vw, 3.5rem);
+            width: 100%;
+            max-width: 1080px;
+            transform: scale(.94) translateY(10px);
+            transition: transform .4s cubic-bezier(.16, 1, .3, 1);
+        }
+        .lightbox.is-open .lightbox-panel { transform: scale(1) translateY(0); }
+
+        .lightbox-media {
+            flex: 1 1 56%;
+            min-width: 0;
+        }
+        .lightbox-img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 74vh;
+            object-fit: contain;
+            border-radius: 1.15rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,.5);
+        }
+
+        .lightbox-info {
+            flex: 1 1 44%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.1rem;
+            color: #f2f2f4;
+        }
+        .lightbox-info .kicker {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+        .lightbox-info .titulo {
+            font-size: clamp(1.4rem, 2.6vw, 2rem);
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+        }
+        .lightbox-info .desc {
+            font-size: clamp(.95rem, 1.3vw, 1.05rem);
+            line-height: 1.65;
+            color: #b8b8c0;
+            max-width: 34rem;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: clamp(1rem, 3vw, 2rem);
+            right: clamp(1rem, 3vw, 2rem);
+            z-index: 101;
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.2);
+            background: rgba(255,255,255,.06);
+            color: #fff;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s, transform .2s;
+        }
+        .lightbox-close:hover { background: rgba(255,255,255,.16); transform: scale(1.06); }
+
+        @media (max-width: 760px) {
+            .lightbox { padding: 1.1rem; padding-top: 4.5rem; align-items: flex-start; overflow-y: auto; }
+            .lightbox-panel { flex-direction: column; align-items: stretch; gap: 1.4rem; }
+            .lightbox-img { max-height: 46vh; }
+            .lightbox-info { align-items: stretch; text-align: left; }
+        }
+
+        /* ===== SPECULAR BUTTON — versión CSS/JS del componente de React.
+           No hay motor de físicas ni WebGL detrás: es un pseudo-elemento con
+           un gradiente radial cuyo centro seguimos con variables CSS
+           (--sb-x/--sb-y) actualizadas por JS en cada mousemove. La
+           correspondencia con los props del componente original:
+             size            → padding/font del botón (aquí solo "lg")
+             radius          → --sb-radius (border-radius)
+             tint/tintOpacity→ overlay de color por encima de baseColor
+             baseColor       → fondo del botón
+             lineColor       → color del brillo y del borde
+             thickness       → grosor del borde
+             textColor       → color del texto
+             intensity       → opacidad máxima del brillo
+             shineSize       → tamaño del radial-gradient (en % del botón)
+             shineFade       → dónde se apaga el gradiente (parada final, %)
+             speed           → duración de la transición al mover el brillo
+             followMouse     → si el brillo seduce sigue al cursor o no
+             proximity       → radio (px) en el que reacciona aunque el
+                                cursor esté FUERA del botón, atenuado por
+                                distancia
+             autoAnimate     → aquí false: sin bucle de brillo automático
+           ===== */
+        .specular-btn {
+            --sb-radius: 18px;
+            --sb-base: #525252;
+            --sb-line: #ffffff;
+            --sb-text: #f5f5f5;
+            --sb-thickness: 1px;
+            --sb-intensity: 1;
+            --sb-shine-size: 42%;
+            --sb-shine-fade: 68%;
+            --sb-speed: .35s;
+            --sb-x: 50%;
+            --sb-y: 50%;
+
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            height: 3.2rem;
+            padding: 0 1.9rem;
+            border-radius: var(--sb-radius);
+            background: var(--sb-base);
+            color: var(--sb-text);
+            font-size: .92rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: var(--sb-thickness) solid rgba(255, 255, 255, .18);
+            overflow: hidden;
+            isolation: isolate;
+            cursor: pointer;
+            transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), border-color var(--sb-speed) ease;
+        }
+        .specular-btn:hover { transform: translateY(-2px); }
+
+        /* El brillo: un radial-gradient posicionado en (--sb-x, --sb-y),
+           en screen/overlay para que aclare el fondo oscuro en vez de
+           taparlo con un círculo plano. */
+        .specular-btn::before {
+            content: '';
+            position: absolute;
+            inset: calc(var(--sb-thickness) * -1);
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(
+                circle at var(--sb-x) var(--sb-y),
+                var(--sb-line) 0%,
+                transparent var(--sb-shine-size)
+            );
+            /* Fallback en 0, no en 1: con autoAnimate=false el brillo debe
+               partir apagado y solo encenderse cuando el JS confirma que el
+               ratón está cerca — si no, se vería un halo fijo desde el
+               primer frame, antes de mover el ratón siquiera. */
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0) * .55);
+            mix-blend-mode: overlay;
+            transition: opacity var(--sb-speed) ease;
+        }
+
+        /* El filo: mismo truco pero recortado a solo el grosor del borde,
+           así el brillo también "recorre" el contorno, no solo el relleno. */
+        .specular-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            padding: var(--sb-thickness);
+            background: radial-gradient(
+                circle at var(--sb-x) var(--sb-y),
+                var(--sb-line) 0%,
+                transparent var(--sb-shine-fade)
+            );
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0));
+            transition: opacity var(--sb-speed) ease;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .specular-btn::before, .specular-btn::after { transition: none; }
+        }
+
+        @media (max-width: 768px) {
+            .scroll-stage { height: 300vh; }
+            .scroll-hint { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Panel de diagnóstico: si algo falla, se ve aquí en vez de quedarse en negro -->
+    <div id="diag"></div>
+
+    <script>
+        (function () {
+            var box = document.getElementById('diag');
+            var shown = [];
+
+            function show(titulo, detalle) {
+                shown.push(titulo);
+                box.style.cssText =
+                    'position:fixed;inset:auto 1rem 1rem 1rem;z-index:9999;' +
+                    'background:#2a0d0d;border:1px solid #ff5252;color:#ffb4b4;' +
+                    'font:12px/1.6 ui-monospace,Consolas,monospace;padding:1rem 1.2rem;' +
+                    'border-radius:.7rem;max-height:45vh;overflow:auto;white-space:pre-wrap';
+                box.textContent = shown.join('\n\n');
+                if (detalle) box.textContent += '\n' + detalle;
+            }
+
+            // Causa nº1 de "no se ve nada": abrir el .html a doble clic
+            if (location.protocol === 'file:') {
+                show(
+                    '⛔ Estás abriendo el archivo con file://\n\n' +
+                    'Los módulos ES y las texturas WebGL están bloqueados por seguridad ' +
+                    'del navegador cuando no hay servidor. La página SIEMPRE se verá negra así.\n\n' +
+                    '✅ Ábrelo en: http://localhost:4321/hero-webgl-preview'
+                );
+                return;
+            }
+
+            window.addEventListener('error', function (e) {
+                if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'IMG')) {
+                    show('⛔ No cargó el recurso:', e.target.src || e.target.href);
+                } else {
+                    show('⛔ Error JS: ' + e.message, (e.filename || '') + ':' + (e.lineno || ''));
+                }
+            }, true);
+
+            window.addEventListener('unhandledrejection', function (e) {
+                show('⛔ Promesa rechazada: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+            });
+
+            // Si a los 5 s no se ha pintado un frame, algo va mal
+            window.__glReady = false;
+            setTimeout(function () {
+                if (!window.__glReady && shown.length === 0) {
+                    show('⚠ El render no ha arrancado en 5 s.\n' +
+                         'Abre la consola del navegador (F12 → Console) y pásame lo que salga.');
+                }
+            }, 5000);
+        })();
+    </script>
+
+    <div class="scroll-stage">
+        <section class="hero">
+            <canvas id="gl"></canvas>
+
+            <!-- Logotipo, encima del isotipo -->
+            <div class="brand">
+                <div class="brand-name" role="img" aria-label="Automanize"><svg class="glyph-a" viewBox="0 0 92 104" aria-hidden="true"><polyline class="stroke" points="4,101 46,4 88,101" /><circle class="dot" cx="46" cy="84" r="6.2" /></svg>UTOM<svg class="glyph-a" viewBox="0 0 92 104" aria-hidden="true"><polyline class="stroke" points="4,101 46,4 88,101" /><circle class="dot" cx="46" cy="84" r="6.2" /></svg>NIZE</div>
+                <div class="brand-tagline" data-split>Automatiza. Optimiza. Vive mejor.</div>
+            </div>
+
+            <div class="scroll-hint" id="scrollHint">Scroll<span></span></div>
+
+            <!-- Contenedor de las 4 etiquetas flotantes: se rellena y se
+                 posiciona por JS, una por tarjeta (ver "sideLabels" abajo). -->
+            <div id="sideLabelsRoot"></div>
+        </section>
+    </div>
+
+    <!-- Lightbox: se abre al pulsar cualquiera de las tarjetas del círculo.
+         Imagen a la izquierda, ficha del producto a la derecha. -->
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">✕</button>
+        <div class="lightbox-panel">
+            <div class="lightbox-media">
+                <!-- Sin atributo src: un src="" hace que el navegador intente
+                     cargar la URL de la propia página como imagen y falle.
+                     Se asigna por JS al abrir. -->
+                <img class="lightbox-img" id="lightboxImg" alt="" />
+            </div>
+            <div class="lightbox-info">
+                <span class="kicker" id="lightboxName"></span>
+                <h3 class="titulo" id="lightboxTitulo"></h3>
+                <p class="desc" id="lightboxBlurb"></p>
+                <a class="specular-btn" id="lightboxCta" href="#">
+                    <span>Ver página completa</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empresas que confían — misma sección que en index.html -->
+    <section class="clientes">
+        <div class="clientes-inner">
+            <p class="clientes-titulo" data-split>Empresas que confían en Automanize</p>
+
+            <div class="clientes-logos">
+                <a href="https://biscottocafe.es/" target="_blank" rel="noopener" aria-label="Biscotto Café">
+                    <img src="assets/images/logoBiscotto.ico" alt="Biscotto Café" loading="lazy" />
+                </a>
+                <a href="https://controldeplagastmm.com/" target="_blank" rel="noopener" aria-label="TMM Control de Plagas">
+                    <img class="logo-tmm" src="assets/images/tmmlogo.ico" alt="TMM Control de Plagas" loading="lazy" />
+                </a>
+                <a href="https://www.manuelconesa.com/" target="_blank" rel="noopener" aria-label="Manuel Conesa">
+                    <img src="assets/images/logobusc.png" alt="Manuel Conesa" loading="lazy" />
+                </a>
+                <a href="https://www.instagram.com/invictarent/" target="_blank" rel="noopener" aria-label="Invicta Rent">
+                    <img class="logo-invicta" src="assets/images/invictarent.jpeg" alt="Invicta Rent" loading="lazy" />
+                </a>
+                <a href="https://www.azulmarino.com/es-es/agencias-de-viajes/cartagena" target="_blank" rel="noopener" aria-label="Azul Marino">
+                    <img src="assets/images/azulmarino-logo.png" alt="Azul Marino" loading="lazy" />
+                </a>
+                <a href="https://vortexrooms.com/" target="_blank" rel="noopener" aria-label="Vortex Rooms">
+                    <img class="logo-vortex" src="assets/images/vortexrooms-logo.png" alt="Vortex Rooms" loading="lazy" />
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Animated Beam — adaptado de Magic UI (React). El nodo central es
+         el isotipo de Nize, no el logo original del demo. Enlaces sin
+         cablear, es solo para ver el aspecto. -->
+    <div class="beam-demo-wrap">
+        <h2 class="beam-heading2" data-split>
+            Nize conecta todo.<br />
+            Tú enfócate en <span class="shiny-gold">hacer crecer tu negocio.</span>
+        </h2>
+        <p class="beam-sub" data-split>
+            Integra las herramientas que ya usas y centraliza tu operación para
+            <span class="accent">ahorrar tiempo,</span> <strong>automatizar procesos</strong>
+            y tomar mejores decisiones.
+        </p>
+
+        <div class="beam-card">
+            <div class="beam-stage" id="beamStage">
+                <svg class="beam-svg" id="beamSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+                <!-- Lo que el centro está procesando ahora mismo: cambia
+                     cada vez que un impulso llega desde una herramienta. -->
+                <div class="beam-center-msg" id="beamCenterMsg">
+                    <span class="dot"></span><span class="txt"></span>
+                </div>
+
+                <div class="beam-grid">
+                    <div class="beam-row">
+                        <div class="beam-entry">
+                            <div class="beam-node">
+                                <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da" />
+                                    <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47" />
+                                    <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335" />
+                                    <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d" />
+                                    <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc" />
+                                    <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
+                                </svg>
+                            </div>
+                            <div class="beam-copy">
+                                <strong>Google Drive</strong>
+                                <span>Almacenamiento seguro y siempre accesible.</span>
+                            </div>
+                            <span class="beam-dot" data-node="drive" style="background:#4285F4"></span>
+                        </div>
+
+                        <div class="beam-entry beam-entry--right">
+                            <span class="beam-dot" data-node="docs" style="background:#4285F4"></span>
+                            <div class="beam-copy">
+                                <strong>Google Docs</strong>
+                                <span>Documentos colaborativos sin complicaciones.</span>
+                            </div>
+                            <div class="beam-node">
+                                <svg viewBox="0 0 47 65" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <path d="M29.375,0 L4.40625,0 C1.9828125,0 0,1.99431818 0,4.43181818 L0,60.5681818 C0,63.0056818 1.9828125,65 4.40625,65 L42.59375,65 C45.0171875,65 47,63.0056818 47,60.5681818 L47,17.7272727 L29.375,0 Z" id="path-1" />
+                                        <linearGradient x1="50.0053945%" y1="8.58610612%" x2="50.0053945%" y2="100.013939%" id="linearGradient-5">
+                                            <stop stop-color="#1A237E" stop-opacity="0.2" offset="0%" />
+                                            <stop stop-color="#1A237E" stop-opacity="0.02" offset="100%" />
+                                        </linearGradient>
+                                        <radialGradient cx="3.16804688%" cy="2.71744318%" fx="3.16804688%" fy="2.71744318%" r="161.248516%" gradientTransform="translate(0.031680,0.027174),scale(1.000000,0.723077),translate(-0.031680,-0.027174)" id="radialGradient-16">
+                                            <stop stop-color="#FFFFFF" stop-opacity="0.1" offset="0%" />
+                                            <stop stop-color="#FFFFFF" stop-opacity="0" offset="100%" />
+                                        </radialGradient>
+                                    </defs>
+                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <g transform="translate(-451.000000, -463.000000)">
+                                            <g transform="translate(0.000000, 63.000000)">
+                                                <g transform="translate(277.000000, 309.000000)">
+                                                    <g transform="translate(174.000000, 91.000000)">
+                                                        <g>
+                                                            <mask id="mask-2" fill="white"><use href="#path-1" /></mask>
+                                                            <path d="M29.375,0 L4.40625,0 C1.9828125,0 0,1.99431818 0,4.43181818 L0,60.5681818 C0,63.0056818 1.9828125,65 4.40625,65 L42.59375,65 C45.0171875,65 47,63.0056818 47,60.5681818 L47,17.7272727 L36.71875,10.3409091 L29.375,0 Z" fill="#4285F4" fill-rule="nonzero" mask="url(#mask-2)" />
+                                                            <mask id="mask-7" fill="white"><use href="#path-1" /></mask>
+                                                            <path d="M11.75,47.2727273 L35.25,47.2727273 L35.25,44.3181818 L11.75,44.3181818 L11.75,47.2727273 Z M11.75,53.1818182 L29.375,53.1818182 L29.375,50.2272727 L11.75,50.2272727 L11.75,53.1818182 Z M11.75,32.5 L11.75,35.4545455 L35.25,35.4545455 L35.25,32.5 L11.75,32.5 Z M11.75,41.3636364 L35.25,41.3636364 L35.25,38.4090909 L11.75,38.4090909 L11.75,41.3636364 Z" fill="#F1F1F1" fill-rule="nonzero" mask="url(#mask-7)" />
+                                                            <mask id="mask-9" fill="white"><use href="#path-1" /></mask>
+                                                            <g mask="url(#mask-9)">
+                                                                <g transform="translate(26.437500, -2.954545)">
+                                                                    <path d="M2.9375,2.95454545 L2.9375,16.25 C2.9375,18.6985795 4.90929688,20.6818182 7.34375,20.6818182 L20.5625,20.6818182 L2.9375,2.95454545 Z" fill="#A1C2FA" fill-rule="nonzero" />
+                                                                </g>
+                                                            </g>
+                                                            <mask id="mask-13" fill="white"><use href="#path-1" /></mask>
+                                                            <path d="M42.59375,64.6306818 L4.40625,64.6306818 C1.9828125,64.6306818 0,62.6363636 0,60.1988636 L0,60.5681818 C0,63.0056818 1.9828125,65 4.40625,65 L42.59375,65 C45.0171875,65 47,63.0056818 47,60.5681818 L47,60.1988636 C47,62.6363636 45.0171875,64.6306818 42.59375,64.6306818 Z" fill-opacity="0.2" fill="#1A237E" fill-rule="nonzero" mask="url(#mask-13)" />
+                                                            <path d="M29.375,0 L4.40625,0 C1.9828125,0 0,1.99431818 0,4.43181818 L0,60.5681818 C0,63.0056818 1.9828125,65 4.40625,65 L42.59375,65 C45.0171875,65 47,63.0056818 47,60.5681818 L47,17.7272727 L29.375,0 Z" fill="url(#radialGradient-16)" fill-rule="nonzero" />
+                                                        </g>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="beam-row">
+                        <div class="beam-entry">
+                            <div class="beam-node">
+                                <img src="assets/images/nize-crm-icon.png" alt="Nize CRM" />
+                            </div>
+                            <div class="beam-copy">
+                                <strong>CRM</strong>
+                                <span>Gestiona clientes, ventas y oportunidades.</span>
+                            </div>
+                            <span class="beam-dot" data-node="notion" style="background:#1a1a1a"></span>
+                        </div>
+
+                        <div class="beam-node beam-node--center" data-node="center">
+                            <img src="assets/images/nize-isotipo.png" alt="Nize" />
+                        </div>
+
+                        <div class="beam-entry beam-entry--right">
+                            <span class="beam-dot" data-node="zapier" style="background:#FF4F00"></span>
+                            <div class="beam-copy">
+                                <strong>Google Calendar</strong>
+                                <span>Agenda sincronizada, nunca más te pierdas algo.</span>
+                            </div>
+                            <div class="beam-node">
+                                <img src="assets/images/google-calendar-icon.png" alt="Google Calendar" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="beam-row">
+                        <div class="beam-entry">
+                            <div class="beam-node">
+                                <svg viewBox="0 0 175.216 175.552" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="beamWaGrad" x1="85.915" x2="86.535" y1="32.567" y2="137.092" gradientUnits="userSpaceOnUse">
+                                            <stop offset="0" stop-color="#57d163" />
+                                            <stop offset="1" stop-color="#23b33a" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="m87.184 25.227c-33.733 0-61.166 27.423-61.178 61.13a60.98 60.98 0 0 0 9.349 32.535l1.455 2.313-6.179 22.558 23.146-6.069 2.235 1.324c9.387 5.571 20.15 8.517 31.126 8.523h.023c33.707 0 61.14-27.426 61.153-61.135a60.75 60.75 0 0 0-17.895-43.251 60.75 60.75 0 0 0-43.235-17.928z" fill="url(#beamWaGrad)" />
+                                    <path d="M68.772 55.603c-1.378-3.061-2.828-3.123-4.137-3.176l-3.524-.043c-1.226 0-3.218.46-4.902 2.3s-6.435 6.287-6.435 15.332 6.588 17.785 7.506 19.013 12.718 20.381 31.405 27.75c15.529 6.124 18.689 4.906 22.061 4.6s10.877-4.447 12.408-8.74 1.532-7.971 1.073-8.74-1.685-1.226-3.525-2.146-10.877-5.367-12.562-5.981-2.91-.919-4.137.921-4.746 5.979-5.819 7.206-2.144 1.381-3.984.462-7.76-2.861-14.784-9.124c-5.465-4.873-9.154-10.891-10.228-12.73s-.114-2.835.808-3.751c.825-.824 1.838-2.147 2.759-3.22s1.224-1.84 1.836-3.065.307-2.301-.153-3.22-4.032-10.011-5.666-13.647" fill="#ffffff" fill-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="beam-copy">
+                                <strong>WhatsApp</strong>
+                                <span>Comunicación directa y en tiempo real.</span>
+                            </div>
+                            <span class="beam-dot" data-node="whatsapp" style="background:#25D366"></span>
+                        </div>
+
+                        <div class="beam-entry beam-entry--right">
+                            <span class="beam-dot" data-node="messenger" style="background:#7c5cff"></span>
+                            <div class="beam-copy">
+                                <strong>Nize App</strong>
+                                <span>Lleva tu negocio contigo, desde cualquier lugar.</span>
+                            </div>
+                            <div class="beam-node">
+                                <img src="assets/images/nize-app-phone.png" alt="Nize App" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="beam-features">
+                <div class="beam-feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z" /></svg>
+                    <span>Menos tareas <strong>repetitivas</strong></span>
+                </div>
+                <div class="beam-feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8" /><path d="M17 7h4v4" /></svg>
+                    <span>Más productividad, <strong>mejores resultados</strong></span>
+                </div>
+                <div class="beam-feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
+                    <span>Información centralizada <strong>y segura</strong></span>
+                </div>
+                <div class="beam-feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 3.5" /></svg>
+                    <span>Ahorra tiempo, <strong>gana tranquilidad</strong></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer — mismo que en index.html -->
+    <footer class="site-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a class="footer-brand-link" href="index.html#inicio-principal" aria-label="Ir al inicio principal">
+                    <img src="assets/images/Automanize%20(4).png" alt="Automanize Logo" loading="lazy" />
+                    <h3>Automanize</h3>
+                </a>
+                <p>Empoderando a propietarios e inmobiliarias con automatización inteligente.</p>
+            </div>
+
+            <div class="footer-contacto">
+                <a href="mailto:automanize@gmail.com">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+                    automanize@gmail.com
+                </a>
+                <a href="tel:+34617153252">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.8 2.1z" /></svg>
+                    +34 617 15 32 52
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-legal">
+            <p>© 2026 Automanize. Todos los derechos reservados.</p>
+            <div class="footer-legal-links">
+                <a href="aviso-legal.html">Aviso legal</a>
+                <a href="nize-privacy.html">Privacidad</a>
+                <a href="cookies.html">Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Dock — fijo abajo, visible en toda la página (fixed, no
+         importa dónde vaya en el DOM). Solo de aspecto: enlaces a "#". -->
+    <nav class="floating-dock" id="floatingDock" aria-label="Navegación flotante (demo)">
+        <a class="dock-item" href="#" data-title="Home">
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5" /><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" /></svg>
+            <span class="dock-tooltip">Home</span>
+        </a>
+        <a class="dock-item" href="casos-exito.html" data-title="Casos de éxito">
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                <path d="M4 22h16" />
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+            </svg>
+            <span class="dock-tooltip">Casos de éxito</span>
+        </a>
+        <a class="dock-item" href="our-services.html" data-title="Servicios" data-menu="servicios">
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></svg>
+            <span class="dock-tooltip">Servicios</span>
+        </a>
+        <a class="dock-item" href="#" data-title="Automanize">
+            <img class="dock-icon" src="assets/images/nize-isotipo.png" alt="" />
+            <span class="dock-tooltip">Automanize</span>
+        </a>
+        <a class="dock-item" id="dockInstagram" href="https://www.instagram.com/automanize/" target="_blank" rel="noopener noreferrer" data-title="Instagram">
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
+            </svg>
+            <span class="dock-tooltip">Instagram</span>
+        </a>
+        <a class="dock-item" href="consultoria-gratuita.html" data-title="Consultoría">
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7" cy="7" r="2.5" />
+                <path d="M2.4 19.6v-1a4.6 4.6 0 0 1 4.6-4.6 4.6 4.6 0 0 1 4.6 4.6v1" />
+                <path d="M13.3 4.5h6.4a1.8 1.8 0 0 1 1.8 1.8v3.2a1.8 1.8 0 0 1-1.8 1.8h-3.1l-2.3 2v-2h-.5a1.8 1.8 0 0 1-1.8-1.8V6.3a1.8 1.8 0 0 1 1.8-1.8z" stroke-width="1.5" />
+                <path d="M15 6.9h4.2M15 8.5h2.8" stroke-width="1.4" />
+            </svg>
+            <span class="dock-tooltip">Consultoría</span>
+        </a>
+        <a class="dock-item" href="consultoria-gratuita.html" data-title="Solicitar demo">
+            <!-- Círculo + play, como el icono de stock que pediste. Sin el
+                 texto "DEMO" del original: a los ~20px del dock sería
+                 ilegible, y el tooltip ya dice "Solicitar demo". -->
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9.25" />
+                <path d="M10 8.3v7.4l6.2-3.7z" fill="currentColor" stroke="none" />
+            </svg>
+            <span class="dock-tooltip">Solicitar demo</span>
+        </a>
+    </nav>
+
+    <!-- Submenú de Servicios del dock. Vive a nivel de body, NO dentro del
+         icono: como el dock y sus iconos se escalan con la magnificación,
+         un panel hijo heredaría esa escala y crecería con el icono. Al
+         estar fuera, se posiciona por JS en coordenadas de pantalla. -->
+    <div class="dock-panel" id="dockPanel" role="menu" aria-label="Servicios">
+        <div class="dock-panel-card">
+            <a href="our-services.html#whatsapp">Asistente de WhatsApp</a>
+            <a href="facturacion.html">Facturación Inteligente</a>
+            <a href="our-services.html#cobros">Gestor de Cobros</a>
+            <a href="https://captador.automanize.com/radar">Captador de Clientes</a>
+            <a href="crm.html">Centraliza tu empresa</a>
+            <a href="diseno-web.html">Diseño Web</a>
+        </div>
+    </div>
+
+    <script>
+        // Magnificación tipo dock de macOS: en el original (Aceternity UI)
+        // esto lo resuelve Framer Motion con useMotionValue/useSpring sobre
+        // la posición X del ratón. Aquí, sin React, el mismo efecto se
+        // consigue a mano: por cada movimiento del ratón se mide la
+        // distancia de cada icono al puntero y se escala según esa distancia.
+        (function () {
+            const dock = document.getElementById('floatingDock');
+            if (!dock) return;
+            const items = [...dock.querySelectorAll('.dock-item')];
+
+            const BASE_SCALE = 1;
+            const MAX_SCALE  = 1.55;
+            const RANGE      = 140; // px de radio de influencia del ratón
+
+            function magnify(mouseX) {
+                items.forEach((item) => {
+                    const rect = item.getBoundingClientRect();
+                    const center = rect.left + rect.width / 2;
+                    const dist = Math.abs(mouseX - center);
+                    const t = Math.max(0, 1 - dist / RANGE);         // 1 cerca, 0 lejos
+                    const scale = BASE_SCALE + (MAX_SCALE - BASE_SCALE) * t;
+                    item.style.transform = `translateY(${(scale - 1) * -14}px) scale(${scale})`;
+                });
+            }
+
+            function reset() {
+                items.forEach((item) => { item.style.transform = ''; });
+            }
+
+            // Estado de la barra entera: minimizada en reposo, se expande
+            // al entrar el ratón. Antes solo escalaban los iconos sueltos;
+            // esto anima el contenedor completo, por separado.
+            dock.addEventListener('mouseenter', () => dock.classList.add('is-expanded'));
+            dock.addEventListener('mouseleave', () => {
+                dock.classList.remove('is-expanded');
+                reset();
+            });
+
+            dock.addEventListener('mousemove', (e) => magnify(e.clientX));
+
+            // --- Submenú de Servicios --------------------------------
+            const panel = document.getElementById('dockPanel');
+            const trigger = dock.querySelector('[data-menu="servicios"]');
+
+            if (panel && trigger) {
+                let cerrarTimer = null;
+
+                function colocar() {
+                    // Se mide el icono YA magnificado y se centra el panel
+                    // sobre él, sujetándolo dentro de la pantalla.
+                    const r = trigger.getBoundingClientRect();
+                    const ancho = panel.offsetWidth;
+                    const margen = 10;
+                    let x = r.left + r.width / 2 - ancho / 2;
+                    x = Math.min(Math.max(x, margen), innerWidth - ancho - margen);
+
+                    // panel.offsetHeight ya incluye el padding-bottom del
+                    // puente: colocando el borde inferior justo en r.top, la
+                    // tarjeta visible (dentro de ese padding) queda con el
+                    // mismo aire de antes, pero sin ningún hueco sin hoverar.
+                    panel.style.left = x + 'px';
+                    panel.style.top = (r.top - panel.offsetHeight) + 'px';
+                    // La punta apunta al icono aunque el panel se haya
+                    // desplazado para no salirse por un lado.
+                    const puntaX = r.left + r.width / 2 - x;
+                    panel.style.setProperty('--punta-x', puntaX + 'px');
+                }
+
+                function abrir() {
+                    clearTimeout(cerrarTimer);
+                    panel.classList.add('is-open');
+                    trigger.classList.add('has-panel-open');
+                    colocar();
+                }
+
+                function cerrar() {
+                    // clearTimeout previo OBLIGATORIO: trigger y dock disparan
+                    // "mouseleave" casi a la vez al cruzar hacia el panel, así
+                    // que cerrar() se llama dos veces seguidas. Sin este
+                    // clearTimeout, la segunda llamada pisa la variable
+                    // cerrarTimer con un ID nuevo, pero el temporizador de la
+                    // PRIMERA llamada queda huérfano y sigue vivo — cuando el
+                    // ratón ya está a salvo dentro del panel y cancela lo que
+                    // cree que es "el" temporizador, en realidad solo cancela
+                    // el segundo. El primero cierra el panel igualmente 160ms
+                    // después. Cancelar aquí, al principio, hace que solo
+                    // exista un temporizador pendiente en todo momento.
+                    clearTimeout(cerrarTimer);
+                    cerrarTimer = setTimeout(() => {
+                        panel.classList.remove('is-open');
+                        trigger.classList.remove('has-panel-open');
+                    }, 160);
+                }
+
+                trigger.addEventListener('mouseenter', abrir);
+                trigger.addEventListener('mouseleave', cerrar);
+                panel.addEventListener('mouseenter', () => clearTimeout(cerrarTimer));
+                panel.addEventListener('mouseleave', cerrar);
+
+                // Mientras el ratón recorre el dock el icono cambia de tamaño,
+                // así que el panel debe seguirlo.
+                dock.addEventListener('mousemove', () => {
+                    if (panel.classList.contains('is-open')) colocar();
+                });
+
+                // Al salir del dock entero también se cierra
+                dock.addEventListener('mouseleave', cerrar);
+                addEventListener('scroll', () => {
+                    if (panel.classList.contains('is-open')) colocar();
+                }, { passive: true });
+            }
+
+            // --- Instagram: en móvil intenta abrir la app -------------
+            const igLink = document.getElementById('dockInstagram');
+            if (igLink && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                igLink.removeAttribute('target');
+                igLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const inicio = Date.now();
+                    location.href = 'instagram://user?username=automanize';
+                    // Si tras un momento seguimos en la pestaña (la app no
+                    // abrió, no está instalada), se cae al perfil web.
+                    setTimeout(() => {
+                        if (!document.hidden && Date.now() - inicio < 2000) {
+                            location.href = 'https://www.instagram.com/automanize/';
+                        }
+                    }, 1200);
+                });
+            }
+        })();
+    </script>
+
+    <script>
+        // SplitText — versión vanilla del componente de ReactBits (que usa
+        // GSAP + SplitType). Parte el texto en caracteres y los anima en
+        // cascada al entrar en pantalla.
+        (function () {
+            const DELAY    = 50;      // ms entre letra y letra (prop "delay")
+            const DURATION = 1.25;    // s por letra (prop "duration")
+            const MAX_STAGGER_TOTAL = 900;  // tope de la cascada completa (ms)
+            const THRESHOLD = 0.1;    // prop "threshold"
+            // Solo se recorta por ABAJO. Con -100px en los cuatro lados, un
+            // elemento situado cerca del borde superior (el lema del hero en
+            // móvil, a ~50px del techo) nunca llegaba a considerarse visible
+            // y se quedaba invisible para siempre.
+            const ROOT_MARGIN = '0px 0px -80px 0px';
+
+            const targets = document.querySelectorAll('[data-split]');
+            if (!targets.length) return;
+
+            // Parte el texto respetando el marcado anidado: recorre los nodos
+            // y solo envuelve los de texto. Los <br> se dejan intactos y los
+            // <svg> (las "A" del logotipo) se animan como una pieza entera,
+            // porque partirlos por dentro los rompería.
+            function splitChars(root) {
+                const chars = [];
+
+                (function walk(node) {
+                    [...node.childNodes].forEach((child) => {
+                        if (child.nodeType === Node.TEXT_NODE) {
+                            const text = child.textContent;
+                            if (!text.trim() && !text.includes(' ')) return;
+
+                            // Las letras van dentro de UN envoltorio inline, no
+                            // sueltas en el padre. Motivo: si el padre es un
+                            // contenedor flex (.beam-badge, .brand-tagline),
+                            // cada letra suelta se convertiría en un flex item
+                            // — los espacios se descartan en layout flex (el
+                            // badge salía como "TODOENUNSOLOLUGAR") y el "gap"
+                            // se aplicaría entre letra y letra. Con el
+                            // envoltorio, el flex ve un único item y dentro
+                            // el texto se comporta con normalidad.
+                            const frag = document.createElement('span');
+                            frag.className = 'split-frag';
+
+                            // Las letras se agrupan por PALABRA. Sueltas, al
+                            // ser inline-block, el navegador puede cortar
+                            // entre cualquier par de letras y parte palabras
+                            // por la mitad ("automatizar p / rocesos") en
+                            // cuanto el espacio aprieta.
+                            text.split(/(\s+)/).forEach((trozo) => {
+                                if (!trozo) return;
+                                if (/^\s+$/.test(trozo)) {
+                                    frag.appendChild(document.createTextNode(trozo));
+                                    return;
+                                }
+                                const palabra = document.createElement('span');
+                                palabra.className = 'split-word';
+                                for (const ch of trozo) {
+                                    const span = document.createElement('span');
+                                    span.className = 'split-char';
+                                    span.textContent = ch;
+                                    palabra.appendChild(span);
+                                    chars.push(span);
+                                }
+                                frag.appendChild(palabra);
+                            });
+
+                            node.replaceChild(frag, child);
+                            return;
+                        }
+
+                        if (child.nodeType !== Node.ELEMENT_NODE) return;
+
+                        const tag = child.tagName.toLowerCase();
+                        if (tag === 'br') return;
+
+                        // Piezas que NO se parten por dentro y se animan como
+                        // una sola unidad:
+                        //  - <svg>: partirlo lo rompería (las "A" del logotipo).
+                        //  - .shiny-gold: su degradado usa background-clip:text
+                        //    sobre TODO el bloque. Si se parte en letras, cada
+                        //    una se vuelve inline-block con transform y el
+                        //    degradado del padre deja de pintar a través de
+                        //    ellas — el texto se volvería invisible.
+                        if (tag === 'svg' || child.classList.contains('shiny-gold') ||
+                            child.hasAttribute('data-split-unit')) {
+                            child.classList.add('split-char');
+                            chars.push(child);
+                            return;
+                        }
+                        walk(child);
+                    });
+                })(root);
+
+                return chars;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    const el = entry.target;
+
+                    if (!entry.isIntersecting) {
+                        // Al salir de pantalla se vuelve al estado inicial
+                        // (oculto y desplazado), para que la próxima vez que
+                        // se entre la cascada se reproduzca otra vez.
+                        el.classList.remove('is-revealed');
+                        return;
+                    }
+
+                    // Reinicia la animación. Quitar y volver a poner la clase
+                    // no basta si ambas cosas caen en el mismo tick: el
+                    // navegador agrupa los cambios y no la reevalúa. Leer
+                    // offsetWidth fuerza un reflow entre medias.
+                    el.classList.remove('is-revealed');
+                    void el.offsetWidth;
+                    el.classList.add('is-revealed');
+                });
+            }, { threshold: THRESHOLD, rootMargin: ROOT_MARGIN });
+
+            targets.forEach((el) => {
+                const chars = splitChars(el);
+                if (!chars.length) return;
+
+                // El desfase de 50 ms del componente está pensado para textos
+                // cortos ("Hello, you!"). En un párrafo de 114 letras daría
+                // casi 7 s hasta que aparece la última. Se limita el total de
+                // la cascada: los textos cortos mantienen los 50 ms y los
+                // largos comprimen el desfase para no eternizarse.
+                const stagger = Math.min(DELAY, MAX_STAGGER_TOTAL / chars.length);
+
+                chars.forEach((ch, i) => {
+                    ch.style.animationDelay = (i * stagger).toFixed(1) + 'ms';
+                    ch.style.setProperty('--split-duration', DURATION + 's');
+                });
+
+                // Marca de "ya partido": es lo que activa el estado oculto en
+                // CSS. Si este script no llegara a ejecutarse, el texto se
+                // vería con normalidad en lugar de quedarse invisible.
+                el.classList.add('is-split');
+
+                // Equivalente a onLetterAnimationComplete. Sin "once": ahora
+                // la cascada se repite en cada entrada, así que el aviso debe
+                // dispararse en cada pasada, no solo en la primera.
+                const last = chars[chars.length - 1];
+                last.addEventListener('animationend', (e) => {
+                    if (e.animationName !== 'splitIn') return;   // ignora el brillo del dorado
+                    el.dispatchEvent(new CustomEvent('splittext:complete', { bubbles: true }));
+                });
+
+                observer.observe(el);
+            });
+        })();
+    </script>
+
+    <script>
+        // Animated Beam — versión vanilla de Magic UI. En vez de animar
+        // coordenadas de gradiente con Framer Motion, cada beam es un
+        // <path> con stroke-dasharray fijo (el "cometa") y stroke-dashoffset
+        // animado a mano con requestAnimationFrame, recorriendo la curva
+        // real medida con path.getTotalLength(). Las curvas varían a
+        // propósito: unas rectas, otras con distinta curvatura y sentido,
+        // y cada una con su propia duración para que no pulsen al unísono.
+        (function () {
+            const stage = document.getElementById('beamStage');
+            const svg   = document.getElementById('beamSvg');
+            if (!stage || !svg) return;
+
+            const card = document.querySelector('.beam-card');
+            // Se declara arriba porque los manejadores de resize la consultan
+            // y esos pueden dispararse antes de llegar al bloque de montaje.
+            let built = false;
+
+            const PULSE_LEN = 40;    // largo del impulso, en px de trazado
+            const TRAVEL_MS = 460;   // lo que tarda en cruzar el cable
+            const HOLD_MS   = 340;   // pausa en el centro: el "procesado"
+            // Nota: "duration" de cada beam ya NO es la velocidad, sino el
+            // intervalo entre ciclos. Antes iban acoplados en un solo valor
+            // y no se podía tener un disparo rápido con una pausa larga.
+
+            const SVG_NS = 'http://www.w3.org/2000/svg';
+            // Antes el path apuntaba al círculo del icono entero; ahora cada
+            // herramienta lleva icono + texto, y el punto real de conexión
+            // es el "beam-dot" pegado al centro (igual que en la referencia
+            // de diseño) — por eso se busca [data-node] en general, no solo
+            // .beam-node (que ahora es únicamente el círculo del icono).
+            const nodes = {};
+            stage.querySelectorAll('[data-node]').forEach((el) => {
+                nodes[el.dataset.node] = el;
+            });
+            const centerEl = nodes.center;
+
+            // curvature: + o - según hacia qué lado se combe la curva; 0 = recta.
+            // endYOffset: desplaza verticalmente el punto de llegada al centro,
+            // para que las 6 líneas no converjan todas en el mismo píxel.
+            // Igual que en el código original: cada pareja izquierda/derecha
+            // comparte curvature y endYOffset (drive=docs, whatsapp=messenger,
+            // notion=zapier sin curvar), y solo cambia "reverse" — así la
+            // derecha es el espejo correcto de la izquierda, no una curva
+            // distinta por su cuenta.
+            const BEAMS = [
+                // "duration" = intervalo entre ciclos (s). Números que no son
+                // múltiplos entre sí a propósito, para que no acaben
+                // sincronizándose y disparando todos a la vez.
+                // "msg" = lo que el centro muestra cuando ESE impulso llega.
+                { from: 'drive',     curvature: -75, endYOffset: -10, color: '#4285F4', duration: 4.7, msg: 'Documento archivado' },
+                { from: 'notion',    curvature:   0, endYOffset:   0, color: '#1a1a1a', duration: 3.5, msg: 'Nuevo interesado' },
+                { from: 'whatsapp',  curvature:  75, endYOffset:  10, color: '#25D366', duration: 4.3, msg: 'Mensaje respondido' },
+                { from: 'docs',      curvature: -75, endYOffset: -10, color: '#4285F4', duration: 5.5, msg: 'Contrato generado' },
+                { from: 'zapier',    curvature:   0, endYOffset:   0, color: '#FF4F00', duration: 3.9, msg: 'Visita agendada' },
+                { from: 'messenger', curvature:  75, endYOffset:  10, color: '#7c5cff', duration: 5.1, msg: 'Cobro registrado' },
+            ];
+
+            BEAMS.forEach((cfg) => {
+                const track = document.createElementNS(SVG_NS, 'path');
+                track.setAttribute('class', 'beam-track');
+                svg.appendChild(track);
+
+                const glow = document.createElementNS(SVG_NS, 'path');
+                glow.setAttribute('class', 'beam-glow');
+                glow.style.color = cfg.color;
+                svg.appendChild(glow);
+
+                cfg._track = track;
+                cfg._glow  = glow;
+            });
+
+            function centerOf(el, stageRect) {
+                const r = el.getBoundingClientRect();
+                return {
+                    x: r.left + r.width / 2 - stageRect.left,
+                    y: r.top + r.height / 2 - stageRect.top,
+                };
+            }
+
+            // Curva cuadrática: punto de control en el punto medio, desplazado
+            // en perpendicular a la línea recta según "curvature" (en px).
+            // Fórmula real de Magic UI: el punto de control se desplaza en
+            // VERTICAL puro respecto al punto medio, no en perpendicular a
+            // la línea. Con la perpendicular, una beam que ya viene en
+            // diagonal (como App, de abajo-derecha) giraba el control point
+            // hacia un lado inesperado y cruzaba otras líneas cerca del
+            // centro. Con desplazamiento vertical puro, el mismo curvature
+            // en dos beams espejadas (izquierda/derecha) dobla siempre en
+            // el mismo sentido absoluto — así es como se ven "alas" a juego
+            // en vez de una S rara.
+            function buildPath(from, to, curvature) {
+                const midX = (from.x + to.x) / 2;
+                const midY = (from.y + to.y) / 2 + curvature;
+                return `M ${from.x} ${from.y} Q ${midX} ${midY} ${to.x} ${to.y}`;
+            }
+
+            function layout() {
+                const stageRect = stage.getBoundingClientRect();
+                svg.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
+
+                const centerBase = centerOf(centerEl, stageRect);
+
+                BEAMS.forEach((cfg) => {
+                    const fromEl = nodes[cfg.from];
+                    if (!fromEl) return;
+                    const from = centerOf(fromEl, stageRect);
+                    const to   = { x: centerBase.x, y: centerBase.y + cfg.endYOffset };
+                    const d = buildPath(from, to, cfg.curvature);
+
+                    cfg._track.setAttribute('d', d);
+                    cfg._glow.setAttribute('d', d);
+
+                    // Impulso: un destello corto que recorre el cable y luego
+                    // una pausa antes del siguiente, en vez de un segmento
+                    // largo desplazándose sin parar. Se consigue dejando un
+                    // hueco MAYOR que la propia línea (total + PAUSE_LEN):
+                    // durante ese exceso no hay nada pintado sobre el trazado,
+                    // que es lo que crea el silencio entre impulso e impulso.
+                    const total = cfg._glow.getTotalLength();
+
+                    cfg._total = total;
+                    // Hueco enorme: garantiza que solo haya UN impulso sobre
+                    // el cable en todo momento. La posición ya no se deja al
+                    // desplazamiento continuo del patrón (que solo permite un
+                    // sentido), sino que se calcula a mano en cada frame —
+                    // es lo que permite la ida y la vuelta.
+                    cfg._glow.style.strokeDasharray = `${PULSE_LEN} 999999`;
+                });
+            }
+
+            layout();
+
+            // Tras recalcular las curvas hay que reaplicar el estado de las
+            // líneas: layout() cambia su longitud y el dasharray anterior
+            // dejaría de cuadrar.
+            function relayout() {
+                layout();
+                dibujarLineas(built);
+            }
+
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(relayout, 120);
+            });
+            if ('ResizeObserver' in window) {
+                new ResizeObserver(() => relayout()).observe(stage);
+            }
+
+            // ===== CONSTRUCCIÓN DE LA RED AL LLEGAR A LA SECCIÓN =====
+            // Secuencia: las tarjetas entran desde su lado (escalonadas), el
+            // hub aparece en el centro, después se despliegan las líneas
+            // dibujándose de fuera hacia dentro, y por último arrancan los
+            // impulsos. Se rehace cada vez que se vuelve a la sección.
+            // Escalonado de entrada de cada tarjeta
+            stage.querySelectorAll('.beam-entry').forEach((el, i) => {
+                el.style.transitionDelay = (i * 95) + 'ms';
+            });
+            const centro = stage.querySelector('.beam-node--center');
+            if (centro) centro.style.transitionDelay = '380ms';
+            stage.querySelectorAll('.beam-dot').forEach((el) => {
+                el.style.transitionDelay = '1000ms';
+            });
+
+            // Coloca el estado de las líneas SIN animar (montadas o no).
+            // Se usa para el estado inicial y tras un redimensionado, donde
+            // volver a animar el despliegue quedaría raro.
+            function dibujarLineas(montadas) {
+                BEAMS.forEach((cfg) => {
+                    const largo = cfg._total || 0;
+                    if (!largo) return;
+                    const track = cfg._track;
+                    track.style.transition = 'none';
+                    track.style.strokeDasharray = String(largo);
+                    track.style.strokeDashoffset = montadas ? '0' : String(largo);
+                    void track.getBoundingClientRect();
+                });
+            }
+
+            // Anima el despliegue: cada línea se dibuja de fuera hacia el
+            // centro, escalonada, después de que hayan entrado las tarjetas.
+            function animarDespliegue() {
+                BEAMS.forEach((cfg, i) => {
+                    const largo = cfg._total || 0;
+                    if (!largo) return;
+                    const track = cfg._track;
+
+                    // El reflow entre el estado inicial y el final es
+                    // imprescindible: sin él el navegador agrupa ambos
+                    // cambios y la línea aparece de golpe, sin dibujarse.
+                    track.style.transition = 'none';
+                    track.style.strokeDasharray = String(largo);
+                    track.style.strokeDashoffset = String(largo);
+                    void track.getBoundingClientRect();
+
+                    track.style.transition =
+                        `stroke-dashoffset .85s cubic-bezier(.16,1,.3,1) ${700 + i * 85}ms`;
+                    track.style.strokeDashoffset = '0';
+                });
+            }
+
+            function construir() {
+                if (built) return;
+                built = true;
+                card.classList.add('is-built');
+                animarDespliegue();
+            }
+
+            function desmontar() {
+                if (!built) return;
+                built = false;
+                card.classList.remove('is-built');
+                dibujarLineas(false);
+            }
+
+            dibujarLineas(false);   // estado inicial: líneas sin dibujar
+
+            new IntersectionObserver(([e]) => {
+                if (e.isIntersecting) construir();
+                else desmontar();
+            }, { threshold: 0.2 }).observe(card);
+
+            // Bucle propio: independiente del render loop de Three.js del
+            // hero, para que esta sección siga viva aunque el hero esté
+            // pausado fuera de vista.
+            // Desfase inicial por beam: sin esto todos arrancarían el ciclo
+            // en el mismo instante y el primer disparo sería simultáneo.
+            BEAMS.forEach((cfg, i) => { cfg._offset = i * 430; });
+
+            // --- Mensaje del centro -------------------------------------
+            const msgEl  = document.getElementById('beamCenterMsg');
+            const msgDot = msgEl && msgEl.querySelector('.dot');
+            const msgTxt = msgEl && msgEl.querySelector('.txt');
+            let msgTimer = null;
+
+            function mostrarMensaje(cfg) {
+                if (!msgEl) return;
+                msgTxt.textContent = cfg.msg;
+                msgDot.style.background = cfg.color;
+                msgEl.classList.add('is-on');
+
+                // Se mantiene un poco más que el "procesado" para que dé
+                // tiempo a leerlo, y se apaga si no llega otro impulso.
+                clearTimeout(msgTimer);
+                msgTimer = setTimeout(() => msgEl.classList.remove('is-on'), 1100);
+            }
+
+            function tick(t) {
+                requestAnimationFrame(tick);
+
+                BEAMS.forEach((cfg) => {
+                    if (!cfg._total) return;
+
+                    const total = cfg._total;
+                    const span  = total + PULSE_LEN;   // recorrido completo del impulso
+                    const ida   = TRAVEL_MS;
+                    const vuelta = TRAVEL_MS;
+                    const ciclo = Math.max(cfg.duration * 1000, ida + HOLD_MS + vuelta + 150);
+
+                    const tt = ((t + cfg._offset) % ciclo + ciclo) % ciclo;
+
+                    // "s" = distancia recorrida por la cabeza del impulso a lo
+                    // largo del trazado. El path va del nodo (0) al centro
+                    // (total), así que s creciente = hacia el centro y s
+                    // decreciente = de vuelta al nodo.
+                    let s;
+                    if (tt < ida) {
+                        s = (tt / ida) * span;                       // nodo → centro
+                    } else if (tt < ida + HOLD_MS) {
+                        s = span;                                    // dentro del centro (oculto)
+                    } else if (tt < ida + HOLD_MS + vuelta) {
+                        s = (1 - (tt - ida - HOLD_MS) / vuelta) * span;   // centro → nodo
+                    } else {
+                        s = 0;                                       // en espera (oculto)
+                    }
+
+                    // Con dasharray "PULSE_LEN 999999", el trazo ocupa
+                    // [s - PULSE_LEN, s]. Fuera de [0, total] queda recortado
+                    // por el propio path, así que desaparece solo.
+                    cfg._glow.style.strokeDashoffset = PULSE_LEN - s;
+
+                    // Al llegar al centro, este beam pasa a ser el que manda
+                    // el mensaje que se muestra.
+                    const llegando = tt >= ida && tt < ida + HOLD_MS;
+                    if (llegando && cfg._lastArrival !== true) {
+                        cfg._lastArrival = true;
+                        mostrarMensaje(cfg);
+                    } else if (!llegando) {
+                        cfg._lastArrival = false;
+                    }
+                });
+            }
+            requestAnimationFrame(tick);
+        })();
+    </script>
+
+    <script type="module">
+        import * as THREE from './assets/js/three.module.min.js';
+
+        /* ============================================================
+           HERO WEBGL — las 4 piezas del producto orbitando en círculo
+           ------------------------------------------------------------
+           El scroll dentro del .scroll-stage gira la órbita. Las tarjetas
+           recorren una elipse en el plano de pantalla, con profundidad en
+           Z para que unas pasen por delante y otras por detrás.
+           Fondo omitido a propósito: el canvas es transparente.
+           ============================================================ */
+
+        // El ORDEN importa: la primera entrada es la que arranca de frente
+        // al cargar la página (recibe baseAngle 0), y el resto la siguen
+        // según se hace scroll.
+        // "href" es la página real a la que lleva el botón del lightbox.
+        // App móvil y Software a medida todavía no tienen página propia en
+        // el sitio, así que apuntan a our-services.html como mejor
+        // aproximación disponible — cámbialo en cuanto exista la suya.
+        const CARDS = [
+            {
+                label: 'Software a medida',
+                blurb: 'Creamos la herramienta que tu negocio necesita.',
+                src: 'assets/images/nize-software-personalizado.png',
+                href: 'our-services.html',
+            },
+            {
+                label: 'Agente IA · WhatsApp',
+                blurb: 'Responde, filtra y agenda visitas. 24 horas al día.',
+                src: 'assets/images/nize-agente-ia.png',
+                href: 'our-services.html#whatsapp',
+            },
+            {
+                label: 'CRM Nize',
+                blurb: 'Contratos, cobros e incidencias en un solo panel.',
+                src: 'assets/images/crm-nize-dashboard.png',
+                href: 'crm.html',
+            },
+            {
+                label: 'App móvil Nize',
+                blurb: 'Tu cartera entera, en el bolsillo.',
+                src: 'assets/images/nize-app-movil.png',
+                href: 'our-services.html',
+            },
+        ];
+
+        // --- Parámetros de la órbita (lo que querrás tocar) ---------
+        const RADIUS_X   = 5.0;    // ancho del círculo
+        const RADIUS_Y   = 2.4;    // alto  (menor = elipse tumbada)
+        const DEPTH      = 2.6;    // cuánto se alejan/acercan en Z
+        const CENTER_Y   = 1.5;    // sube (+) o baja (−) toda la composición
+        const TURNS      = 1.0;    // vueltas completas en todo el scroll
+        const PLANE_W    = 3.7;    // tamaño de las tarjetas
+        const PLANE_H    = 2.3;
+        const ASPECT     = PLANE_W / PLANE_H;
+
+        const canvas   = document.getElementById('gl');
+        const hintEl   = document.getElementById('scrollHint');
+        const stageEl  = document.querySelector('.scroll-stage');
+
+        // Una etiqueta DOM por tarjeta — se posiciona y se atenúa cada
+        // frame según dónde proyecte esa tarjeta en pantalla (ver animate()).
+        const labelsRoot = document.getElementById('sideLabelsRoot');
+        const sideLabels = CARDS.map((cfg) => {
+            const el = document.createElement('div');
+            el.className = 'side-label';
+            el.innerHTML =
+                `<span class="side-label-kicker">${cfg.label}</span>` +
+                `<p class="side-label-line">${cfg.blurb}</p>`;
+            labelsRoot.appendChild(el);
+            return el;
+        });
+
+        // --- Soporte WebGL -----------------------------------------
+        function hasWebGL() {
+            try {
+                const c = document.createElement('canvas');
+                return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')));
+            } catch (e) { return false; }
+        }
+
+        if (!hasWebGL()) {
+            canvas.remove();
+            const fb = document.createElement('div');
+            fb.className = 'no-webgl';
+            document.querySelector('.hero').prepend(fb);
+            throw new Error('WebGL no disponible — fallback aplicado');
+        }
+
+        const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // --- Escena ------------------------------------------------
+        const scene  = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 11.5);
+
+        const renderer = new THREE.WebGLRenderer({
+            canvas, alpha: true, antialias: true, powerPreference: 'high-performance',
+        });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+        // --- Shaders -----------------------------------------------
+        const vertexShader = /* glsl */`
+            uniform float uTime;
+            uniform float uFront;      // 1 cuando la tarjeta está al frente
+            uniform float uDissolve;   // 0 sólida · 1 desintegrada
+            uniform float uClarity;    // 1 = protagonista: sin efectos encima
+            varying vec2  vUv;
+            varying float vWave;
+
+            float hash(vec2 p) {
+                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+            }
+
+            void main() {
+                vUv = uv;
+                vec3 pos = position;
+
+                // Ondulación sutil; se aplana al llegar al frente para que
+                // la imagen protagonista quede completamente lisa y legible.
+                float wave = sin(pos.x * 1.7 + uTime * 0.8) * 0.028
+                           + cos(pos.y * 2.2 + uTime * 0.6) * 0.022;
+                pos.z += wave * (0.9 - uClarity * 0.85);
+                vWave = wave * (1.0 - uClarity);
+
+                // Desintegración: los vértices salen despedidos al disolverse
+                float scatter = uDissolve * uDissolve;
+                float r1 = hash(uv * 37.0);
+                float r2 = hash(uv * 91.0 + 5.0);
+                pos.x += (r1 - 0.5) * scatter * 1.6;
+                pos.y += (r2 - 0.5) * scatter * 1.2;
+                pos.z += (r1 - 0.5) * scatter * 2.4;
+
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `;
+
+        const fragmentShader = /* glsl */`
+            uniform sampler2D uTex;
+            uniform float uOpacity;
+            uniform float uFront;       // 1 al frente, 0 al fondo
+            uniform float uAberration;  // sube con la velocidad de scroll
+            uniform float uDissolve;    // 0 sólida · 1 desintegrada
+            uniform float uClarity;     // 1 = protagonista: sin efectos encima
+            uniform float uTime;
+            uniform vec2  uRepeat;
+            uniform vec2  uOffset;
+            varying vec2  vUv;
+            varying float vWave;
+
+            float roundedBox(vec2 p, vec2 b, float r) {
+                vec2 q = abs(p) - b + r;
+                return min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0))) - r;
+            }
+
+            float hash(vec2 p) {
+                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+            }
+
+            float noise(vec2 p) {
+                vec2 i = floor(p), f = fract(p);
+                vec2 u = f * f * (3.0 - 2.0 * f);
+                return mix(mix(hash(i),               hash(i + vec2(1.0, 0.0)), u.x),
+                           mix(hash(i + vec2(0.0,1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+            }
+
+            float fbm(vec2 p) {
+                float v = 0.0, a = 0.5;
+                for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+                return v;
+            }
+
+            void main() {
+                vec2 uv  = vUv * uRepeat + uOffset;
+                vec2 dir = vUv - 0.5;
+
+                // fx = 0 cuando la tarjeta es la protagonista → imagen limpia
+                float fx = 1.0 - uClarity;
+
+                // La disolución también arrastra las UV (efecto humo)
+                float smoke = fbm(vUv * 5.0 + vec2(uTime * 0.06, uTime * 0.04));
+                uv += (smoke - 0.5) * uDissolve * 0.12 * fx;
+
+                // Aberración cromática: velocidad de giro + desintegración
+                float amt = (uAberration + uDissolve * 3.0) * (0.003 + length(dir) * 0.04) * fx;
+                vec3 color = vec3(
+                    texture2D(uTex, uv + dir * amt).r,
+                    texture2D(uTex, uv).g,
+                    texture2D(uTex, uv - dir * amt).b
+                );
+
+                color += sin(vUv.y * 380.0 + uTime * 9.0) * 0.02 * (uAberration + uDissolve * 2.0) * fx;
+                color += vWave * 0.35;
+
+                // Profundidad sobre fondo BLANCO: lo lejano se desatura y se
+                // lava hacia blanco (en fondo oscuro sería al revés: oscurecer).
+                // Se usa el máximo con uClarity para que la protagonista salga
+                // siempre a color pleno, sin lavado residual.
+                float depth = max(uFront, uClarity);
+                float lum = dot(color, vec3(0.299, 0.587, 0.114));
+                color = mix(vec3(lum), color, 0.4 + depth * 0.6);
+                color = mix(vec3(1.0), color, 0.3 + depth * 0.7);
+
+                // Esquinas redondeadas
+                float d    = roundedBox(vUv - 0.5, vec2(0.5), 0.05);
+                float mask = 1.0 - smoothstep(-0.005, 0.005, d);
+
+                // Filo ámbar, más marcado en la tarjeta protagonista
+                float edge = smoothstep(0.013, 0.0, abs(d));
+                color = mix(color, vec3(1.0, 0.72, 0.15), edge * (0.25 + uFront * 0.5));
+
+                // ===== TRANSICIÓN: desintegración por ruido =====
+                // La textura se rompe en jirones según se aleja del frente.
+                float grain = fbm(vUv * 7.0 + vec2(uTime * 0.05, 0.0));
+                float w     = 0.30;
+
+                // El umbral debe recorrer TODO el rango del ruido con margen:
+                // de -w (nada se disuelve) a 1+w (todo disuelto). Si se usa
+                // uDissolve directo, en 0 las zonas de ruido bajo quedan
+                // semitransparentes y la imagen sale turbia a manchas.
+                float threshold = mix(-w, 1.0 + w, uDissolve);
+                float reveal    = smoothstep(threshold - w, threshold + w, grain);
+
+                // Banda incandescente en el borde que se está deshaciendo.
+                // Sobre blanco hay que MEZCLAR hacia ámbar, no sumar: sumar
+                // sobre píxeles ya claros satura a blanco y desaparece.
+                float band = 1.0 - smoothstep(0.0, 0.3, abs(grain - threshold));
+                color = mix(color, vec3(1.0, 0.55, 0.05), clamp(band * uDissolve * 1.35 * fx, 0.0, 0.92));
+
+                float alpha = uOpacity * mask * reveal;
+                if (alpha < 0.001) discard;
+
+                gl_FragColor = vec4(color, alpha);
+            }
+        `;
+
+        // --- Tarjetas ----------------------------------------------
+        const loader   = new THREE.TextureLoader();
+        const geometry = new THREE.PlaneGeometry(PLANE_W, PLANE_H, 32, 24);
+        const cards    = [];
+
+        CARDS.forEach((cfg, i) => {
+            const material = new THREE.ShaderMaterial({
+                vertexShader, fragmentShader,
+                transparent: true,
+                depthWrite: false,
+                side: THREE.DoubleSide,
+                uniforms: {
+                    uTex:        { value: null },
+                    uTime:       { value: 0 },
+                    uFront:      { value: 0 },
+                    uOpacity:    { value: 1 },
+                    uAberration: { value: 0 },
+                    uDissolve:   { value: 0 },
+                    uClarity:    { value: 0 },
+                    uRepeat:     { value: new THREE.Vector2(1, 1) },
+                    uOffset:     { value: new THREE.Vector2(0, 0) },
+                },
+            });
+
+            const texture = loader.load(
+                cfg.src,
+                (tex) => { tex.colorSpace = THREE.SRGBColorSpace; fitCover(tex, material); },
+                undefined,
+                () => console.warn('No se pudo cargar la textura:', cfg.src)
+            );
+            texture.colorSpace = THREE.SRGBColorSpace;
+            material.uniforms.uTex.value = texture;
+
+            const mesh = new THREE.Mesh(geometry, material);
+            // Posición inicial equiespaciada en el círculo
+            mesh.userData = {
+                baseAngle: (i / CARDS.length) * Math.PI * 2,
+                index: i,
+                label: cfg.label,
+                blurb: cfg.blurb,
+            };
+
+            scene.add(mesh);
+            cards.push(mesh);
+        });
+
+        function fitCover(tex, material) {
+            const img = tex.image;
+            if (!img || !img.width) return;
+            const imgAspect = img.width / img.height;
+
+            let rx = 1, ry = 1, ox = 0, oy = 0;
+            if (imgAspect > ASPECT) { rx = ASPECT / imgAspect; ox = (1 - rx) / 2; }
+            else                    { ry = imgAspect / ASPECT; oy = (1 - ry) / 2; }
+            material.uniforms.uRepeat.value.set(rx, ry);
+            material.uniforms.uOffset.value.set(ox, oy);
+        }
+
+        // --- Isotipo Nize en el centro del círculo -----------------
+        // Va como plano 3D (no como <img> en HTML) para que las tarjetas
+        // que pasan por delante lo tapen y las de detrás queden debajo.
+        const LOGO_SIZE = 2.0;   // tamaño del isotipo
+        const LOGO_LIFT = 0.3;   // lo sube respecto al centro de la órbita,
+                                 // para despegarlo de la imagen de delante
+
+        const logoTex = loader.load(
+            'assets/images/nize-isotipo.png',
+            (t) => { t.colorSpace = THREE.SRGBColorSpace; },
+            undefined,
+            () => console.warn('No se pudo cargar el isotipo')
+        );
+        logoTex.colorSpace = THREE.SRGBColorSpace;
+
+        const logo = new THREE.Mesh(
+            new THREE.PlaneGeometry(LOGO_SIZE, LOGO_SIZE),
+            new THREE.MeshBasicMaterial({ map: logoTex, transparent: true, depthWrite: false })
+        );
+        // 50 = punto medio de la escala de renderOrder de las tarjetas (0-100):
+        // las que están al frente lo tapan, las del fondo pasan por detrás.
+        logo.renderOrder = 50;
+        scene.add(logo);
+
+        // --- Ajuste al ancho de pantalla ---------------------------
+        // En escritorio solo se cierra el radio horizontal según la
+        // proporción. En móvil hace falta más: el viewport es alto y
+        // estrecho, así que la elipse se cierra a lo ancho, se estira a lo
+        // alto y las tarjetas encogen para caber; si no, se salen por ambos
+        // lados y provocan scroll horizontal.
+        let radiusX = RADIUS_X;
+        let radiusY = RADIUS_Y;
+        let centerY = CENTER_Y;
+        let cardScale = 1;
+        let logoY = CENTER_Y + LOGO_LIFT;
+        // En móvil solo se muestra la tarjeta protagonista. Con la pantalla
+        // estrecha, las hermanas a medio desintegrar se apelotonan y forman
+        // una banda de ruido cruzando el hero: el efecto que en escritorio
+        // luce, aquí ensucia. Se ocultan y queda una sola imagen limpia.
+        let soloProtagonista = false;
+
+        function fitScene() {
+            const aspect = innerWidth / innerHeight;
+            const estrecha = innerWidth < 760;
+            soloProtagonista = estrecha;
+
+            if (estrecha) {
+                radiusX = 0.9;
+                radiusY = 2.6;
+                centerY = 2.0;
+                // El isotipo se coloca aparte, no colgado del centro de la
+                // órbita: así queda justo encima de la imagen sin el hueco
+                // muerto que dejaba al heredar la posición del círculo.
+                logoY = 1.6;
+
+                // El tamaño no se fija a ojo: se mide el ancho real del mundo
+                // a la profundidad de la tarjeta frontal y se ocupa un 86%.
+                // Así encaja igual de bien en un móvil estrecho que en uno
+                // ancho, sin números mágicos por dispositivo.
+                const distancia = camera.position.z - DEPTH;
+                const altoVisible = 2 * distancia * Math.tan((camera.fov * Math.PI / 180) / 2);
+                const anchoVisible = altoVisible * (innerWidth / innerHeight);
+                cardScale = (anchoVisible * 0.86) / (PLANE_W * 1.22);
+            } else {
+                radiusX = RADIUS_X * Math.min(1, Math.max(0.42, aspect / 1.6));
+                radiusY = RADIUS_Y;
+                centerY = CENTER_Y;
+                cardScale = 1;
+                logoY = CENTER_Y + LOGO_LIFT;
+            }
+        }
+        fitScene();
+
+        // --- Scroll → ángulo del círculo ---------------------------
+        let targetAngle  = 0;   // destino marcado por el scroll
+        let currentAngle = 0;   // valor suavizado que se pinta
+        let spinVelocity = 0;   // para la aberración por velocidad
+
+        function scrollProgress() {
+            const total = stageEl.offsetHeight - innerHeight;
+            if (total <= 0) return 0;
+            const scrolled = -stageEl.getBoundingClientRect().top;
+            return Math.min(Math.max(scrolled / total, 0), 1);
+        }
+
+        // --- Parallax con el ratón ---------------------------------
+        const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+        addEventListener('pointermove', (e) => {
+            pointer.tx = (e.clientX / innerWidth - 0.5) * 2;
+            pointer.ty = (e.clientY / innerHeight - 0.5) * 2;
+        }, { passive: true });
+
+        // --- Pausa fuera de vista ----------------------------------
+        // "visibilitychange" solo detecta pestaña oculta o navegador
+        // minimizado — si cambias a otra ventana (alt-tab) dejando esta
+        // pestaña visible detrás, document.hidden sigue en false y el
+        // círculo seguiría girando sin que lo estés mirando. Se combina con
+        // blur/focus de la propia ventana para cubrir también ese caso.
+        function updateVisible() { visible = !document.hidden && document.hasFocus(); }
+        let visible = !document.hidden && document.hasFocus();
+        document.addEventListener('visibilitychange', updateVisible);
+        window.addEventListener('blur', updateVisible);
+        window.addEventListener('focus', updateVisible);
+
+        let inView = true;
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver(([e]) => {
+                inView = e.isIntersecting;
+                // Al salir de vista, animate() deja de tocar las etiquetas
+                // (son position:fixed, en coordenadas de viewport) y se
+                // quedaban congeladas en su última posición — flotando sobre
+                // el contenido de debajo en vez de desaparecer con el hero.
+                // Se ocultan a mano en el instante exacto en que se pierde
+                // la intersección, no en el siguiente frame del render loop.
+                if (!inView) sideLabels.forEach((el) => { el.style.opacity = 0; });
+            }, { threshold: 0.01 })
+                .observe(document.querySelector('.hero'));
+        }
+
+        // --- Utilidades --------------------------------------------
+        // Equivalente en JS del smoothstep de GLSL (interpolación suave 0→1)
+        function smoothstep(edge0, edge1, x) {
+            const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
+            return t * t * (3 - 2 * t);
+        }
+
+        // --- Proyección 3D → pantalla para las etiquetas laterales -----
+        // Vector reutilizado (no crear uno nuevo por tarjeta y por frame,
+        // eso generaría basura para el recolector 4 veces por fotograma).
+        const _projPoint  = new THREE.Vector3();
+        const _rightPoint = new THREE.Vector3();
+        let halfW = innerWidth / 2, halfH = innerHeight / 2;
+
+        // Offset real del canvas en el viewport. Coincide con (0,0) mientras
+        // el hero está "clavado" por el sticky, pero deja de ser (0,0) en
+        // los últimos ~100vh del scroll-stage: ahí el sticky empieza a
+        // soltarse y la caja del hero (con el canvas dentro) se desplaza
+        // hacia arriba antes de desaparecer del todo. Sin sumar este offset,
+        // las etiquetas (position:fixed, en coordenadas de viewport) quedan
+        // calculadas como si el canvas siguiera en (0,0) y se separan de su
+        // imagen real justo en esa fase — se recalcula una vez por frame.
+        let canvasOffsetX = 0, canvasOffsetY = 0;
+
+        function projectToScreen(worldPos, out) {
+            out.copy(worldPos).project(camera);
+            return {
+                x: out.x * halfW + halfW + canvasOffsetX,
+                y: -out.y * halfH + halfH + canvasOffsetY,
+            };
+        }
+
+        // --- Bucle -------------------------------------------------
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!visible || !inView) return;
+
+            const dt = Math.min(clock.getDelta(), 0.05);
+            const t  = clock.getElapsedTime();
+
+            // El scroll es lo ÚNICO que mueve el círculo: sin scroll, quieto.
+            const p = scrollProgress();
+            targetAngle = p * Math.PI * 2 * TURNS;
+
+            const prevAngle = currentAngle;
+            currentAngle += (targetAngle - currentAngle) * 0.075;   // inercia
+            spinVelocity  = (currentAngle - prevAngle) / Math.max(dt, 0.001);
+
+            // Oculta la pista de scroll en cuanto se empieza a bajar
+            hintEl.style.opacity = p > 0.02 ? '0' : '1';
+
+            // Parallax amortiguado
+            pointer.x += (pointer.tx - pointer.x) * 0.05;
+            pointer.y += (pointer.ty - pointer.y) * 0.05;
+            camera.position.x = pointer.x * 0.35;
+            camera.position.y = -pointer.y * 0.25;
+            camera.lookAt(0, 0, 0);
+
+            // Isotipo: flotación suave y giro leve siguiendo al ratón
+            logo.position.y = logoY + Math.sin(t * 0.5) * 0.09;
+            logo.scale.setScalar(cardScale);
+            logo.rotation.y = pointer.x * 0.22;
+            logo.rotation.x = -pointer.y * 0.16;
+
+            for (const mesh of cards) {
+                const u  = mesh.material.uniforms;
+                const ud = mesh.userData;
+
+                // Signo negativo = el círculo gira hacia abajo al bajar el scroll.
+                // Cámbialo a '+' para invertir el sentido.
+                const a = ud.baseAngle - currentAngle;
+
+                // Recorrido elíptico en el plano de pantalla + profundidad en Z.
+                // La Y va invertida respecto a la Z: así lo más cercano a cámara
+                // pasa por ABAJO (bajo el isotipo) y lo lejano por arriba.
+                mesh.position.x = Math.sin(a) * radiusX;
+                mesh.position.y = -Math.cos(a) * radiusY + centerY;
+                mesh.position.z = Math.cos(a) * DEPTH;
+
+                // front: 1 cuando está delante (hacia cámara), 0 cuando está al fondo
+                const front = (Math.cos(a) + 1) / 2;
+
+                // Escala y opacidad según profundidad
+                const scale = (0.72 + front * 0.5) * cardScale;
+                mesh.scale.setScalar(scale);
+                u.uOpacity.value = soloProtagonista
+                    ? smoothstep(0.62, 0.94, front)   // móvil: solo la de delante
+                    : 0.35 + front * 0.65;
+                u.uFront.value   = front;
+
+                // Transición: sólida al frente, desintegrada al alejarse.
+                // Se mantiene entera en el arco frontal y se rompe al pasar detrás.
+                u.uDissolve.value = Math.pow(1 - front, 1.7) * 1.05;
+
+                // Nitidez: en el arco frontal se anulan TODOS los efectos
+                // (aberración, scanlines, humo, ondulación) para que la
+                // imagen protagonista se vea completamente limpia.
+                u.uClarity.value = smoothstep(0.80, 0.98, front);
+
+                // Encaradas a cámara, con una inclinación que sigue la órbita
+                mesh.rotation.y = -Math.sin(a) * 0.35 + pointer.x * 0.08;
+                mesh.rotation.x = -pointer.y * 0.05;
+                mesh.rotation.z = Math.sin(a) * 0.06;
+
+                // Cuanto más rápido gira, más se rompe el color
+                u.uAberration.value = Math.min(Math.abs(spinVelocity) * 1.6, 4.0);
+                u.uTime.value = t;
+
+                // Orden de pintado: las de delante, encima
+                mesh.renderOrder = Math.round(front * 100);
+
+                // Guardado para el paso de etiquetas de abajo: hace falta
+                // el matrixWorld ya actualizado, que solo existe después
+                // de este bucle (ver scene.updateMatrixWorld más abajo).
+                mesh.userData.front = front;
+            }
+
+            // Etiquetas laterales: una proyección de cámara por tarjeta.
+            // Se actualiza el grafo de la escena una sola vez (barato) en
+            // vez de por-tarjeta, y se reutiliza para las 4 proyecciones.
+            scene.updateMatrixWorld(true);
+
+            const canvasRect = canvas.getBoundingClientRect();
+            canvasOffsetX = canvasRect.left;
+            canvasOffsetY = canvasRect.top;
+
+            // Cuánto del hero sigue realmente en pantalla (1 = entero, 0 = fuera).
+            // Las etiquetas se apagan con él: antes solo se ocultaban cuando el
+            // hero desaparecía DEL TODO, así que mientras asomaban unos píxeles
+            // por arriba el texto se quedaba flotando sobre la sección de abajo.
+            const visibleH = Math.max(
+                0,
+                Math.min(canvasRect.bottom, innerHeight) - Math.max(canvasRect.top, 0),
+            );
+            const heroVisible = canvasRect.height > 0
+                ? visibleH / Math.min(canvasRect.height, innerHeight)
+                : 0;
+            const heroFade = smoothstep(0.55, 0.85, heroVisible);
+
+            cards.forEach((mesh, i) => {
+                const label = sideLabels[i];
+                const front = mesh.userData.front;
+
+                // Aparecen/desaparecen junto a su imagen. Ventana más tardía
+                // que uClarity (0.80-0.98): esperar a que la imagen esté del
+                // todo asentada, no solo "limpia" — así el texto no llega a
+                // pisar la imagen mientras esta aún termina de crecer/moverse.
+                const labelOpacity = smoothstep(0.90, 0.985, front) * heroFade;
+
+                if (labelOpacity < 0.01) {
+                    label.style.opacity = 0;
+                    return;
+                }
+
+                const center = projectToScreen(mesh.position, _projPoint);
+
+                // Punto en el borde derecho de la tarjeta, en su espacio local,
+                // transformado a mundo con el matrixWorld ya actualizado.
+                // Proyectarlo junto al centro da el "medio ancho" ya expresado
+                // en píxeles de pantalla — incluye escala, rotación y
+                // perspectiva, así la etiqueta se separa lo justo en cada caso.
+                _rightPoint.set(PLANE_W / 2, 0, 0).applyMatrix4(mesh.matrixWorld);
+                const rightEdge = projectToScreen(_rightPoint, _rightPoint);
+
+                const margin = 40;
+                let x = center.x + (rightEdge.x - center.x) + margin;
+                let y = center.y;
+
+                // Colchón de seguridad para que el texto no se salga del
+                // viewport en pantallas estrechas.
+                x = Math.min(Math.max(x, 12), innerWidth - 200);
+                y = Math.min(Math.max(y, 40), innerHeight - 40);
+
+                label.style.left    = x + 'px';
+                label.style.top     = y + 'px';
+                label.style.opacity = labelOpacity;
+            });
+
+            renderer.render(scene, camera);
+            window.__glReady = true;   // señal para el panel de diagnóstico
+        }
+
+        // --- Lightbox: clic en una tarjeta → imagen a pantalla completa ---
+        // Las tarjetas son mallas 3D, no <img>, así que el clic se resuelve
+        // con raycasting: se lanza un rayo desde la cámara a través del
+        // punto pulsado en pantalla y se comprueba qué malla intersecta.
+        const raycaster = new THREE.Raycaster();
+        const pointerNDC = new THREE.Vector2();
+
+        const lightbox        = document.getElementById('lightbox');
+        const lightboxImg     = document.getElementById('lightboxImg');
+        const lightboxName    = document.getElementById('lightboxName');
+        const lightboxTitulo  = document.getElementById('lightboxTitulo');
+        const lightboxBlurb   = document.getElementById('lightboxBlurb');
+        const lightboxCta     = document.getElementById('lightboxCta');
+        const lightboxClose   = document.getElementById('lightboxClose');
+
+        function cardAtPoint(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointerNDC, camera);
+            const hits = raycaster.intersectObjects(cards, false);
+            // Solo cuentan tarjetas con opacidad perceptible: evita "pescar"
+            // una tarjeta casi invisible al fondo del círculo.
+            const hit = hits.find(h => h.object.material.uniforms.uOpacity.value > 0.15);
+            return hit ? hit.object : null;
+        }
+
+        function openLightbox(mesh) {
+            const cfg = CARDS[mesh.userData.index];
+            lightboxImg.src = cfg.src;
+            lightboxImg.alt = cfg.label;
+            lightboxName.textContent    = 'Nize · Ecosistema';
+            lightboxTitulo.textContent  = cfg.label;
+            lightboxBlurb.textContent   = cfg.blurb;
+            lightboxCta.href = cfg.href;
+            lightbox.classList.add('is-open');
+            lightbox.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';   // evita scroll de fondo con el modal abierto
+            startSpecular();
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('is-open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            stopSpecular();
+        }
+
+        // --- SpecularButton: el brillo sigue al ratón (followMouse=true),
+        // y reacciona hasta 250px fuera del propio botón (proximity=250),
+        // atenuándose con la distancia — no es un simple :hover del botón.
+        // Solo escucha mousemove mientras el lightbox está abierto: no tiene
+        // sentido pagar ese coste en el resto de la página.
+        const SB_PROXIMITY = 250;
+
+        function updateSpecular(e) {
+            const r = lightboxCta.getBoundingClientRect();
+            const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            const mitadDiagonal = Math.hypot(r.width, r.height) / 2;
+            const distanciaBorde = Math.max(0, Math.hypot(e.clientX - cx, e.clientY - cy) - mitadDiagonal);
+            const proximidad = Math.max(0, 1 - distanciaBorde / SB_PROXIMITY);
+
+            // Posición del brillo relativa al botón, en % y acotada a la
+            // caja: si el ratón está fuera (por la proximidad), el gradiente
+            // no debe dispararse hacia coordenadas absurdas.
+            const px = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+            const py = Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100));
+
+            lightboxCta.style.setProperty('--sb-x', px + '%');
+            lightboxCta.style.setProperty('--sb-y', py + '%');
+            lightboxCta.style.setProperty('--sb-proximity', proximidad.toFixed(3));
+        }
+
+        function startSpecular() {
+            document.addEventListener('mousemove', updateSpecular, { passive: true });
+        }
+        function stopSpecular() {
+            document.removeEventListener('mousemove', updateSpecular);
+            lightboxCta.style.setProperty('--sb-proximity', 0);
+        }
+
+        canvas.addEventListener('click', (e) => {
+            const hit = cardAtPoint(e.clientX, e.clientY);
+            if (hit) openLightbox(hit);
+        });
+
+        // Cursor de mano solo cuando el puntero está realmente sobre una tarjeta
+        canvas.addEventListener('pointermove', (e) => {
+            canvas.classList.toggle('is-hovering', !!cardAtPoint(e.clientX, e.clientY));
+        }, { passive: true });
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();   // clic fuera de la imagen
+        });
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('is-open')) closeLightbox();
+        });
+
+        // --- Resize ------------------------------------------------
+        let resizeTimer;
+        addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                camera.aspect = innerWidth / innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(innerWidth, innerHeight);
+                renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+                fitScene();
+                halfW = innerWidth / 2;
+                halfH = innerHeight / 2;
+            }, 120);
+        });
+
+        animate();
+    </script>
+</body>
+
+</html>
