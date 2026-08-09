@@ -447,6 +447,7 @@
     tenantEmail: '',
     tenantId:   null,
     telefono:   null,
+    tieneWhatsapp: true,
     token:      null,
     steps:      [],        // [{clave, campo_clientes, textoMostrar, tipo_input, opciones}]
     step:       0,
@@ -648,6 +649,11 @@
           </div>`;
       }
 
+      case 'email': {
+        const val = S.answers.__email ?? '';
+        return `<input id="field" type="email" inputmode="email" placeholder="tucorreo@ejemplo.com" value="${esc(val)}" autocomplete="email" />`;
+      }
+
       default:
         return `<input id="field" type="text" value="${esc(val ?? '')}" placeholder="Escribe aquí…" />`;
     }
@@ -656,7 +662,7 @@
   function bindField(step) {
     const { tipo_input, campo_clientes } = step;
 
-    if (tipo_input === 'text' || tipo_input === 'number') {
+    if (tipo_input === 'text' || tipo_input === 'number' || tipo_input === 'email') {
       const el = document.getElementById('field');
       el?.addEventListener('input', e => { S.answers[campo_clientes] = e.target.value; S.fieldErr = ''; });
       el?.addEventListener('keydown', e => {
@@ -751,17 +757,26 @@
       });
 
       let formToken;
+      let clienteId;
       if (S.mode === 'public') {
-        S.telefono = Number(S.answers.__prefijo + S.answers.__telefonoNum);
-        const res = await sbRpc('crear_lead_publico', {
+        const payload = {
           p_tenant_id:  S.tenantId,
           p_nombre:     S.answers.__nombre || null,
-          p_prefijo:    S.answers.__prefijo,
-          p_telefono:   S.telefono,
           p_respuestas: respuestas,
           p_privacidad_aceptada: S.privacyAccepted,
-        });
+        };
+        if (S.tieneWhatsapp) {
+          S.telefono = Number(S.answers.__prefijo + S.answers.__telefonoNum);
+          payload.p_prefijo  = S.answers.__prefijo;
+          payload.p_telefono = S.telefono;
+        } else {
+          payload.p_prefijo  = null;
+          payload.p_telefono = null;
+          payload.p_email    = S.answers.__email || null;
+        }
+        const res = await sbRpc('crear_lead_publico', payload);
         formToken = res?.form_token;
+        clienteId = res?.id;
       } else {
         const res = await sbRpc('submit_formulario', {
           p_token: S.token,
@@ -769,6 +784,7 @@
           p_privacidad_aceptada: S.privacyAccepted,
         });
         formToken = res?.form_token;
+        clienteId = S.clienteId;
       }
 
       // Aviso al backend (WhatsApp al tenant + matching de propiedades).
@@ -780,7 +796,7 @@
         fetch(N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono }),
+          body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono, cliente_id: clienteId }),
         }).then(r => {
           if (!r.ok) console.error('Aviso al tenant fallido:', r.status, r.statusText);
           return sbRpc('registrar_estado_webhook_formulario', {
@@ -843,6 +859,7 @@
 
         tenantId   = c.tenant_id;
         S.telefono = c.telefono;
+        S.clienteId = c.id;
 
         try {
           const info = await sbRpc('get_tenant_public_info', { p_tenant_id: tenantId });
@@ -866,6 +883,7 @@
       S.tenantId    = tenantId;
       S.tenantName  = tenantInfo?.nombre || 'Tu inmobiliaria';
       S.tenantEmail = tenantInfo?.email_contacto || '';
+      S.tieneWhatsapp = S.mode === 'public' ? (tenantInfo?.tiene_whatsapp !== false) : true;
 
       // Preguntas activas del tenant
       const tp = await sbGet('tenant_preguntas', {
@@ -899,12 +917,20 @@
         };
       }).filter(Boolean);
 
-      // Modo público: nombre y teléfono van primero, no vienen del catálogo
+      // Modo público: nombre y teléfono (o email, si el tenant no tiene
+      // WhatsApp) van primero, no vienen del catálogo.
       if (S.mode === 'public') {
-        S.steps.unshift(
-          { pregunta_id: null, clave: 'telefono_publico', campo_clientes: '__telefonoNum', textoMostrar: '¿Cuál es tu número de teléfono?', subtext: 'Te avisaremos por WhatsApp en cuanto tengamos opciones para ti. Nunca lo compartimos con terceros.', tipo_input: 'phone_prefix', opciones: [] },
-          { pregunta_id: null, clave: 'nombre_publico',   campo_clientes: '__nombre',       textoMostrar: '¿Cómo te llamas?',                 subtext: 'Así podremos dirigirnos a ti correctamente.',                                                    tipo_input: 'text',         opciones: [] },
-        );
+        if (S.tieneWhatsapp) {
+          S.steps.unshift(
+            { pregunta_id: null, clave: 'telefono_publico', campo_clientes: '__telefonoNum', textoMostrar: '¿Cuál es tu número de teléfono?', subtext: 'Te avisaremos por WhatsApp en cuanto tengamos opciones para ti. Nunca lo compartimos con terceros.', tipo_input: 'phone_prefix', opciones: [] },
+            { pregunta_id: null, clave: 'nombre_publico',   campo_clientes: '__nombre',       textoMostrar: '¿Cómo te llamas?',                 subtext: 'Así podremos dirigirnos a ti correctamente.',                                                    tipo_input: 'text',         opciones: [] },
+          );
+        } else {
+          S.steps.unshift(
+            { pregunta_id: null, clave: 'email_publico', campo_clientes: '__email', textoMostrar: '¿Cuál es tu email?', subtext: 'Te enviaremos las opciones disponibles a este correo. Nunca lo compartimos con terceros.', tipo_input: 'email', opciones: [] },
+            { pregunta_id: null, clave: 'nombre_publico', campo_clientes: '__nombre', textoMostrar: '¿Cómo te llamas?', subtext: 'Así podremos dirigirnos a ti correctamente.', tipo_input: 'text', opciones: [] },
+          );
+        }
       }
 
       // Zonas dinámicas para dynamic_zone_multi_select
