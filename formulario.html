@@ -178,9 +178,10 @@
     }
     .input-area { display: flex; flex-direction: column; gap: 8px; }
 
-    /* ── Text / Number ── */
+    /* ── Text / Number / Email ── */
     input[type="text"],
-    input[type="number"] {
+    input[type="number"],
+    input[type="email"] {
       width: 100%; padding: 16px 16px; font-size: 16px;
       font-family: 'Inter', sans-serif;
       background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
@@ -463,6 +464,16 @@
   const app = document.getElementById('app');
   const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value ?? '').trim());
+  }
+
+  function successFollowUp(tieneWhatsapp) {
+    return tieneWhatsapp
+      ? 'Te avisaremos por WhatsApp en cuanto tengamos opciones para ti'
+      : 'Te enviaremos las opciones disponibles a tu correo';
+  }
+
   function render() {
     if      (S.screen === 'loading') renderLoading();
     else if (S.screen === 'error')   renderError();
@@ -485,7 +496,7 @@
         <p class="success-text">Hemos recibido todos tus datos.</p>
         <div class="success-next">
           <span class="success-next-dot"></span>
-          Te avisaremos por WhatsApp en cuanto tengamos opciones para ti
+          ${esc(successFollowUp(S.tieneWhatsapp))}
         </div>
       </div>`;
   }
@@ -515,7 +526,7 @@
 
   // Pasos con teclado: el botón va pegado al campo para no tener que
   // cerrar el teclado y bajar hasta el final de la pantalla.
-  const KEYBOARD_STEP_TYPES = ['text', 'number', 'phone_prefix'];
+  const KEYBOARD_STEP_TYPES = ['text', 'number', 'phone_prefix', 'email'];
 
   function renderWizard() {
     const steps    = visibleSteps();
@@ -717,6 +728,16 @@
   }
 
   async function onNext(step, isLast) {
+    if (step.tipo_input === 'email') {
+      S.answers[step.campo_clientes] = String(S.answers[step.campo_clientes] ?? '').trim();
+      if (!isValidEmail(S.answers[step.campo_clientes])) {
+        S.fieldErr = 'Introduce un email valido para continuar.';
+        S.skipEnterAnim = true;
+        render();
+        return;
+      }
+    }
+
     let empty;
     if (step.tipo_input === 'phone_prefix') {
       empty = !S.answers.__prefijo || !S.answers.__telefonoNum || S.answers.__telefonoNum.trim() === '';
@@ -772,7 +793,7 @@
         } else {
           payload.p_prefijo  = null;
           payload.p_telefono = null;
-          payload.p_email    = S.answers.__email || null;
+          payload.p_email    = S.answers.__email.trim() || null;
         }
         const res = await sbRpc('crear_lead_publico', payload);
         formToken = res?.form_token;

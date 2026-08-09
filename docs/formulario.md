@@ -7,7 +7,7 @@ Formulario wizard paso a paso que recibe un lead (persona interesada en alquilar
 | Modo | URL | Cuándo se usa |
 |---|---|---|
 | **Token** (lead ya identificado) | `https://automanize.com/formulario.html?token=<uuid>` | n8n ya creó la fila en `clientes` (lead que escribió por WhatsApp) y envía este enlace de un solo uso. |
-| **Público** (link reutilizable por tenant) | `https://automanize.com/f/<slug>` | Enlace fijo por inmobiliaria para compartir donde sea (Idealista, redes, etc.). No hay cliente todavía — el propio formulario pide nombre y teléfono al principio y crea el lead al enviar. |
+| **Público** (link reutilizable por tenant) | `https://automanize.com/f/<slug>` | Enlace fijo por inmobiliaria para compartir donde sea (Idealista, redes, etc.). No hay cliente todavía — el formulario pide nombre y teléfono si el tenant tiene WhatsApp, o nombre y email obligatorio si solo usa email, y crea el lead al enviar. |
 
 ---
 
@@ -41,10 +41,10 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 3. Lead abre el enlace en el móvil y responde el wizard
 4. Al enviar: submit_formulario()/crear_lead_publico() guarda respuestas,
    invalida el token de reenvío y devuelve { id, form_token } (no un booleano)
-5. POST a backend.automanize.com/webhook/formulario con { token, tenant_id, telefono }
-6. El backend Node.js (no n8n) hace matching de propiedades con IA y envía
-   el WhatsApp real al gestor — solo responde ok:true si el WhatsApp
-   llegó de verdad a Meta (ver "Aviso al gestor" más abajo)
+5. POST a backend.automanize.com/webhook/formulario con { token, tenant_id, telefono, cliente_id }
+   (`telefono` es `null` para un tenant que solo usa email).
+6. El backend Node.js (no n8n) hace matching de propiedades con IA y avisa
+   al gestor por el canal disponible.
 7. El resultado (éxito o error) se guarda en clientes.webhook_formulario_status
    vía la RPC registrar_estado_webhook_formulario, para poder verlo/reintentarlo
    desde Nize (repo automanize-app, docs/CLIENTES.md → "Reenvío de notificación
@@ -83,6 +83,7 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 |---|---|
 | `text` | Input texto libre |
 | `number` | Input numérico (sin flechas) |
+| `email` | Input email obligatorio y validado antes de continuar |
 | `single_select` | Botones radio-style |
 | `multi_select` | Botones checkbox-style, valor guardado como CSV |
 | `boolean` | Dos tarjetas grandes (fácil de tocar en móvil) |
@@ -130,18 +131,18 @@ const N8N_WEBHOOK_URL = 'https://backend.automanize.com/webhook/formulario';
 
 ## Aviso al gestor tras el envío
 
-Tras guardar el lead, `submit()` llama a `N8N_WEBHOOK_URL` con `{ token, tenant_id, telefono }` — el `token` es el `form_token` que acaba de devolver `submit_formulario`/`crear_lead_publico`, obligatorio para que el backend acepte la llamada.
+Tras guardar el lead, `submit()` llama a `N8N_WEBHOOK_URL` con `{ token, tenant_id, telefono, cliente_id }` — el `token` es el `form_token` que acaba de devolver `submit_formulario`/`crear_lead_publico`, obligatorio para que el backend acepte la llamada. Para tenants sin WhatsApp, `telefono` es `null` y `cliente_id` identifica el lead creado con email.
 
 Esa llamada es **best-effort respecto a la pantalla de éxito** (nunca bloquea al lead viendo "¡Solicitud enviada!"), pero su resultado **sí se registra siempre**:
 
 ```js
-fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {...}, body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono }) })
+fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {...}, body: JSON.stringify({ token: formToken, tenant_id: S.tenantId, telefono: S.telefono, cliente_id: clienteId }) })
   .then(r => registrar_estado_webhook_formulario({ p_form_token: formToken, p_status: r.ok ? 'enviado' : 'error', p_error: ... }))
   .catch(err => registrar_estado_webhook_formulario({ p_form_token: formToken, p_status: 'error', p_error: String(err) }));
 ```
 
 - `registrar_estado_webhook_formulario` (RPC, `SECURITY DEFINER`, otorgada a `anon`) escribe en `clientes.webhook_formulario_status` (`'pendiente'|'enviado'|'error'`), `webhook_formulario_error` y `webhook_formulario_enviado_en`.
-- El backend (`automanize-backend`, `src/flows/interactivo.js`) **espera** a que el WhatsApp se envíe de verdad a la API de Meta antes de responder `ok:true` — si el envío falla, responde error. Por eso `enviado` es una señal fiable de entrega real, no solo de que la petición HTTP llegó.
+- El backend procesa el matching y registra el resultado antes de responder `ok:true`; el canal del envío de opciones depende de la configuración WhatsApp del tenant.
 - Desde Nize (repo `automanize-app`), la ficha del interesado muestra este estado con un banner y permite reenviar el aviso con el mismo `form_token` sin tener que tocar la base de datos a mano — ver `docs/CLIENTES.md` → "Reenvío de notificación WhatsApp al gestor" en ese repo.
 
 ---
