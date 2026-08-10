@@ -48,41 +48,13 @@
             },
         }
     </script>
+    <link rel="stylesheet" href="assets/css/automanize-theme.css" />
+    <script src="assets/js/automanize-ui.js" defer></script>
 </head>
 
 <body
     class="bg-background-light dark:bg-background-dark font-display text-[#181811] dark:text-white overflow-x-hidden min-h-screen flex flex-col">
-    <header
-        class="sticky top-0 z-50 flex items-center justify-between border-b border-solid border-b-[#e6e6db] dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-6 py-4 lg:px-40">
-        <a href="index.html#inicio-principal" aria-label="Ir al inicio principal"
-            class="flex items-center gap-4 text-[#181811] dark:text-white">
-            <div class="size-8 rounded-lg overflow-hidden">
-                <img src="assets/images/Automanize%20(4).png" alt="Automanize Logo" class="w-full h-full object-cover"
-                    loading="lazy" />
-            </div>
-            <h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">Automanize</h2>
-        </a>
-        <div class="hidden lg:flex flex-1 justify-end gap-8">
-            <nav class="flex items-center gap-9">
-                <a class="text-[#181811] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors"
-                    href="index.html">Inicio</a>
-                <a class="text-[#181811] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors"
-                    href="our-services.html">Servicios</a>
-                <a class="text-[#181811] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors"
-                    href="about.html">Nosotros</a>
-                <a class="text-[#181811] dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors"
-                    href="contactus.html">Contacto</a>
-            </nav>
-            <a href="contactus.html"
-                class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-[#ffca28] transition-colors text-black text-sm font-bold tracking-[0.015em]">
-                <span class="truncate">Empezar</span>
-            </a>
-        </div>
-        <div class="lg:hidden">
-            <span class="material-symbols-outlined cursor-pointer text-2xl">menu</span>
-        </div>
-    </header>
-    <main class="flex-grow">
+<main class="flex-grow">
         <div class="layout-container flex h-full grow flex-col">
             <div class="px-6 lg:px-40 flex flex-1 justify-center py-12 lg:py-20">
                 <div class="layout-content-container flex flex-col max-w-[1024px] flex-1">
@@ -250,51 +222,48 @@
             </div>
         </div>
     </main>
-    <footer
-        class="border-t border-[#e6e6db] dark:border-neutral-800 bg-white dark:bg-neutral-900 py-12 px-6 lg:px-40 mt-auto">
-        <div class="max-w-[1024px] mx-auto flex flex-col gap-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex flex-col gap-2 items-center md:items-start">
-                <a href="index.html#inicio-principal" aria-label="Ir al inicio principal" class="flex items-center gap-2 text-[#181811] dark:text-white">
-                    <div class="size-6 rounded-md overflow-hidden">
-                        <img src="assets/images/Automanize%20(4).png" alt="Automanize Logo" class="w-full h-full object-cover"
-                            loading="lazy" />
-                    </div>
-                    <span class="font-bold text-lg tracking-tight">Automanize</span>
+    <footer class="site-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a class="footer-brand-link" href="index.html" aria-label="Ir al inicio">
+                    <img src="assets/images/Automanize%20(4).png" alt="Automanize Logo" loading="lazy" />
+                    <h3>Automanize</h3>
                 </a>
-                <a href="mailto:automanize@gmail.com"
-                    class="text-sm text-[#5c5b4f] dark:text-gray-400 hover:text-primary transition-colors">automanize@gmail.com</a>
-                </div>
-                <div class="flex items-center gap-6">
-                    <a class="text-[#5c5b4f] dark:text-gray-400 hover:text-primary transition-colors" href="#">
-                        <span class="sr-only">LinkedIn</span>
-                        <svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path clip-rule="evenodd"
-                                d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
-                                fill-rule="evenodd"></path>
-                        </svg>
-                    </a>
-                    <a class="text-[#5c5b4f] dark:text-gray-400 hover:text-primary transition-colors" href="#">
-                        <span class="sr-only">Twitter</span>
-                        <svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84">
-                            </path>
-                        </svg>
-                    </a>
-                </div>
+                <p>Empoderando a propietarios e inmobiliarias con automatización inteligente.</p>
             </div>
-            <div class="pt-6 border-t border-[#e6e6db] dark:border-neutral-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[#5c5b4f] dark:text-gray-400">
-                <p>© 2026 Automanize. Todos los derechos reservados.</p>
-                <div class="flex flex-wrap items-center gap-4">
-                    <a href="aviso-legal.html" class="hover:text-primary transition-colors">Aviso legal</a>
-                    <a href="nize-privacy.html" class="hover:text-primary transition-colors">Privacidad</a>
-                    <a href="cookies.html" class="hover:text-primary transition-colors">Cookies</a>
-                </div>
+
+            <div class="footer-nav">
+                <span class="footer-nav-titulo">Navegación</span>
+                <a href="index.html">Inicio</a>
+                <a href="our-services.html">Servicios</a>
+                <a href="casos-exito.html">Casos de éxito</a>
+                <a href="sobre-nosotros.html">Sobre nosotros</a>
+                <a href="consultoria-gratuita.html">Consultoría</a>
+                <a href="contactus.html">Contacto</a>
+            </div>
+
+            <div class="footer-contacto">
+                <a href="mailto:automanize@gmail.com">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+                    automanize@gmail.com
+                </a>
+                <a href="tel:+34617153252">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.8 2.1z" /></svg>
+                    +34 617 15 32 52
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-legal">
+            <p>© 2026 Automanize. Todos los derechos reservados.</p>
+            <div class="footer-legal-links">
+                <a href="aviso-legal.html">Aviso legal</a>
+                <a href="nize-privacy.html">Privacidad</a>
+                <a href="cookies.html">Cookies</a>
             </div>
         </div>
     </footer>
-    <script>
+<script>
         (function () {
             const params = new URLSearchParams(window.location.search);
             const serviceKey = params.get("servicio");
