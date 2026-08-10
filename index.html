@@ -369,6 +369,18 @@
 
         /* El logotipo va con nowrap: en pantallas muy estrechas hay que
            apretar el tracking o se sale del viewport. */
+        /* En móvil el logotipo se quedaba clavado en el mínimo del clamp
+           (28px): el tramo de 5.8vw no supera esos 28px hasta los ~483px de
+           ancho, así que en cualquier teléfono se veía igual de pequeño y
+           ocupaba poco más de la mitad de la pantalla. Aquí lleva su propia
+           escala, calculada para llenar ~86% del ancho — el resto es el aire
+           que necesita a los lados, y el tope evita que se dispare en las
+           tablets pequeñas. */
+        @media (max-width: 760px) {
+            .brand-name { font-size: clamp(2rem, 11.5vw, 3.4rem); }
+            .brand-tagline { font-size: clamp(.62rem, 2.3vw, .9rem); }
+        }
+
         @media (max-width: 480px) {
             .brand { top: 8%; }
             .brand-name { letter-spacing: .1em; text-indent: .1em; }
