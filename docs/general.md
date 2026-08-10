@@ -29,7 +29,7 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 ```
 /
 ├── index.html              — Landing principal Automanize
-├── prueba-nize.html        — Landing trial gratuito Nize (Meta Ads / tráfico directo)
+├── solicitar-demo.html     — Landing trial gratuito Nize (7 días), enlazada desde el sitio
 ├── formulario.html         — Formulario dinámico de leads por token (WhatsApp / n8n)
 ├── alta-agencia.html       — Ficha de alta para agencias ya contratadas, por token
 ├── alta-agencia-admin.html — Panel interno: ver fichas recibidas y generar tokens

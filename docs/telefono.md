@@ -2,7 +2,12 @@
 
 ## Dónde se usa
 
-- `prueba-nize.html` — formulario de registro de nuevo tenant
+- `formulario.html` — formulario dinámico de leads por token
+
+`prueba-nize.html` usaba este mismo patrón pero se eliminó (ver
+`docs/nize-trial.md`) — `solicitar-demo.html`, que ocupó su lugar, no lo
+usa: pide el teléfono en un único campo de texto libre, sin selector de
+prefijo de país.
 
 ## UI
 
