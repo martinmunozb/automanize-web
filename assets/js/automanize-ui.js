@@ -127,6 +127,15 @@
         const panel = document.getElementById('dockPanel');
         const trigger = dock.querySelector('[data-menu="servicios"]');
 
+        // En un móvil no hay puntero que "pase por encima": mouseenter y
+        // mouseleave no llegan a dispararse nunca. Se detecta aquí para
+        // darle al submenú un comportamiento a base de toques.
+        const puedeHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+        // Sin hover la barra no se puede expandir de ninguna manera, así
+        // que en táctil se deja siempre a tamaño completo.
+        if (!puedeHover) dock.classList.add('is-expanded');
+
         if (panel && trigger) {
             let cerrarTimer = null;
 
@@ -163,12 +172,40 @@
                 }, 160);
             }
 
-            trigger.addEventListener('mouseenter', abrir);
-            trigger.addEventListener('mouseleave', cerrar);
-            panel.addEventListener('mouseenter', () => clearTimeout(cerrarTimer));
-            panel.addEventListener('mouseleave', cerrar);
-            dock.addEventListener('mousemove', () => { if (panel.classList.contains('is-open')) colocar(); });
-            dock.addEventListener('mouseleave', cerrar);
+            function cerrarYa() {
+                clearTimeout(cerrarTimer);
+                panel.classList.remove('is-open');
+                trigger.classList.remove('has-panel-open');
+            }
+
+            if (puedeHover) {
+                trigger.addEventListener('mouseenter', abrir);
+                trigger.addEventListener('mouseleave', cerrar);
+                panel.addEventListener('mouseenter', () => clearTimeout(cerrarTimer));
+                panel.addEventListener('mouseleave', cerrar);
+                dock.addEventListener('mousemove', () => { if (panel.classList.contains('is-open')) colocar(); });
+                dock.addEventListener('mouseleave', cerrar);
+            } else {
+                // Táctil: el primer toque despliega el submenú en vez de
+                // seguir el enlace; el segundo, con el panel ya abierto,
+                // sí navega a la página de Servicios.
+                trigger.addEventListener('click', (e) => {
+                    if (!panel.classList.contains('is-open')) {
+                        e.preventDefault();
+                        abrir();
+                    }
+                });
+
+                // Un toque fuera del panel lo cierra. Va en la fase de
+                // captura para enterarse aunque el destino del toque
+                // detenga la propagación.
+                document.addEventListener('click', (e) => {
+                    if (!panel.classList.contains('is-open')) return;
+                    if (panel.contains(e.target) || trigger.contains(e.target)) return;
+                    cerrarYa();
+                }, true);
+            }
+
             addEventListener('scroll', () => { if (panel.classList.contains('is-open')) colocar(); }, { passive: true });
         }
 
