@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://backend.automanize.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
     <title>Solicitar demo — Automanize</title>
     <meta name="description" content="Solicita la demo del CRM Nize: rellena tus datos, descárgalo al momento y nos pondremos en contacto contigo." />
     <meta name="author" content="Automanize" />
@@ -82,20 +82,20 @@
             padding: clamp(1.4rem, 3vw, 2.2rem);
         }
 
-        .demo-form { display: flex; flex-direction: column; gap: 1.05rem; }
-        .demo-campo { display: flex; flex-direction: column; gap: .4rem; }
+        .demo-form { display: flex; flex-direction: column; gap: .75rem; }
+        .demo-campo { display: flex; flex-direction: column; gap: .25rem; }
         .demo-campo > span {
-            font-size: .82rem;
+            font-size: .74rem;
             font-weight: 600;
-            color: var(--text);
+            color: var(--muted);
         }
         .demo-campo input {
             width: 100%;
             font: inherit;
-            font-size: .95rem;
+            font-size: .88rem;
             color: var(--text);
-            padding: .8rem .95rem;
-            border-radius: .85rem;
+            padding: .52rem .7rem;
+            border-radius: .6rem;
             border: 1px solid rgba(0, 0, 0, .14);
             background: #fff;
             transition: border-color .18s, box-shadow .18s;
@@ -113,9 +113,92 @@
         .demo-form.intentado .demo-campo input:invalid { border-color: #e0705f; }
         .demo-form.intentado .demo-campo input:invalid ~ .demo-error { display: block; }
 
-        .demo-legal { font-size: .76rem; line-height: 1.5; color: var(--muted); }
+        .demo-legal { font-size: .72rem; line-height: 1.45; color: var(--muted); margin-top: .1rem; }
 
-        .demo-form .specular-btn { width: 100%; margin-top: .2rem; }
+        /* ===== SPECULAR BUTTON — el mismo componente que usa la ficha de
+           producto de la portada. El tema trae una versión simplificada
+           (solo color plano); aquí se recupera la completa: el brillo
+           sigue al puntero y se apaga al alejarse. Como este <style> va
+           después del <link> del tema, estas reglas ganan. ===== */
+        .specular-btn {
+            --sb-radius: 14px;
+            --sb-base: #525252;
+            --sb-line: #ffffff;
+            --sb-text: #f5f5f5;
+            --sb-thickness: 1px;
+            --sb-intensity: 1;
+            --sb-shine-size: 42%;
+            --sb-shine-fade: 68%;
+            --sb-speed: .35s;
+            --sb-x: 50%;
+            --sb-y: 50%;
+
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            height: 2.9rem;
+            padding: 0 1.6rem;
+            border-radius: var(--sb-radius);
+            background: var(--sb-base);
+            color: var(--sb-text);
+            font-size: .89rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: var(--sb-thickness) solid rgba(255, 255, 255, .18);
+            overflow: hidden;
+            isolation: isolate;
+            cursor: pointer;
+            box-shadow: none;
+            transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), border-color var(--sb-speed) ease;
+        }
+        .specular-btn:hover { transform: translateY(-2px); box-shadow: none; }
+
+        /* El brillo: un radial-gradient en (--sb-x, --sb-y), en overlay
+           para que aclare el fondo en vez de taparlo con un círculo. */
+        .specular-btn::before {
+            content: '';
+            position: absolute;
+            inset: calc(var(--sb-thickness) * -1);
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(circle at var(--sb-x) var(--sb-y),
+                        var(--sb-line) 0%, transparent var(--sb-shine-size));
+            /* Arranca apagado: solo se enciende cuando el JS confirma que
+               el puntero está cerca. */
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0) * .55);
+            mix-blend-mode: overlay;
+            transition: opacity var(--sb-speed) ease;
+        }
+
+        /* El filo: el mismo brillo recortado al grosor del borde, para que
+           también recorra el contorno. */
+        .specular-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            padding: var(--sb-thickness);
+            background: radial-gradient(circle at var(--sb-x) var(--sb-y),
+                        var(--sb-line) 0%, transparent var(--sb-shine-fade));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0));
+            transition: opacity var(--sb-speed) ease;
+        }
+
+        /* El de descarga se queda en ámbar: es la acción "premio", no debe
+           competir visualmente con el de enviar. */
+        .demo-descarga { --sb-base: var(--primary); --sb-text: #171717; }
+
+        .demo-form .specular-btn { width: 100%; margin-top: .35rem; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .specular-btn::before, .specular-btn::after { transition: none; }
+        }
 
         /* Pantalla de confirmación */
         .demo-ok { display: none; text-align: center; }
@@ -309,11 +392,15 @@
             const btnDescarga = document.getElementById('demoDescarga');
             if (!form) return;
 
-            // Dónde se entrega el lead. PENDIENTE DE CONFIRMAR: el resto de
-            // webhooks del sitio son por tenant y exigen token, así que no
-            // sirven para un formulario público. Mientras esto no apunte a un
-            // endpoint real, los datos no llegan a ninguna parte.
-            const DEMO_WEBHOOK_URL = '';
+            // Entrega del lead por correo. FormSubmit reenvía el formulario
+            // a esta dirección sin necesidad de backend ni de clave: por eso
+            // se usa aquí, donde los webhooks propios no valen (son por
+            // tenant y exigen token).
+            // OJO: la PRIMERA vez que se envía algo, FormSubmit manda un
+            // correo de activación a esta dirección. Hasta que se pulse ese
+            // enlace, los envíos no llegan.
+            const DESTINO = 'automanize@gmail.com';
+            const DEMO_WEBHOOK_URL = `https://formsubmit.co/ajax/${DESTINO}`;
 
             function mostrarConfirmacion(nombre) {
                 const primero = (nombre || '').trim().split(/\s+/)[0];
@@ -354,20 +441,52 @@
                 // El envío es "best-effort": la confirmación y la descarga no
                 // se hacen esperar a la red, pero cualquier fallo queda
                 // registrado en consola para poder detectarlo.
-                if (DEMO_WEBHOOK_URL) {
-                    fetch(DEMO_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...datos, origen: 'solicitar-demo', fecha: new Date().toISOString() }),
-                    }).then((r) => {
-                        if (!r.ok) console.error('Envío de la solicitud fallido:', r.status, r.statusText);
-                    }).catch((err) => console.error('Envío de la solicitud fallido:', err));
-                } else {
-                    console.warn('Solicitud de demo sin destino configurado (DEMO_WEBHOOK_URL vacío):', datos);
-                }
+                fetch(DEMO_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        _subject: `Nueva solicitud de demo — ${datos.nombre}`,
+                        Nombre: datos.nombre,
+                        Dirección: datos.direccion,
+                        Teléfono: datos.telefono,
+                        Origen: 'Página de solicitar demo',
+                        Fecha: new Date().toLocaleString('es-ES'),
+                    }),
+                }).then((r) => {
+                    if (!r.ok) console.error('Envío de la solicitud fallido:', r.status, r.statusText);
+                }).catch((err) => console.error('Envío de la solicitud fallido:', err));
 
                 mostrarConfirmacion(datos.nombre);
             });
+
+            // --- Brillo especular: sigue al puntero y se apaga al alejarse.
+            // Sin esto el botón se queda plano, porque las variables
+            // --sb-x/--sb-y/--sb-proximity nunca cambiarían.
+            const PROXIMIDAD = 250;   // px de radio de influencia
+            function brillo(e) {
+                document.querySelectorAll('.specular-btn').forEach((btn) => {
+                    const r = btn.getBoundingClientRect();
+                    if (!r.width) return;
+                    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+                    const mitadDiagonal = Math.hypot(r.width, r.height) / 2;
+                    const dBorde = Math.max(0, Math.hypot(e.clientX - cx, e.clientY - cy) - mitadDiagonal);
+                    const prox = Math.max(0, 1 - dBorde / PROXIMIDAD);
+
+                    // Acotado a la caja: con el puntero fuera, el gradiente
+                    // se dispararía a coordenadas absurdas.
+                    const px = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+                    const py = Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100));
+
+                    btn.style.setProperty('--sb-x', px + '%');
+                    btn.style.setProperty('--sb-y', py + '%');
+                    btn.style.setProperty('--sb-proximity', prox.toFixed(3));
+                });
+            }
+            // Solo en dispositivos con puntero: en táctil no hay hover que
+            // seguir y sería trabajo por cada scroll.
+            if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                document.addEventListener('mousemove', brillo, { passive: true });
+            }
 
             // Afina el botón para que baje el instalador directamente en vez
             // de pasar por la página de releases. Mismo mecanismo que en
