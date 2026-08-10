@@ -348,8 +348,23 @@
             text-shadow: 0 2px 14px rgba(255,255,255,.95), 0 0 26px rgba(255,255,255,.85);
         }
 
-        @media (max-width: 720px) {
-            .side-label { display: none; }   /* sin espacio a los lados en móvil */
+        /* En móvil no hay hueco a los lados de la imagen, así que la etiqueta
+           pasa a ir DEBAJO y centrada. Sigue colocándola y atenuándola el
+           mismo bucle de render, de modo que aparece y desaparece con su
+           imagen igual que en escritorio.
+           El corte es 760px, el mismo ancho en el que la escena entra en
+           modo "solo protagonista": si no coincidieran, entre 720 y 760
+           quedaría la etiqueta al lado con la escena ya en modo móvil. */
+        @media (max-width: 760px) {
+            .side-label {
+                width: min(330px, 86vw);
+                /* Anclada por arriba (no centrada en vertical): el punto de
+                   referencia pasa a ser el borde inferior de la tarjeta. */
+                transform: translate(-50%, 0);
+                text-align: center;
+            }
+            .side-label-kicker { font-size: 9px; margin-bottom: .28rem; }
+            .side-label-line { font-size: .86rem; line-height: 1.3; }
         }
 
         /* El logotipo va con nowrap: en pantallas muy estrechas hay que
@@ -2374,6 +2389,11 @@
         // una banda de ruido cruzando el hero: el efecto que en escritorio
         // luce, aquí ensucia. Se ocultan y queda una sola imagen limpia.
         let soloProtagonista = false;
+        // Media anchura de la etiqueta, cacheada. Se consulta en cada frame
+        // para sujetarla dentro de la pantalla, y medirla ahí obligaría al
+        // navegador a recalcular el layout una vez por etiqueta y frame.
+        // Solo cambia al redimensionar, así que se recalcula en fitScene().
+        let labelHalf = 0;
 
         function fitScene() {
             const aspect = innerWidth / innerHeight;
@@ -2404,6 +2424,12 @@
                 cardScale = 1;
                 logoY = CENTER_Y + LOGO_LIFT;
             }
+
+            // El ancho de la etiqueta depende del viewport (86vw en móvil),
+            // así que se remide aquí, que es lo que corre al redimensionar.
+            labelHalf = sideLabels.length
+                ? sideLabels[0].getBoundingClientRect().width / 2
+                : 0;
         }
         fitScene();
 
@@ -2611,22 +2637,42 @@
 
                 const center = projectToScreen(mesh.position, _projPoint);
 
-                // Punto en el borde derecho de la tarjeta, en su espacio local,
-                // transformado a mundo con el matrixWorld ya actualizado.
-                // Proyectarlo junto al centro da el "medio ancho" ya expresado
-                // en píxeles de pantalla — incluye escala, rotación y
-                // perspectiva, así la etiqueta se separa lo justo en cada caso.
-                _rightPoint.set(PLANE_W / 2, 0, 0).applyMatrix4(mesh.matrixWorld);
-                const rightEdge = projectToScreen(_rightPoint, _rightPoint);
+                let x, y;
 
-                const margin = 40;
-                let x = center.x + (rightEdge.x - center.x) + margin;
-                let y = center.y;
+                if (soloProtagonista) {
+                    // Móvil: la etiqueta va debajo de la imagen y centrada.
+                    // Se proyecta el borde INFERIOR de la tarjeta (no el
+                    // derecho) para saber en qué píxel acaba realmente, con
+                    // su escala y perspectiva ya aplicadas.
+                    _rightPoint.set(0, -PLANE_H / 2, 0).applyMatrix4(mesh.matrixWorld);
+                    const bottomEdge = projectToScreen(_rightPoint, _rightPoint);
 
-                // Colchón de seguridad para que el texto no se salga del
-                // viewport en pantallas estrechas.
-                x = Math.min(Math.max(x, 12), innerWidth - 200);
-                y = Math.min(Math.max(y, 40), innerHeight - 40);
+                    x = center.x;
+                    y = bottomEdge.y + 20;
+
+                    // labelHalf está cacheado (se recalcula solo al
+                    // redimensionar): leer offsetWidth aquí forzaría un
+                    // reflow síncrono en cada frame y por cada etiqueta.
+                    x = Math.min(Math.max(x, labelHalf + 10), innerWidth - labelHalf - 10);
+                    y = Math.min(y, innerHeight - 76);
+                } else {
+                    // Escritorio: a la derecha de la tarjeta. Proyectar el
+                    // borde derecho junto al centro da el "medio ancho" ya
+                    // expresado en píxeles de pantalla — incluye escala,
+                    // rotación y perspectiva, así la etiqueta se separa lo
+                    // justo en cada caso.
+                    _rightPoint.set(PLANE_W / 2, 0, 0).applyMatrix4(mesh.matrixWorld);
+                    const rightEdge = projectToScreen(_rightPoint, _rightPoint);
+
+                    const margin = 40;
+                    x = center.x + (rightEdge.x - center.x) + margin;
+                    y = center.y;
+
+                    // Colchón de seguridad para que el texto no se salga del
+                    // viewport en pantallas estrechas.
+                    x = Math.min(Math.max(x, 12), innerWidth - 200);
+                    y = Math.min(Math.max(y, 40), innerHeight - 40);
+                }
 
                 label.style.left    = x + 'px';
                 label.style.top     = y + 'px';
