@@ -47,6 +47,104 @@
     </script>
     <style>
         body { font-family: "Spline Sans", sans-serif; }
+
+        /* ===== MASKED HEADING — equivalente vanilla del componente React.
+           La imagen se ve A TRAVÉS de las letras (background-clip: text).
+
+           El detalle que lo complica: ese recorte funciona sobre UN solo
+           elemento, y aquí cada letra necesita ser independiente para poder
+           animarse por separado. Si se parte el texto sin más, cada letra
+           arranca su propia copia del fondo y la imagen se repite en cada
+           una. La solución es dar a todas el mismo tamaño de fondo y correr
+           la posición de cada una según dónde caiga dentro del titular: la
+           imagen se ve entonces continua, como si fuera una sola pieza.
+
+           Props del componente → variables:
+             src         → --mh-src
+             fillScale   → --mh-fill-scale
+             parallax    → --mh-parallax  (px de recorrido con el scroll)
+             drift       → --mh-drift     (de dónde sube cada letra)
+             duration    → --mh-duration
+             stagger     → --mh-stagger
+             brightness / saturation / grayscale → filtro
+             weight / tracking / lineHeight / align
+             textScale   → --mh-text-scale (tamaño respecto al ancho)
+           ===== */
+        .masked-heading {
+            --mh-src: url('assets/images/casos-exito-mask.jpg');
+            --mh-fill-scale: 1.25;
+            --mh-parallax: 26px;
+            --mh-drift: 18px;
+            --mh-duration: 1.1s;
+            --mh-stagger: .09s;
+            /* La foto tiene cielo blanco arriba, y sobre el fondo claro de
+               la página esas zonas dejaban las letras casi invisibles. Se
+               oscurece y se sube el contraste para que el titular se lea
+               siempre, conservando la textura de la imagen.
+               "contrast" no está en el componente original; se añade porque
+               sin él no hay forma de recuperar la legibilidad sin apagar
+               del todo la foto. */
+            --mh-brightness: .55;
+            --mh-contrast: 1.25;
+            --mh-saturation: 1.1;
+            --mh-grayscale: 0;
+            --mh-text-scale: .115;
+
+            /* Desplazamientos que comparten todas las letras: los calcula el
+               JS una vez y se heredan, así el parallax solo escribe en un
+               elemento por frame en vez de en cada letra. */
+            --mh-ox: 0px;
+            --mh-oy: 0px;
+            --mh-par: 0px;
+
+            margin: 0;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.06;
+            /* textScale=0.115 del componente: proporción respecto al ancho.
+               El clamp evita que se quede diminuto en un móvil o gigante en
+               un monitor ancho. */
+            font-size: clamp(2.6rem, calc(var(--mh-text-scale) * 100vw), 7.5rem);
+            /* Sin JS el texto se ve en negro normal en vez de invisible */
+            color: #111;
+        }
+
+        .mh-word { display: inline-block; white-space: nowrap; }
+        .mh-char { display: inline-block; will-change: transform, opacity; }
+
+        .masked-heading.is-masked .mh-char {
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            background-image: var(--mh-src);
+            background-repeat: no-repeat;
+            background-size: var(--mh-bg-size);
+            background-position:
+                calc(var(--mh-x) + var(--mh-ox))
+                calc(var(--mh-y) + var(--mh-oy) + var(--mh-par));
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: brightness(var(--mh-brightness))
+                    contrast(var(--mh-contrast))
+                    saturate(var(--mh-saturation))
+                    grayscale(var(--mh-grayscale));
+        }
+
+        /* reveal="rise" + trigger="view" */
+        .masked-heading.is-masked .mh-char { opacity: 0; transform: translateY(var(--mh-drift)); }
+        .masked-heading.is-masked.is-revealed .mh-char {
+            animation: mhRise var(--mh-duration) cubic-bezier(.16, 1, .3, 1) both;
+            animation-delay: var(--mh-delay, 0s);
+        }
+        @keyframes mhRise {
+            from { opacity: 0; transform: translateY(var(--mh-drift)); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .masked-heading.is-masked .mh-char { opacity: 1; transform: none; animation: none; }
+            .masked-heading { --mh-parallax: 0px; }
+        }
     </style>
     <link rel="stylesheet" href="assets/css/automanize-theme.css" />
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
@@ -61,12 +159,12 @@
             <!-- Hero -->
             <section class="border-b border-[#e8e8e8] bg-[#f8f8f6]">
                 <div class="max-w-[1200px] mx-auto px-6 md:px-10 py-16 md:py-24 text-center">
-                    <span class="text-xs font-bold text-[#FFB300] tracking-[0.2em] uppercase">Casos de éxito</span>
-                    <h1 class="text-3xl md:text-5xl font-black text-[#111] leading-[1.1] tracking-tight mt-4 max-w-3xl mx-auto">
-                        Empresas reales que ya automatizaron su operativa
-                    </h1>
-                    <p class="text-[#555] text-base md:text-lg leading-relaxed mt-5 max-w-xl mx-auto">
-                        Desde hostelería hasta inmobiliarias: así usan Nize y el resto de sistemas de Automanize para atender clientes, gestionar reservas y ahorrar tiempo cada día.
+                    <h1 class="masked-heading" data-masked-heading>Casos de éxito</h1>
+                    <p class="text-[#555] text-base md:text-lg leading-relaxed mt-6 max-w-xl mx-auto">
+                        Empresas reales que ya automatizaron su operativa. Desde hostelería
+                        hasta inmobiliarias: así usan Nize y el resto de sistemas de
+                        Automanize para atender clientes, gestionar reservas y ahorrar
+                        tiempo cada día.
                     </p>
                 </div>
             </section>
@@ -232,6 +330,137 @@
         </div>
     </footer>
 </div>
+
+<script>
+    // MaskedHeading — versión vanilla del componente React.
+    (function () {
+        const titulares = document.querySelectorAll('[data-masked-heading]');
+        if (!titulares.length) return;
+
+        // Proporción de la imagen de relleno. Se lee una vez y se guarda:
+        // hace falta para saber cuánto alto ocupa el fondo y poder
+        // centrarlo sobre el titular.
+        const IMG = 'assets/images/casos-exito-mask.jpg';
+        const imagen = new Image();
+        let proporcion = 1.5;   // provisional hasta que cargue
+
+        function partir(el) {
+            const texto = el.textContent.trim();
+            el.textContent = '';
+            const chars = [];
+
+            texto.split(/(\s+)/).forEach((trozo) => {
+                if (!trozo) return;
+                if (/^\s+$/.test(trozo)) {
+                    el.appendChild(document.createTextNode(' '));
+                    return;
+                }
+                // Agrupar por palabra evita que un salto de línea parta una
+                // palabra por la mitad, ya que las letras son inline-block.
+                const palabra = document.createElement('span');
+                palabra.className = 'mh-word';
+                for (const c of trozo) {
+                    const s = document.createElement('span');
+                    s.className = 'mh-char';
+                    s.textContent = c;
+                    palabra.appendChild(s);
+                    chars.push(s);
+                }
+                el.appendChild(palabra);
+            });
+
+            return chars;
+        }
+
+        titulares.forEach((el) => {
+            const chars = partir(el);
+            if (!chars.length) return;
+
+            const cs = getComputedStyle(el);
+            const escala = parseFloat(cs.getPropertyValue('--mh-fill-scale')) || 1;
+            const stagger = parseFloat(cs.getPropertyValue('--mh-stagger')) || 0;
+            const parallax = parseFloat(cs.getPropertyValue('--mh-parallax')) || 0;
+
+            chars.forEach((c, i) => {
+                c.style.setProperty('--mh-delay', (i * stagger).toFixed(3) + 's');
+            });
+
+            // Reparte el fondo: mismo tamaño para todas las letras y a cada
+            // una se le corre la posición según dónde caiga dentro del
+            // titular. Así las piezas encajan y la imagen se lee entera.
+            function colocarFondo() {
+                const r = el.getBoundingClientRect();
+                if (!r.width) return;
+
+                const anchoFondo = r.width * escala;
+                const altoFondo = anchoFondo / proporcion;
+
+                el.style.setProperty('--mh-bg-size', `${anchoFondo}px ${altoFondo}px`);
+                // Centrado: el sobrante por el zoom se reparte a los lados
+                el.style.setProperty('--mh-ox', `${-(anchoFondo - r.width) / 2}px`);
+                el.style.setProperty('--mh-oy', `${-(altoFondo - r.height) / 2}px`);
+
+                chars.forEach((c) => {
+                    const cr = c.getBoundingClientRect();
+                    c.style.setProperty('--mh-x', `${-(cr.left - r.left)}px`);
+                    c.style.setProperty('--mh-y', `${-(cr.top - r.top)}px`);
+                });
+            }
+
+            // El parallax solo escribe en el titular; las letras heredan la
+            // variable, así que no hay que tocarlas en cada frame.
+            let pendiente = false;
+            function actualizarParallax() {
+                pendiente = false;
+                const r = el.getBoundingClientRect();
+                const centro = r.top + r.height / 2;
+                // -1 (abajo del todo) → +1 (arriba del todo)
+                const avance = 1 - (centro / innerHeight) * 2;
+                el.style.setProperty('--mh-par', `${(avance * parallax).toFixed(1)}px`);
+            }
+            function pedirParallax() {
+                if (pendiente) return;
+                pendiente = true;
+                requestAnimationFrame(actualizarParallax);
+            }
+
+            el.classList.add('is-masked');
+            colocarFondo();
+            actualizarParallax();
+
+            imagen.addEventListener('load', () => {
+                proporcion = imagen.naturalWidth / imagen.naturalHeight;
+                colocarFondo();
+            });
+            imagen.src = IMG;
+
+            // La tipografía web cambia el ancho de las letras al cargar, y
+            // con él dónde cae cada trozo del fondo.
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(colocarFondo);
+            }
+
+            addEventListener('resize', colocarFondo);
+            addEventListener('scroll', pedirParallax, { passive: true });
+
+            // trigger="view"
+            if ('IntersectionObserver' in window) {
+                new IntersectionObserver((entradas) => {
+                    entradas.forEach((e) => {
+                        if (e.isIntersecting) {
+                            colocarFondo();
+                            el.classList.add('is-revealed');
+                        } else {
+                            el.classList.remove('is-revealed');
+                        }
+                    });
+                }, { threshold: 0.25 }).observe(el);
+            } else {
+                el.classList.add('is-revealed');
+            }
+        });
+    })();
+</script>
 </body>
 
 </html>

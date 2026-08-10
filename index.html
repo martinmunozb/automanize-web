@@ -159,6 +159,12 @@
             height: 100%;
             display: block;
             z-index: 1;
+            /* El gesto horizontal lo gestionamos nosotros para girar el
+               círculo; el vertical se deja al navegador, que es el que
+               mueve la página (y con ella el propio carrusel). Sin esto,
+               en cuanto el navegador interpreta el arrastre como scroll
+               deja de mandarnos eventos y el giro se queda a medias. */
+            touch-action: pan-y;
         }
 
         /* Viñeta: funde bordes y protege la legibilidad del texto */
@@ -2194,11 +2200,11 @@
             if (estrecha) {
                 radiusX = 0.9;
                 radiusY = 2.6;
-                centerY = 2.0;
+                centerY = 2.4;
                 // El isotipo se coloca aparte, no colgado del centro de la
                 // órbita: así queda justo encima de la imagen sin el hueco
                 // muerto que dejaba al heredar la posición del círculo.
-                logoY = 1.6;
+                logoY = 2.0;
 
                 // El tamaño no se fija a ojo: se mide el ancho real del mundo
                 // a la profundidad de la tarjeta frontal y se ocupa un 86%.
@@ -2235,6 +2241,69 @@
             const scrolled = -stageEl.getBoundingClientRect().top;
             return Math.min(Math.max(scrolled / total, 0), 1);
         }
+
+        // --- Arrastre horizontal → también gira el círculo ----------
+        // Se suma al ángulo que marca el scroll en vez de sustituirlo: así
+        // las dos formas de moverlo conviven y el scroll no da un salto al
+        // soltar. La rotación por arrastre se conserva mientras dure la
+        // visita.
+        let dragAngle = 0;
+
+        (function () {
+            // Radianes por píxel arrastrado: media pantalla de recorrido
+            // avanza aproximadamente una tarjeta.
+            const RAD_POR_PX = (Math.PI * 2 / CARDS.length) / (innerWidth * 0.45);
+            const UMBRAL = 8;   // px antes de considerarlo arrastre y no clic
+
+            let activo = false;
+            let arrastrando = false;
+            let xInicio = 0;
+            let xPrevio = 0;
+            let punteroId = null;
+
+            canvas.addEventListener('pointerdown', (e) => {
+                if (!e.isPrimary) return;
+                activo = true;
+                arrastrando = false;
+                xInicio = xPrevio = e.clientX;
+                punteroId = e.pointerId;
+            });
+
+            canvas.addEventListener('pointermove', (e) => {
+                if (!activo || e.pointerId !== punteroId) return;
+
+                if (!arrastrando && Math.abs(e.clientX - xInicio) > UMBRAL) {
+                    arrastrando = true;
+                    // Capturar el puntero mantiene el gesto vivo aunque el
+                    // dedo se salga del canvas a mitad de recorrido.
+                    canvas.setPointerCapture(punteroId);
+                }
+                if (!arrastrando) return;
+
+                // Arrastrar hacia la izquierda avanza el círculo, como al
+                // empujar un carrusel con el dedo.
+                dragAngle -= (e.clientX - xPrevio) * RAD_POR_PX;
+                xPrevio = e.clientX;
+            });
+
+            function soltar(e) {
+                if (punteroId !== null && canvas.hasPointerCapture(punteroId)) {
+                    canvas.releasePointerCapture(punteroId);
+                }
+                activo = false;
+                punteroId = null;
+                // El flag se limpia en el siguiente tick: el evento "click"
+                // llega DESPUÉS de pointerup, y es ahí donde hay que saber
+                // si el gesto fue un arrastre para no abrir el lightbox.
+                if (arrastrando) setTimeout(() => { arrastrando = false; }, 0);
+            }
+
+            canvas.addEventListener('pointerup', soltar);
+            canvas.addEventListener('pointercancel', soltar);
+
+            // Lo consulta el manejador de click de más abajo
+            canvas.__fueArrastre = () => arrastrando;
+        })();
 
         // --- Parallax con el ratón ---------------------------------
         const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -2314,7 +2383,7 @@
 
             // El scroll es lo ÚNICO que mueve el círculo: sin scroll, quieto.
             const p = scrollProgress();
-            targetAngle = p * Math.PI * 2 * TURNS;
+            targetAngle = p * Math.PI * 2 * TURNS + dragAngle;
 
             const prevAngle = currentAngle;
             currentAngle += (targetAngle - currentAngle) * 0.075;   // inercia
@@ -2556,6 +2625,9 @@
         }
 
         canvas.addEventListener('click', (e) => {
+            // Un arrastre para girar el círculo termina en "click"; sin esta
+            // guarda, soltar el dedo sobre una tarjeta abría su ficha.
+            if (canvas.__fueArrastre && canvas.__fueArrastre()) return;
             const hit = cardAtPoint(e.clientX, e.clientY);
             if (hit) openLightbox(hit);
         });
