@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://edjugpekcntzvqaskbmc.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
     <title>Solicitar demo — Automanize</title>
     <meta name="description" content="Solicita la demo del CRM Nize: rellena tus datos, descárgalo al momento y nos pondremos en contacto contigo." />
     <meta name="author" content="Automanize" />
@@ -114,6 +114,20 @@
         .demo-form.intentado .demo-campo input:invalid ~ .demo-error { display: block; }
 
         .demo-legal { font-size: .72rem; line-height: 1.45; color: var(--muted); margin-top: .1rem; }
+
+        /* Error de envío (alta rechazada por el servidor: NIF inválido,
+           duplicado, etc.) — distinto del error de validación por campo
+           (.demo-error), que ya existe arriba. */
+        .demo-msg-servidor {
+            display: none;
+            font-size: .82rem;
+            color: #c4321f;
+            background: rgba(196, 50, 31, .08);
+            border: 1px solid rgba(196, 50, 31, .25);
+            border-radius: .6rem;
+            padding: .55rem .7rem;
+        }
+        .demo-msg-servidor.is-on { display: block; }
 
         /* ===== SPECULAR BUTTON — el mismo componente que usa la ficha de
            producto de la portada. El tema trae una versión simplificada
@@ -282,10 +296,10 @@
                     </label>
 
                     <label class="demo-campo">
-                        <span>Dirección</span>
-                        <input type="text" name="direccion" required maxlength="140"
-                               autocomplete="street-address" placeholder="Calle, número, ciudad" />
-                        <span class="demo-error">Escribe tu dirección.</span>
+                        <span>Correo electrónico</span>
+                        <input type="email" name="email" required maxlength="120"
+                               autocomplete="email" placeholder="tucorreo@ejemplo.com" />
+                        <span class="demo-error">Escribe un correo válido.</span>
                     </label>
 
                     <label class="demo-campo">
@@ -304,6 +318,25 @@
                         <span class="demo-error">Escribe un teléfono válido (mínimo 9 dígitos).</span>
                     </label>
 
+                    <label class="demo-campo">
+                        <span>NIF / DNI</span>
+                        <input type="text" name="nif" required maxlength="12"
+                               autocomplete="off" placeholder="12345678A" />
+                        <span class="demo-error">Escribe un NIF/DNI válido.</span>
+                    </label>
+
+                    <!-- Honeypot anti-spam: invisible para una persona, los
+                         bots que rellenan todos los campos caen aquí. Mismo
+                         mecanismo que prueba-nize.html / trial-signup. -->
+                    <div style="position:absolute;left:-9999px;" aria-hidden="true">
+                        <label>
+                            No rellenar
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+                        </label>
+                    </div>
+
+                    <p class="demo-msg-servidor" id="demoMsgServidor"></p>
+
                     <p class="demo-legal">
                         Al enviar aceptas que te contactemos sobre la demo. Consulta la
                         <a href="nize-privacy.html">política de privacidad</a>.
@@ -321,8 +354,9 @@
                     </div>
                     <h2 id="demoOkTitulo">¡Listo!</h2>
                     <p>
-                        Hemos recibido tu solicitud. <strong>Nos pondremos en contacto contigo</strong>
-                        para ayudarte a ponerlo en marcha. Mientras tanto, ya puedes descargar el CRM.
+                        Tu cuenta ya está creada. <strong>Revisa tu correo</strong>: te hemos enviado
+                        el instalador, tus credenciales de acceso y el código de activación. Tienes
+                        <strong>7 días de prueba gratis</strong> con todo el CRM.
                     </p>
 
                     <!-- href por defecto a la página de releases: si el JS que
@@ -390,17 +424,17 @@
             const ok    = document.getElementById('demoOk');
             const okTit = document.getElementById('demoOkTitulo');
             const btnDescarga = document.getElementById('demoDescarga');
+            const msgServidor = document.getElementById('demoMsgServidor');
             if (!form) return;
 
-            // Entrega del lead por correo. FormSubmit reenvía el formulario
-            // a esta dirección sin necesidad de backend ni de clave: por eso
-            // se usa aquí, donde los webhooks propios no valen (son por
-            // tenant y exigen token).
-            // OJO: la PRIMERA vez que se envía algo, FormSubmit manda un
-            // correo de activación a esta dirección. Hasta que se pulse ese
-            // enlace, los envíos no llegan.
-            const DESTINO = 'automanize@gmail.com';
-            const DEMO_WEBHOOK_URL = `https://formsubmit.co/ajax/${DESTINO}`;
+            // Alta real del tenant (7 días de prueba gratis) vía la misma
+            // Edge Function que usa prueba-nize.html — no un simple envío de
+            // lead por correo. Crea usuario, tenant, perfil, token de
+            // activación y manda el email de bienvenida con instalador +
+            // credenciales.
+            const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
+            const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
 
             function mostrarConfirmacion(nombre) {
                 const primero = (nombre || '').trim().split(/\s+/)[0];
@@ -408,6 +442,11 @@
                 card.classList.add('is-enviado');
                 ok.classList.add('is-on');
                 ok.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function mostrarErrorServidor(texto) {
+                msgServidor.textContent = texto;
+                msgServidor.classList.add('is-on');
             }
 
             // Un teléfono se mide en dígitos, no en caracteres: "()()()()()"
@@ -423,8 +462,9 @@
             }
             tel.addEventListener('input', validarTelefono);
 
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                msgServidor.classList.remove('is-on');
 
                 // Marcar antes de validar: es lo que habilita los mensajes de
                 // error en CSS, que hasta ahora estaban ocultos.
@@ -437,27 +477,44 @@
                 }
 
                 const datos = Object.fromEntries(new FormData(form).entries());
+                const submitBtn = form.querySelector('.specular-btn');
+                submitBtn.disabled = true;
 
-                // El envío es "best-effort": la confirmación y la descarga no
-                // se hacen esperar a la red, pero cualquier fallo queda
-                // registrado en consola para poder detectarlo.
-                fetch(DEMO_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                    body: JSON.stringify({
-                        _subject: `Nueva solicitud de demo — ${datos.nombre}`,
-                        Nombre: datos.nombre,
-                        Dirección: datos.direccion,
-                        Teléfono: datos.telefono,
-                        Origen: 'Página de solicitar demo',
-                        Fecha: new Date().toLocaleString('es-ES'),
-                    }),
-                }).then((r) => {
-                    if (!r.ok) console.error('Envío de la solicitud fallido:', r.status, r.statusText);
-                }).catch((err) => console.error('Envío de la solicitud fallido:', err));
+                try {
+                    const res = await fetch(TRIAL_SIGNUP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+                        body: JSON.stringify({
+                            empresa: datos.nombre,
+                            telefono: datos.telefono,
+                            email: datos.email,
+                            nif: datos.nif,
+                            website: datos.website,
+                        }),
+                    });
+                    const data = await res.json().catch(() => ({}));
 
-                mostrarConfirmacion(datos.nombre);
+                    if (!res.ok || data.error) {
+                        throw new Error(data.error || 'No se pudo procesar tu solicitud.');
+                    }
+
+                    mostrarConfirmacion(datos.nombre);
+                } catch (err) {
+                    mostrarErrorServidor(err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.');
+                } finally {
+                    submitBtn.disabled = false;
+                }
             });
+
+            // Si Stripe redirige aquí tras un pago (pantalla de bloqueo del
+            // trial en la app de escritorio), se sustituye la tarjeta del
+            // formulario por un aviso de confirmación — no tiene sentido
+            // pedir de nuevo el alta a quien ya es cliente de pago.
+            if (new URLSearchParams(window.location.search).get('pago') === 'exitoso') {
+                card.innerHTML = '<div style="text-align:center"><h2>¡Pago confirmado!</h2>' +
+                    '<p style="margin-top:.7rem;color:var(--muted);font-size:.93rem;line-height:1.6">' +
+                    'Ya puedes volver a abrir la aplicación Nize — tu cuenta está activa.</p></div>';
+            }
 
             // --- Brillo especular: sigue al puntero y se apaga al alejarse.
             // Sin esto el botón se queda plano, porque las variables
