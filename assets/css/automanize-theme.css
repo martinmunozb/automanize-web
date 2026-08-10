@@ -1,0 +1,361 @@
+/* ===================================================================
+   AUTOMANIZE — TEMA COMPARTIDO
+   Mismo lenguaje visual que la portada (index.html): fondo de manchas
+   de color, tipografía Spline Sans, dock flotante en vez de navbar y
+   pie transparente.
+
+   Se carga DESPUÉS de Tailwind en cada página, así que las reglas de
+   aquí ganan a las utilidades de Tailwind cuando hace falta.
+   =================================================================== */
+
+:root {
+    --primary: #FFAB00;
+    --bg: #ffffff;
+    --text: #111114;
+    --muted: #6b6b75;
+}
+
+/* ===== FONDO GLOBAL =====
+   Anclado al viewport (background-attachment: fixed): el degradado
+   cubre siempre la pantalla completa, así que no aparece ninguna
+   costura entre secciones al hacer scroll. Va con !important porque
+   estas páginas traen "bg-white" de Tailwind en el <body>. */
+body.am-page {
+    font-family: "Spline Sans", system-ui, sans-serif !important;
+    color: var(--text);
+    overflow-x: hidden;
+    background-color: hsla(0, 0%, 100%, 1) !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
+    background-image:
+        radial-gradient(circle at 5% 5%,   hsla(56, 100%, 91%, 1) 0%, transparent 50%),
+        radial-gradient(circle at 95% 5%,  hsla(202, 100%, 89%, 1) 0%, transparent 37.374378938380175%),
+        radial-gradient(circle at 3% 95%,  hsla(24, 100%, 82%, 1) 4.6685340802987865%, transparent 50%),
+        radial-gradient(circle at 70% 68%, hsla(180, 100%, 96%, 1) 0%, transparent 50%) !important;
+    background-blend-mode: normal, normal, normal, normal;
+}
+
+/* Las secciones no pintan fondo propio: taparían el degradado del body
+   con un blanco sólido. Las tarjetas de dentro (divs) sí conservan el
+   suyo, que es lo que les da relieve sobre el fondo de color. */
+.am-page main > section,
+.am-page main > div > section,
+.am-page > div > main > section {
+    background-color: transparent !important;
+}
+
+/* Los separadores duros entre secciones se suavizan: con el fondo de
+   color, una línea gris marcada corta la página en bloques. */
+.am-page main > section {
+    border-color: rgba(0, 0, 0, .06) !important;
+}
+
+/* Hueco inferior para que el dock flotante no tape el contenido */
+.am-page {
+    padding-bottom: 4.5rem;
+}
+
+/* ===== SECCIÓN OSCURA → CLARA =====
+   Las CTA de estas páginas venían sobre un bloque negro (bg-[#111]).
+   Sobre el fondo nuevo desentona, así que se pasan a claro: fondo
+   transparente y texto oscuro. */
+.am-cta-light { background: transparent !important; }
+.am-cta-light h2,
+.am-cta-light h3 { color: var(--text) !important; }
+.am-cta-light p { color: var(--muted) !important; }
+.am-cta-light .am-cta-secondary {
+    color: var(--text) !important;
+    border-color: rgba(0, 0, 0, .16) !important;
+}
+.am-cta-light .am-cta-secondary:hover { border-color: rgba(0, 0, 0, .32) !important; }
+
+/* ===== TARJETA ===== */
+.am-card {
+    border-radius: 1.75rem;
+    border: 1px solid rgba(0, 0, 0, .08);
+    background: #fff;
+    box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .14);
+}
+
+/* ===== SHINY TEXT — equivalente CSS del componente de ReactBits.
+   Un degradado recortado al texto (background-clip: text) cuya
+   posición se desplaza en bucle: el destello que recorre las letras. */
+.shiny-gold {
+    background-image: linear-gradient(
+        100deg,
+        #8A5A05 0%, #B8801A 12%, #E5A317 26%, #FFC85C 40%,
+        var(--shine-color, #FFF7E2) 50%,
+        #FFC85C 60%, #E5A317 74%, #B8801A 88%, #8A5A05 100%
+    );
+    background-size: var(--shine-spread, 200%) 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shinySweep var(--shine-speed, 3.4s) linear infinite;
+}
+@keyframes shinySweep {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: -100% 50%; }
+}
+.shiny-gold:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+    .shiny-gold { animation: none; background-position: 50% 50%; }
+}
+
+/* ===== SPLIT TEXT — equivalente del componente de ReactBits (GSAP).
+   El texto se parte en letras y cada una entra desde abajo en cascada.
+   El estado oculto solo se aplica DESPUÉS de que el JS parta el texto
+   (clase .is-split): si el script fallara, el texto se ve igual. */
+.split-char { display: inline-block; will-change: transform, opacity; }
+.split-word { display: inline-block; white-space: nowrap; }
+
+[data-split].is-split .split-char { opacity: 0; transform: translateY(40px); }
+[data-split].is-split.is-revealed .split-char {
+    animation: splitIn var(--split-duration, 1.25s) cubic-bezier(.165, .84, .44, 1) forwards;
+}
+/* El bloque dorado necesita SUS DOS animaciones a la vez: la entrada y
+   el barrido del brillo. Declarar solo "splitIn" pisaría shinySweep,
+   porque es la misma propiedad "animation". */
+[data-split].is-split.is-revealed .shiny-gold.split-char {
+    animation: splitIn var(--split-duration, 1.25s) cubic-bezier(.165, .84, .44, 1) forwards,
+               shinySweep var(--shine-speed, 3.4s) linear infinite;
+}
+@keyframes splitIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    [data-split].is-split .split-char { opacity: 1; transform: none; animation: none; }
+}
+
+/* ===== BOTÓN PRINCIPAL ===== */
+.specular-btn {
+    --sb-radius: 18px;
+    --sb-thickness: 1px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    height: 3.2rem;
+    padding: 0 1.9rem;
+    border-radius: var(--sb-radius);
+    background: var(--primary);
+    color: #171717;
+    font-size: .92rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: var(--sb-thickness) solid rgba(0, 0, 0, .08);
+    cursor: pointer;
+    transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s ease;
+}
+.specular-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255, 171, 0, .35);
+}
+
+/* ===== PIE ===== */
+.site-footer {
+    position: relative;
+    z-index: 4;
+    background: transparent !important;
+    border: 0 !important;
+    /* El padding inferior extra deja sitio al dock flotante, que es
+       fixed y si no taparía los enlaces legales. */
+    padding: 3rem 0 7rem;
+}
+.site-footer .footer-top {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+.site-footer .footer-brand { display: flex; flex-direction: column; gap: 1rem; }
+.site-footer .footer-brand-link { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+.site-footer .footer-brand-link img { width: 2rem; height: 2rem; border-radius: .375rem; object-fit: cover; }
+.site-footer .footer-brand-link h3 { font-size: 1.125rem; font-weight: 700; color: var(--text); }
+.site-footer .footer-brand p { font-size: .875rem; color: var(--muted); max-width: 20rem; line-height: 1.6; }
+
+.site-footer .footer-nav { display: flex; flex-direction: column; gap: .5rem; }
+.site-footer .footer-nav-titulo {
+    font-size: 11px; font-weight: 700; letter-spacing: .15em;
+    text-transform: uppercase; color: #b3b3bb; margin-bottom: .25rem;
+}
+.site-footer .footer-nav a {
+    font-size: .875rem; color: var(--muted); text-decoration: none; transition: color .2s;
+}
+.site-footer .footer-nav a:hover { color: var(--primary); }
+
+.site-footer .footer-contacto { display: flex; flex-direction: column; gap: .5rem; }
+.site-footer .footer-contacto a {
+    display: flex; align-items: center; gap: .5rem; font-weight: 500;
+    color: var(--text); text-decoration: none; transition: color .2s;
+}
+.site-footer .footer-contacto a:hover { color: var(--primary); }
+.site-footer .footer-contacto svg { width: 20px; height: 20px; color: var(--primary); flex: none; }
+
+.site-footer .footer-legal {
+    max-width: 1200px; margin: 2.5rem auto 0; padding: 1.5rem 1rem 0;
+    border-top: 1px solid rgba(0, 0, 0, .07);
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: flex-start; gap: 1rem;
+    font-size: .875rem; color: var(--muted);
+}
+.site-footer .footer-legal-links { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.site-footer .footer-legal-links a { color: inherit; text-decoration: none; transition: color .2s; }
+.site-footer .footer-legal-links a:hover { color: var(--primary); }
+
+@media (min-width: 768px) {
+    .site-footer .footer-top,
+    .site-footer .footer-legal {
+        padding-left: 2.5rem; padding-right: 2.5rem;
+        flex-direction: row; align-items: center;
+    }
+    .site-footer .footer-contacto { align-items: flex-end; }
+}
+
+/* ===== FLOATING DOCK — adaptado de Aceternity UI (React) a HTML/CSS/JS
+   vanilla. Mismo efecto de magnificación tipo dock de macOS, resuelto
+   con mousemove en vez de Framer Motion. ===== */
+.floating-dock {
+    position: fixed;
+    left: 50%;
+    bottom: 1.4rem;
+    z-index: 60;
+    display: flex;
+    align-items: flex-end;
+    gap: .55rem;
+    padding: .55rem .7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .68);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(0, 0, 0, .08);
+    box-shadow: 0 14px 44px rgba(0, 0, 0, .16), 0 2px 8px rgba(0, 0, 0, .05);
+    /* En reposo la barra está minimizada; se expande al entrar el ratón.
+       transform-origin en la base para que crezca hacia arriba. */
+    transform: translateX(-50%) scale(.8);
+    transform-origin: 50% 100%;
+    opacity: .78;
+    transition: transform .38s cubic-bezier(.34, 1.56, .64, 1), opacity .25s ease;
+}
+.floating-dock.is-expanded { transform: translateX(-50%) scale(1); opacity: 1; }
+
+.dock-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .045);
+    color: #3a3a44;
+    text-decoration: none;
+    flex: none;
+    transform-origin: bottom center;
+    transition: transform .12s ease-out, background .2s;
+}
+.dock-item:hover,
+.dock-item:focus-visible { background: rgba(255, 171, 0, .16); color: #8a5d00; outline: none; }
+/* La página actual queda marcada en el dock */
+.dock-item.is-current { background: rgba(255, 171, 0, .22); color: #8a5d00; }
+
+.dock-icon { width: 20px; height: 20px; pointer-events: none; }
+.dock-item img.dock-icon { width: 20px; height: 20px; object-fit: contain; border-radius: 4px; }
+
+.dock-tooltip {
+    position: absolute;
+    bottom: calc(100% + 11px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #17171b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: .32rem .65rem;
+    border-radius: .45rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+}
+.dock-item:hover .dock-tooltip,
+.dock-item:focus-visible .dock-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Submenú de Servicios. Se posiciona por JS en coordenadas de pantalla
+   (position: fixed) para no heredar la escala del dock.
+   Va en dos capas: .dock-panel es el ÁREA HOVEABLE, con un
+   padding-bottom que rellena el hueco hasta tocar el icono — así el
+   ratón nunca deja de estar sobre "algo" al subir del icono al panel.
+   .dock-panel-card es la tarjeta visible. */
+.dock-panel {
+    position: fixed;
+    z-index: 70;
+    width: 216px;
+    padding-bottom: 14px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility 0s .2s;
+}
+.dock-panel.is-open { opacity: 1; visibility: visible; transition: opacity .2s ease, visibility 0s; }
+
+.dock-panel-card {
+    position: relative;
+    padding: .4rem;
+    border-radius: .85rem;
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(0, 0, 0, .08);
+    box-shadow: 0 20px 48px -14px rgba(0, 0, 0, .28);
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+    transform: translateY(8px);
+    transition: transform .28s cubic-bezier(.16, 1, .3, 1);
+}
+.dock-panel.is-open .dock-panel-card { transform: translateY(0); }
+
+.dock-panel a {
+    display: block;
+    padding: .5rem .7rem;
+    border-radius: .5rem;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #515154;
+    text-decoration: none;
+    line-height: 1.3;
+    transition: background .18s, color .18s;
+}
+.dock-panel a:hover { background: rgba(0, 0, 0, .05); color: #1d1d1f; }
+
+/* Punta que lo une visualmente con el icono */
+.dock-panel-card::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: var(--punta-x, 50%);
+    transform: translateX(-50%) rotate(45deg);
+    margin-top: -5px;
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, .96);
+    border-right: 1px solid rgba(0, 0, 0, .08);
+    border-bottom: 1px solid rgba(0, 0, 0, .08);
+}
+
+/* Con el panel abierto sobra el globo pequeño del icono */
+.dock-item.has-panel-open .dock-tooltip { opacity: 0; }
+
+@media (max-width: 640px) {
+    .floating-dock { gap: .4rem; padding: .45rem .55rem; bottom: 1rem; }
+    .dock-item { width: 38px; height: 38px; }
+    .dock-icon { width: 18px; height: 18px; }
+    .dock-panel { width: min(216px, calc(100vw - 2rem)); }
+}
