@@ -906,6 +906,17 @@
         }
         .beam-card.is-built .beam-dot { opacity: 1; }
 
+        /* Estado que solo existe durante la medición de las curvas (lo pone
+           y lo quita el JS dentro del mismo frame). Neutraliza las
+           transformaciones de la animación de entrada: mientras la red se
+           construye, cada tarjeta está desplazada 46px hacia su lado, y
+           medirla así hacía nacer las líneas fuera de los iconos. */
+        .beam-card.is-measuring .beam-entry,
+        .beam-card.is-measuring .beam-node--center {
+            transform: none !important;
+            transition: none !important;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .beam-entry, .beam-node--center, .beam-dot {
                 opacity: 1;
@@ -1064,42 +1075,71 @@
             .beam-features { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* ===== MÓVIL: el diagrama radial no cabe en 3 columnas, así que se
-           apila en una lista. Las líneas SVG y los puntos de conexión se
-           ocultan porque, apilado, no conectan nada — el hub pasa a ser la
-           cabecera de la lista. ===== */
+        /* ===== MÓVIL =====
+           El diagrama SE MANTIENE: es lo que cuenta la sección, y apilarlo
+           en una lista dejaba las líneas sin conectar nada, así que había
+           que ocultarlas y con ellas desaparecía el flujo entero.
+           En su lugar se encoge: cada herramienta pasa de tarjeta
+           (icono + título + descripción, en horizontal) a icono con su
+           nombre debajo. Se pierde la descripción — a 390px no cabe sin
+           romper la figura — pero se conserva lo que explica la idea: las
+           seis herramientas alrededor del hub y los impulsos yendo y
+           volviendo del centro. ===== */
         @media (max-width: 760px) {
             .beam-card { padding: 1.1rem; border-radius: 1.25rem; }
 
-            .beam-stage { height: auto; display: block; }
-            .beam-svg { display: none; }
-            .beam-center-msg { display: none; }
+            .beam-stage { height: 340px; }
+            .beam-grid { max-width: 100%; }
 
-            .beam-grid { max-width: 100%; height: auto; gap: .7rem; }
-            .beam-row { flex-direction: column; gap: .7rem; }
-
-            .beam-entry { width: 100%; }
-            /* Apilado, ambas columnas se leen igual: icono y luego texto.
-               El "order" base (node:1, copy:2) ya lo consigue — no hay que
-               tocarlo, porque en el HTML el texto va antes que el icono. */
-            .beam-entry--right { flex-direction: row; text-align: left; }
-            .beam-dot { display: none; }
-
-            /* El isotipo encabeza la lista en vez de quedar entre dos tarjetas */
-            .beam-node--center {
-                order: -1;
-                width: 64px;
-                height: 64px;
-                padding: .7rem;
-                margin: 0 auto .4rem;
+            /* Sin el marco blanco: a este tamaño la tarjeta de cada nodo
+               competía visualmente con las líneas. */
+            .beam-entry {
+                width: 78px;
+                flex-direction: column;
+                gap: .32rem;
+                padding: 0;
+                background: transparent;
+                border: 0;
+                box-shadow: none;
+                text-align: center;
             }
+            .beam-entry--right { flex-direction: column; }
 
-            .beam-copy strong { font-size: .9rem; }
-            .beam-copy span { font-size: .76rem; }
+            .beam-copy { align-items: center; }
+            .beam-copy strong { font-size: .67rem; line-height: 1.2; }
+            .beam-copy span { display: none; }
+
+            .beam-node { width: 44px; height: 44px; padding: .4rem; }
+            .beam-node--center { width: 58px; height: 58px; padding: .58rem; }
+
+            /* El punto de conexión se ancla al CENTRO DEL ICONO, no al de
+               la tarjeta: con el nombre debajo, el medio del bloque ya no
+               cae sobre el círculo y las líneas salían del texto.
+               17px = (78 de ancho − 44 del icono) / 2, o sea el borde
+               interior del círculo. */
+            .beam-dot { top: 22px; width: 7px; height: 7px; }
+            .beam-entry .beam-dot { right: 17px; }
+            .beam-entry--right .beam-dot { left: 17px; right: auto; }
+
+            .beam-center-msg {
+                font-size: .62rem;
+                padding: .26rem .62rem;
+                transform: translate(-50%, 44px);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .beam-entry { width: 66px; }
+            .beam-node { width: 40px; height: 40px; padding: .34rem; }
+            .beam-node--center { width: 52px; height: 52px; }
+            .beam-dot { top: 20px; }
+            .beam-entry .beam-dot { right: 13px; }
+            .beam-entry--right .beam-dot { left: 13px; }
+            .beam-copy strong { font-size: .61rem; }
+            .beam-center-msg { transform: translate(-50%, 40px); }
         }
 
         @media (max-width: 640px) {
-            .beam-node { width: 48px; height: 48px; padding: .45rem; }
             .beam-features { grid-template-columns: 1fr; gap: .9rem; }
         }
 
@@ -1699,6 +1739,9 @@
             // y esos pueden dispararse antes de llegar al bloque de montaje.
             let built = false;
 
+            // Ancho de escenario para el que se calibraron las curvaturas.
+            const ANCHO_BASE = 760;
+
             const PULSE_LEN = 40;    // largo del impulso, en px de trazado
             const TRAVEL_MS = 460;   // lo que tarda en cruzar el cable
             const HOLD_MS   = 340;   // pausa en el centro: el "procesado"
@@ -1779,8 +1822,24 @@
             }
 
             function layout() {
+                // Se mide con las transformaciones de entrada anuladas. Sin
+                // esto, layout() corre mientras las tarjetas siguen en su
+                // posición de partida (desplazadas 46px) y las curvas quedan
+                // calculadas desde ahí para siempre: las líneas nacían 46px
+                // fuera de los iconos, en el aire. Poner y quitar la clase
+                // ocurre dentro del mismo frame, sin repintado intermedio,
+                // así que no se ve ningún salto.
+                if (card) card.classList.add('is-measuring');
+
                 const stageRect = stage.getBoundingClientRect();
                 svg.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
+
+                // curvature y endYOffset están en píxeles absolutos, calibrados
+                // sobre el escenario de escritorio (~1000px de ancho). En un
+                // móvil la distancia entre nodo y centro es la tercera parte,
+                // así que esos mismos 75px doblaban la línea hasta sacarla de
+                // la figura. Se escalan con el ancho real del escenario.
+                const k = Math.min(1, stageRect.width / ANCHO_BASE);
 
                 const centerBase = centerOf(centerEl, stageRect);
 
@@ -1788,8 +1847,8 @@
                     const fromEl = nodes[cfg.from];
                     if (!fromEl) return;
                     const from = centerOf(fromEl, stageRect);
-                    const to   = { x: centerBase.x, y: centerBase.y + cfg.endYOffset };
-                    const d = buildPath(from, to, cfg.curvature);
+                    const to   = { x: centerBase.x, y: centerBase.y + cfg.endYOffset * k };
+                    const d = buildPath(from, to, cfg.curvature * k);
 
                     cfg._track.setAttribute('d', d);
                     cfg._glow.setAttribute('d', d);
@@ -1810,6 +1869,8 @@
                     // es lo que permite la ida y la vuelta.
                     cfg._glow.style.strokeDasharray = `${PULSE_LEN} 999999`;
                 });
+
+                if (card) card.classList.remove('is-measuring');
             }
 
             layout();
