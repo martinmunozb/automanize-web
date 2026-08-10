@@ -57,7 +57,7 @@
             </svg>
             <span class="dock-tooltip">Consultoría</span>
         </a>
-        <a class="dock-item" href="consultoria-gratuita.html" data-title="Solicitar demo">
+        <a class="dock-item" href="solicitar-demo.html" data-title="Solicitar demo">
             <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="9.25" />
                 <path d="M10 8.3v7.4l6.2-3.7z" fill="currentColor" stroke="none" />

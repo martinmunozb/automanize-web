@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://backend.automanize.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+    <title>Solicitar demo — Automanize</title>
+    <meta name="description" content="Solicita la demo del CRM Nize: rellena tus datos, descárgalo al momento y nos pondremos en contacto contigo." />
+    <meta name="author" content="Automanize" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://automanize.com/solicitar-demo.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://automanize.com/solicitar-demo.html" />
+    <meta property="og:title" content="Solicitar demo — Automanize" />
+    <meta property="og:description" content="Rellena tus datos, descarga el CRM Nize y nos pondremos en contacto contigo." />
+    <meta property="og:image" content="https://automanize.com/assets/images/nize.png" />
+    <meta property="og:site_name" content="Automanize" />
+    <meta property="og:locale" content="es_ES" />
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="assets/css/automanize-theme.css" />
+    <link rel="stylesheet" href="assets/css/automanize-dock.css" />
+    <script src="assets/js/automanize-ui.js" defer></script>
+
+    <style>
+        .demo-wrap {
+            position: relative;
+            z-index: 4;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: clamp(2rem, 5vw, 3.5rem) 1.5rem 4rem;
+        }
+
+        .demo-head { text-align: center; max-width: 640px; margin: 0 auto 2.5rem; }
+        .demo-head h1 {
+            font-size: clamp(1.9rem, 4.4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.18;
+            color: var(--text);
+        }
+        .demo-head p {
+            margin-top: 1rem;
+            color: var(--muted);
+            font-size: clamp(.95rem, 1.4vw, 1.05rem);
+            line-height: 1.65;
+        }
+
+        .demo-cols {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            align-items: start;
+        }
+        @media (min-width: 900px) {
+            .demo-cols { grid-template-columns: 1fr 1.05fr; gap: 2.5rem; }
+        }
+
+        /* Columna de "qué incluye" */
+        .demo-puntos { display: flex; flex-direction: column; gap: 1.15rem; }
+        .demo-punto { display: flex; gap: .85rem; align-items: flex-start; }
+        .demo-punto svg {
+            width: 22px; height: 22px; flex: none; color: var(--primary); margin-top: .15rem;
+        }
+        .demo-punto strong { display: block; font-size: .97rem; color: var(--text); font-weight: 700; }
+        .demo-punto span { font-size: .88rem; line-height: 1.55; color: var(--muted); }
+
+        /* Tarjeta del formulario */
+        .demo-card {
+            border-radius: 1.75rem;
+            border: 1px solid rgba(0, 0, 0, .08);
+            background: #fff;
+            box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .14);
+            padding: clamp(1.4rem, 3vw, 2.2rem);
+        }
+
+        .demo-form { display: flex; flex-direction: column; gap: 1.05rem; }
+        .demo-campo { display: flex; flex-direction: column; gap: .4rem; }
+        .demo-campo > span {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .demo-campo input {
+            width: 100%;
+            font: inherit;
+            font-size: .95rem;
+            color: var(--text);
+            padding: .8rem .95rem;
+            border-radius: .85rem;
+            border: 1px solid rgba(0, 0, 0, .14);
+            background: #fff;
+            transition: border-color .18s, box-shadow .18s;
+        }
+        .demo-campo input::placeholder { color: #a5a5b0; }
+        .demo-campo input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 171, 0, .18);
+        }
+        /* El aviso de error solo aparece cuando el navegador marca el campo
+           como inválido Y el formulario ya se ha intentado enviar: así no
+           salta en rojo mientras la persona todavía está escribiendo. */
+        .demo-error { font-size: .78rem; color: #c4321f; display: none; }
+        .demo-form.intentado .demo-campo input:invalid { border-color: #e0705f; }
+        .demo-form.intentado .demo-campo input:invalid ~ .demo-error { display: block; }
+
+        .demo-legal { font-size: .76rem; line-height: 1.5; color: var(--muted); }
+
+        .demo-form .specular-btn { width: 100%; margin-top: .2rem; }
+
+        /* Pantalla de confirmación */
+        .demo-ok { display: none; text-align: center; }
+        .demo-ok.is-on { display: block; }
+        .demo-card.is-enviado .demo-form { display: none; }
+
+        .demo-ok-icono {
+            width: 62px; height: 62px;
+            margin: 0 auto 1.1rem;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 171, 0, .14);
+            border: 1.5px solid rgba(255, 171, 0, .4);
+            color: #8a5d00;
+        }
+        .demo-ok-icono svg { width: 30px; height: 30px; }
+        .demo-ok h2 { font-size: 1.35rem; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+        .demo-ok p { margin-top: .7rem; color: var(--muted); font-size: .93rem; line-height: 1.6; }
+        .demo-ok .demo-descarga { margin-top: 1.6rem; }
+        .demo-ok .demo-nota {
+            margin-top: 1rem;
+            font-size: .78rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="demo-wrap">
+        <div class="demo-head">
+            <h1 data-split>Prueba el <span class="shiny-gold">CRM Nize</span> por tu cuenta</h1>
+            <p data-split>
+                Déjanos tus datos y lo descargas al momento. Después nos pondremos en
+                contacto contigo para ayudarte a montarlo sobre tu operativa.
+            </p>
+        </div>
+
+        <div class="demo-cols">
+            <div class="demo-puntos">
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    <div>
+                        <strong>Descarga inmediata</strong>
+                        <span>En cuanto envías el formulario tienes el instalador disponible, sin esperas.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18" /><path d="M8 4v3M16 4v3" /></svg>
+                    <div>
+                        <strong>Propiedades, contratos y cobros</strong>
+                        <span>El panel completo con el que se gestiona el día a día, no una versión recortada.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                    <div>
+                        <strong>Te acompañamos después</strong>
+                        <span>Te llamamos para resolver dudas y ver cómo encaja con lo que ya usas.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6.5v5c0 4.5 3.2 8.4 8 9.5 4.8-1.1 8-5 8-9.5v-5z" /></svg>
+                    <div>
+                        <strong>Sin compromiso</strong>
+                        <span>Probarlo no te obliga a nada, y tus datos no se comparten con terceros.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-card" id="demoCard">
+                <!-- novalidate: la validación la lanzamos nosotros para poder
+                     marcar el formulario como "intentado" antes de que el
+                     navegador enseñe sus propios globos. -->
+                <form class="demo-form" id="demoForm" novalidate>
+                    <label class="demo-campo">
+                        <span>Nombre y apellidos</span>
+                        <input type="text" name="nombre" required maxlength="80"
+                               autocomplete="name" placeholder="Tu nombre" />
+                        <span class="demo-error">Escribe tu nombre.</span>
+                    </label>
+
+                    <label class="demo-campo">
+                        <span>Dirección</span>
+                        <input type="text" name="direccion" required maxlength="140"
+                               autocomplete="street-address" placeholder="Calle, número, ciudad" />
+                        <span class="demo-error">Escribe tu dirección.</span>
+                    </label>
+
+                    <label class="demo-campo">
+                        <span>Teléfono</span>
+                        <!-- Sin atributo "pattern" a propósito: el navegador
+                             compila esos patrones con el flag `v`, donde los
+                             paréntesis dentro de una clase deben ir
+                             escapados. Uno mal formado no da error, se
+                             descarta en silencio y el campo se valida solo
+                             por "required" — colaba cualquier cosa. Los
+                             dígitos se cuentan en JS, que además es lo que
+                             de verdad importa. -->
+                        <input type="tel" name="telefono" required
+                               autocomplete="tel" inputmode="tel"
+                               placeholder="+34 600 00 00 00" />
+                        <span class="demo-error">Escribe un teléfono válido (mínimo 9 dígitos).</span>
+                    </label>
+
+                    <p class="demo-legal">
+                        Al enviar aceptas que te contactemos sobre la demo. Consulta la
+                        <a href="nize-privacy.html">política de privacidad</a>.
+                    </p>
+
+                    <button type="submit" class="specular-btn">
+                        <span>Solicitar demo y descargar</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+                    </button>
+                </form>
+
+                <div class="demo-ok" id="demoOk">
+                    <div class="demo-ok-icono">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    </div>
+                    <h2 id="demoOkTitulo">¡Listo!</h2>
+                    <p>
+                        Hemos recibido tu solicitud. <strong>Nos pondremos en contacto contigo</strong>
+                        para ayudarte a ponerlo en marcha. Mientras tanto, ya puedes descargar el CRM.
+                    </p>
+
+                    <!-- href por defecto a la página de releases: si el JS que
+                         busca el instalador exacto falla, el botón sigue
+                         llevando a un sitio donde descargarlo. -->
+                    <a class="specular-btn demo-descarga" id="demoDescarga"
+                       href="https://github.com/NitramX7/Nize-Releases/releases/latest"
+                       target="_blank" rel="noopener noreferrer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12" /><path d="m7 11 5 5 5-5" /><path d="M4 21h16" /></svg>
+                        <span>Descargar CRM Nize</span>
+                    </a>
+
+                    <p class="demo-nota">Para Windows. Si usas otro sistema, dínoslo cuando hablemos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a class="footer-brand-link" href="index.html" aria-label="Ir al inicio">
+                    <img src="assets/images/Automanize%20(4).png" alt="Automanize Logo" loading="lazy" />
+                    <h3>Automanize</h3>
+                </a>
+                <p>Empoderando a propietarios e inmobiliarias con automatización inteligente.</p>
+            </div>
+
+            <div class="footer-nav">
+                <span class="footer-nav-titulo">Navegación</span>
+                <a href="index.html">Inicio</a>
+                <a href="our-services.html">Servicios</a>
+                <a href="casos-exito.html">Casos de éxito</a>
+                <a href="sobre-nosotros.html">Sobre nosotros</a>
+                <a href="consultoria-gratuita.html">Consultoría</a>
+                <a href="contactus.html">Contacto</a>
+            </div>
+
+            <div class="footer-contacto">
+                <a href="mailto:automanize@gmail.com">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+                    automanize@gmail.com
+                </a>
+                <a href="tel:+34617153252">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.8 2.1z" /></svg>
+                    +34 617 15 32 52
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-legal">
+            <p>© 2026 Automanize. Todos los derechos reservados.</p>
+            <div class="footer-legal-links">
+                <a href="aviso-legal.html">Aviso legal</a>
+                <a href="nize-privacy.html">Privacidad</a>
+                <a href="cookies.html">Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            const form  = document.getElementById('demoForm');
+            const card  = document.getElementById('demoCard');
+            const ok    = document.getElementById('demoOk');
+            const okTit = document.getElementById('demoOkTitulo');
+            const btnDescarga = document.getElementById('demoDescarga');
+            if (!form) return;
+
+            // Dónde se entrega el lead. PENDIENTE DE CONFIRMAR: el resto de
+            // webhooks del sitio son por tenant y exigen token, así que no
+            // sirven para un formulario público. Mientras esto no apunte a un
+            // endpoint real, los datos no llegan a ninguna parte.
+            const DEMO_WEBHOOK_URL = '';
+
+            function mostrarConfirmacion(nombre) {
+                const primero = (nombre || '').trim().split(/\s+/)[0];
+                okTit.textContent = primero ? `¡Gracias, ${primero}!` : '¡Listo!';
+                card.classList.add('is-enviado');
+                ok.classList.add('is-on');
+                ok.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Un teléfono se mide en dígitos, no en caracteres: "()()()()()"
+            // tiene diez caracteres y ningún número. Se marca el campo como
+            // inválido con setCustomValidity para que herede el mismo estilo
+            // y el mismo checkValidity() que el resto.
+            const tel = form.elements.telefono;
+            function validarTelefono() {
+                const digitos = (tel.value.match(/\d/g) || []).length;
+                tel.setCustomValidity(
+                    !tel.value.trim() || digitos >= 9 ? '' : 'Teléfono demasiado corto'
+                );
+            }
+            tel.addEventListener('input', validarTelefono);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Marcar antes de validar: es lo que habilita los mensajes de
+                // error en CSS, que hasta ahora estaban ocultos.
+                form.classList.add('intentado');
+                validarTelefono();
+                if (!form.checkValidity()) {
+                    const primerFallo = form.querySelector('input:invalid');
+                    if (primerFallo) primerFallo.focus();
+                    return;
+                }
+
+                const datos = Object.fromEntries(new FormData(form).entries());
+
+                // El envío es "best-effort": la confirmación y la descarga no
+                // se hacen esperar a la red, pero cualquier fallo queda
+                // registrado en consola para poder detectarlo.
+                if (DEMO_WEBHOOK_URL) {
+                    fetch(DEMO_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...datos, origen: 'solicitar-demo', fecha: new Date().toISOString() }),
+                    }).then((r) => {
+                        if (!r.ok) console.error('Envío de la solicitud fallido:', r.status, r.statusText);
+                    }).catch((err) => console.error('Envío de la solicitud fallido:', err));
+                } else {
+                    console.warn('Solicitud de demo sin destino configurado (DEMO_WEBHOOK_URL vacío):', datos);
+                }
+
+                mostrarConfirmacion(datos.nombre);
+            });
+
+            // Afina el botón para que baje el instalador directamente en vez
+            // de pasar por la página de releases. Mismo mecanismo que en
+            // descarga-nize.html. Si falla, el href por defecto ya sirve.
+            fetch('https://api.github.com/repos/NitramX7/Nize-Releases/releases/latest')
+                .then((res) => res.json())
+                .then((data) => {
+                    const asset = (data.assets || []).find((a) => /^Nize-Setup-[\d.]+\.exe$/.test(a.name));
+                    if (!asset) return;
+                    btnDescarga.href = asset.browser_download_url;
+                    btnDescarga.removeAttribute('target');
+                    btnDescarga.setAttribute('download', '');
+                    const txt = btnDescarga.querySelector('span');
+                    if (txt) txt.textContent = `Descargar CRM Nize ${data.tag_name || ''}`.trim();
+                })
+                .catch(() => {});
+        })();
+    </script>
+</body>
+
+</html>
