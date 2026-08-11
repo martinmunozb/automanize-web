@@ -70,12 +70,37 @@
         <div class="dock-panel-card">
             <a href="our-services.html#whatsapp">Asistente de WhatsApp</a>
             <a href="facturacion.html">Facturación Inteligente</a>
-            <a href="our-services.html#cobros">Gestor de Cobros</a>
-            <a href="https://captador.automanize.com/radar">Captador de Clientes</a>
+            <a href="https://captador.automanize.com/">Captador de Clientes</a>
             <a href="crm.html">Centraliza tu empresa</a>
             <a href="diseno-web.html">Diseño Web</a>
         </div>
     </div>`;
+
+    // --- Enlaces al dominio canónico --------------------------------
+    // captador.automanize.com es un alias que sirve el sitio ENTERO, no
+    // solo la página del captador. Como los enlaces del dock son
+    // relativos, desde ahí "Servicios" acababa en
+    // captador.automanize.com/our-services.html: una URL que funciona
+    // pero que no es la del sitio. Al montar el dock en un subdominio se
+    // reescriben a automanize.com. Se deja tal cual en localhost y en las
+    // deploy previews de Netlify, donde lo relativo es lo correcto.
+    const SITIO = 'https://automanize.com';
+
+    function enSubdominio() {
+        const h = location.hostname;
+        return h.endsWith('.automanize.com') && h !== 'www.automanize.com';
+    }
+
+    function normalizarEnlaces() {
+        if (!enSubdominio()) return;
+        document.querySelectorAll('.floating-dock a[href], .dock-panel a[href]').forEach((a) => {
+            const href = a.getAttribute('href') || '';
+            // Solo los relativos: los absolutos (captador, Instagram) y
+            // los anclajes de la propia página ya apuntan a donde deben.
+            if (!href || /^(https?:|mailto:|tel:|#|\/\/)/.test(href)) return;
+            a.setAttribute('href', SITIO + '/' + href.replace(/^\//, ''));
+        });
+    }
 
     function montarDock() {
         // Si la página ya trae su propio dock escrito a mano (la portada),
@@ -341,6 +366,9 @@
     function iniciar() {
         document.body.classList.add('am-page');
         montarDock();
+        // Después de montarDock: éste marca el icono actual comparando
+        // hrefs relativos, así que reescribirlos antes lo rompería.
+        normalizarEnlaces();
         iniciarDock();
         iniciarSplitText();
     }
