@@ -11,6 +11,9 @@
   let screenHistory = [];
   let blockClose = false;
 
+  const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
+
   // El paso de WhatsApp es obligatorio: sin X, sin atras, sin cerrar por fuera/Esc.
   const BLOCKING_SCREENS = new Set(['whatsapp']);
 
@@ -55,7 +58,30 @@
   };
 
   // Envia un evento al Pixel de Meta si el script cargo (puede fallar por bloqueadores).
-  const trackPixel = (event, params) => { if (typeof fbq === 'function') fbq('track', event, params); };
+  // El eventId, cuando se pasa, tiene que coincidir con el que se manda por Conversions
+  // API (server-side) del mismo evento, para que Meta deduplique en vez de contar doble.
+  const trackPixel = (event, params, eventId) => {
+    if (typeof fbq !== 'function') return;
+    fbq('track', event, params, eventId ? { eventID: eventId } : undefined);
+  };
+
+  // Reenvio server-side a la Conversions API (funcion meta-capi): no bloqueante,
+  // si falla no afecta al flujo del usuario.
+  const META_CAPI_URL = `${SUPABASE_URL}/functions/v1/meta-capi`;
+  const sendCapiEvent = (eventName, { eventId, email, phone, contentName } = {}) => {
+    fetch(META_CAPI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+      body: JSON.stringify({
+        event_name: eventName,
+        event_id: eventId,
+        event_source_url: window.location.href,
+        email,
+        phone,
+        content_name: contentName,
+      }),
+    }).catch(() => {});
+  };
 
   openButtons.forEach(button => button.addEventListener('click', () => openModal(button.dataset.goto)));
   closeButtons.forEach(button => button.addEventListener('click', closeModal));
@@ -76,8 +102,6 @@
   });
 
   // --- Alta real del trial de 7 dias: misma Edge Function que solicitar-demo.html ---
-  const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
   const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
 
   const trialForm = document.getElementById('trialForm');
@@ -95,6 +119,7 @@
     const datos = Object.fromEntries(new FormData(trialForm).entries());
     const submitButton = trialForm.querySelector('button[type="submit"]');
     const textoOriginal = submitButton.textContent;
+    const eventId = crypto.randomUUID();
     submitButton.disabled = true;
     submitButton.textContent = 'Enviando...';
 
@@ -108,11 +133,15 @@
           email: datos.email,
           nif: datos.nif,
           website: datos.website,
+          event_id: eventId,
+          event_source_url: window.location.href,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error) throw new Error(data.error || 'No se pudo procesar tu solicitud.');
-      trackPixel('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' });
+      // El CompleteRegistration server-side ya lo manda trial-signup con este mismo
+      // event_id; aqui solo el del navegador, para que Meta deduplique los dos.
+      trackPixel('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
       goToScreen('whatsapp');
     } catch (err) {
       trialError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
@@ -140,12 +169,17 @@
     const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     document.getElementById('calcomFrame').src = `https://cal.com/automanize/elitegold?${params.toString()}`;
-    trackPixel('Schedule', { content_name: 'Nize Elite Gold' });
+
+    const eventId = crypto.randomUUID();
+    trackPixel('Schedule', { content_name: 'Nize Elite Gold' }, eventId);
+    sendCapiEvent('Schedule', { eventId, email: eliteData.email, phone: eliteData.telefono, contentName: 'Nize Elite Gold' });
     goToScreen('elite-calcom');
   });
 
   document.getElementById('joinWhatsapp')?.addEventListener('click', () => {
-    trackPixel('Contact', { content_name: 'Comunidad de WhatsApp' });
+    const eventId = crypto.randomUUID();
+    trackPixel('Contact', { content_name: 'Comunidad de WhatsApp' }, eventId);
+    sendCapiEvent('Contact', { eventId, email: eliteData.email, phone: eliteData.telefono, contentName: 'Comunidad de WhatsApp' });
   });
 
   const observer = new IntersectionObserver(entries => {
