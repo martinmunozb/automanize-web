@@ -54,6 +54,9 @@
     showScreen(previous || 'choose', screenHistory.length > 0);
   };
 
+  // Envia un evento al Pixel de Meta si el script cargo (puede fallar por bloqueadores).
+  const trackPixel = (event, params) => { if (typeof fbq === 'function') fbq('track', event, params); };
+
   openButtons.forEach(button => button.addEventListener('click', () => openModal(button.dataset.goto)));
   closeButtons.forEach(button => button.addEventListener('click', closeModal));
   gotoButtons.forEach(button => button.addEventListener('click', () => goToScreen(button.dataset.goto)));
@@ -109,6 +112,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error) throw new Error(data.error || 'No se pudo procesar tu solicitud.');
+      trackPixel('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' });
       goToScreen('whatsapp');
     } catch (err) {
       trialError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
@@ -136,7 +140,12 @@
     const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     document.getElementById('calcomFrame').src = `https://cal.com/automanize/elitegold?${params.toString()}`;
+    trackPixel('Schedule', { content_name: 'Nize Elite Gold' });
     goToScreen('elite-calcom');
+  });
+
+  document.getElementById('joinWhatsapp')?.addEventListener('click', () => {
+    trackPixel('Contact', { content_name: 'Comunidad de WhatsApp' });
   });
 
   const observer = new IntersectionObserver(entries => {
