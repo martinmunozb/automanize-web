@@ -14,6 +14,29 @@
   const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
 
+  // Funnel propio en Supabase (landing_eventos): un id de sesion por visitante,
+  // guardado en localStorage, para poder ver despues por SQL cuantos abren el popup,
+  // a que pantalla llegan y donde abandonan. Solo inserta, nunca lee.
+  let sessionId = localStorage.getItem('nize-landing-session');
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem('nize-landing-session', sessionId);
+  }
+  const logEvento = (evento, pantalla, meta) => {
+    fetch(`${SUPABASE_URL}/rest/v1/landing_eventos`, {
+      method: 'POST',
+      keepalive: true,
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({ session_id: sessionId, evento, pantalla, meta }),
+    }).catch(() => {});
+  };
+  logEvento('page_view');
+
   // El paso de WhatsApp es obligatorio: sin X, sin atras, sin cerrar por fuera/Esc.
   const BLOCKING_SCREENS = new Set(['whatsapp']);
 
@@ -26,6 +49,7 @@
     backButton.hidden = blockClose || !canGoBack;
     closeXButton.hidden = blockClose;
     card.scrollTop = 0;
+    logEvento('screen_view', name);
   };
 
   const openModal = (startScreen) => {
@@ -44,6 +68,7 @@
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
     lastFocus?.focus();
+    logEvento('modal_close');
   };
 
   const goToScreen = (name) => {
@@ -69,8 +94,12 @@
   // si falla no afecta al flujo del usuario.
   const META_CAPI_URL = `${SUPABASE_URL}/functions/v1/meta-capi`;
   const sendCapiEvent = (eventName, { eventId, email, phone, contentName } = {}) => {
+    // keepalive: el boton de WhatsApp navega a gracias.html justo despues de este
+    // fetch — sin esto, el navegador corta la peticion a medias al desmontar la
+    // pagina y el evento nunca llega completo al servidor (solo el preflight OPTIONS).
     fetch(META_CAPI_URL, {
       method: 'POST',
+      keepalive: true,
       headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
       body: JSON.stringify({
         event_name: eventName,
@@ -145,6 +174,7 @@
       goToScreen('whatsapp');
     } catch (err) {
       trialError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
+      logEvento('trial_error', 'trial-form', { mensaje: trialError.textContent });
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = textoOriginal;
@@ -180,6 +210,9 @@
     const eventId = crypto.randomUUID();
     trackPixel('Contact', { content_name: 'Comunidad de WhatsApp' }, eventId);
     sendCapiEvent('Contact', { eventId, email: eliteData.email, phone: eliteData.telefono, contentName: 'Comunidad de WhatsApp' });
+    // Abre WhatsApp en pestaña nueva (ahi se queda el usuario) y deja que el enlace
+    // navegue la pestaña actual a gracias.html por detras (href="gracias.html" en el HTML).
+    window.open('https://chat.whatsapp.com/E0etJCg5X1e0kjdjfHkFhX', '_blank', 'noopener,noreferrer');
   });
 
   const observer = new IntersectionObserver(entries => {
