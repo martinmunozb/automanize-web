@@ -18,36 +18,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="landing.css?v=5" />
+  <link rel="stylesheet" href="landing.css?v=7" />
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Nize","applicationCategory":"BusinessApplication","operatingSystem":"Windows","creator":{"@type":"Organization","name":"Automanize","url":"https://automanize.com/"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","description":"Prueba gratuita de Nize"}}
   </script>
 </head>
 <body>
   <div class="layout-lines" aria-hidden="true"><i></i><i></i></div>
-
-  <header class="site-header">
-    <nav class="nav-shell" aria-label="Navegación principal">
-      <a class="brand" href="#inicio" aria-label="Automanize, ir al inicio">
-        <img src="assets/images/nize-isotipo.png" alt="" />
-        <span>Automanize</span>
-      </a>
-      <div class="nav-links">
-        <a href="#producto">Producto</a>
-        <a href="#nosotros">Nosotros</a>
-        <a href="#preguntas">Preguntas</a>
-        <a href="#planes">Planes</a>
-      </div>
-      <button class="button button-dark js-open-cta" type="button">Probar gratis <span aria-hidden="true">→</span></button>
-      <button class="menu-button" type="button" aria-label="Abrir menú" aria-expanded="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
-    </nav>
-    <div class="mobile-menu" hidden>
-      <a href="#producto">Producto</a><a href="#nosotros">Nosotros</a><a href="#preguntas">Preguntas</a><a href="#planes">Planes</a>
-      <button class="button button-dark js-open-cta" type="button">Probar Nize gratis</button>
-    </div>
-  </header>
 
   <main>
     <section class="hero section fade-bottom" id="inicio">
@@ -147,21 +124,34 @@
         </div>
         <div class="pricing-grid">
           <article class="price-card">
-            <div class="price-top"><span class="plan-tag">CRM completo</span><h3>Nize Premium</h3><p>Para centralizar y gestionar todo tu negocio inmobiliario.</p></div>
-            <button class="button button-ghost button-block js-open-cta" type="button">Probar Premium gratis</button>
+            <div class="price-top"><span class="plan-tag">CRM completo</span><h3>Nize Premium</h3><p>Nize: el CRM que gestiona todo tu negocio inmobiliario.</p></div>
+            <button class="button button-ghost button-block js-open-cta" type="button" data-goto="trial-form">Probar Premium gratis</button>
+            <p class="feature-kicker">Todo esto, dentro de Nize</p>
             <ul class="feature-list">
-              <li>Nize: CRM que gestiona todo tu negocio</li><li>Cobros y gastos</li><li>Interesados e inquilinos</li><li>Inmuebles y contratos</li><li>Contabilidad, prorrateo y facturación</li><li>Propietarios</li><li>Gestores en equipo</li><li>Drive</li><li>Importación con IA</li>
+              <li>Cobros y gastos</li><li>Interesados e inquilinos</li><li>Inmuebles y contratos</li><li>Contabilidad, prorrateo y facturación</li><li>Propietarios</li><li>Gestores en equipo</li><li>Drive</li><li>Asistente de IA</li><li>Importación con IA</li>
             </ul>
-            <div class="bonus"><b>Bonus incluidos</b><p>Tutoriales para ti · información exportable cuando quieras · soporte permanente y feedback para nuevas funcionalidades.</p></div>
+            <p class="bonus-kicker">Bonus incluidos</p>
+            <div class="stamp-row">
+              <span class="stamp">Tutoriales para ti</span>
+              <span class="stamp">Información exportable</span>
+              <span class="stamp">Soporte y feedback</span>
+            </div>
           </article>
           <article class="price-card featured">
             <div class="popular">La implantación completa</div>
             <div class="price-top"><span class="plan-tag">CRM + asistente</span><h3>Nize Elite Gold</h3><p>El sistema completo, implantado y acompañado por nuestro equipo.</p></div>
-            <button class="button button-primary button-block js-open-cta" type="button">Quiero Elite Gold</button>
+            <button class="button button-primary button-block js-open-cta" type="button" data-goto="elite-1">Quiero Elite Gold</button>
+            <p class="feature-kicker">Todo esto, dentro de Nize Elite Gold</p>
             <ul class="feature-list">
-              <li>Todo lo incluido en Nize Premium</li><li>Asistente de WhatsApp</li><li>Gestión de incidencias desde WhatsApp</li><li>Gestión de pagos desde WhatsApp</li><li>Gestión de interesados desde WhatsApp</li><li>Tutoriales para ti y tus inquilinos</li><li>Soporte permanente con feedback</li><li>Información exportable cuando quieras</li>
+              <li>Todo lo incluido en Nize Premium</li><li>Asistente de WhatsApp</li><li>Gestión de incidencias desde WhatsApp</li><li>Gestión de pagos desde WhatsApp</li><li>Gestión de interesados desde WhatsApp</li>
             </ul>
-            <div class="bonus"><b>Bonus Elite</b><p>Tutorial 1 a 1 para dominar todas las funcionalidades y configurar el sistema principal.</p></div>
+            <p class="bonus-kicker">Bonus incluidos</p>
+            <div class="stamp-row">
+              <span class="stamp">Tutoriales para ti y tus inquilinos</span>
+              <span class="stamp">Información exportable</span>
+              <span class="stamp">Soporte y feedback</span>
+              <span class="stamp">Tutorial 1 a 1 de implantación</span>
+            </div>
           </article>
         </div>
       </div>
@@ -177,37 +167,93 @@
   </main>
 
   <footer class="site-footer">
-    <div class="section-inner footer-grid">
-      <div class="footer-brand"><a class="brand" href="#inicio"><img src="assets/images/nize-isotipo.png" alt="" /><span>Automanize</span></a><p>Automatizamos el trabajo que te roba el tiempo.</p></div>
-      <div><b>Producto</b><a href="#producto">Nize</a><a href="#planes">Planes</a><a href="solicitar-demo.html">Prueba gratis</a></div>
-      <div><b>Compañía</b><a href="#nosotros">Nosotros</a><a href="contactus.html">Contacto</a><a href="consultoria-gratuita.html">Consultoría</a></div>
-      <div><b>Legal</b><a href="aviso-legal.html">Aviso legal</a><a href="nize-privacy.html">Privacidad</a><a href="cookies.html">Cookies</a></div>
+    <div class="section-inner footer-legal-min">
+      <a href="nize-privacy.html">Política de privacidad</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="aviso-legal.html">Aviso legal</a>
     </div>
-    <div class="section-inner footer-bottom"><span>© 2026 Automanize</span><span>Hecho para devolver tiempo a los gestores inmobiliarios.</span></div>
   </footer>
 
   <div class="modal" id="cta-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
     <button class="modal-backdrop js-close-cta" type="button" aria-label="Cerrar"></button>
     <div class="modal-card" role="document">
+      <button class="modal-back js-back-step" type="button" hidden>
+        <svg viewBox="0 0 24 24" width="14" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Atrás
+      </button>
       <button class="modal-close js-close-cta" type="button" aria-label="Cerrar ventana">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
-      <div class="modal-icon"><img src="assets/images/nize-isotipo.png" alt="" /></div>
-      <p class="section-kicker">Elige cómo empezar</p>
-      <h2 id="modal-title">Nize se pone en marcha contigo.</h2>
-      <p class="modal-copy">Puedes entrar por tu cuenta ahora mismo o reservar una llamada para implantar el sistema completo con nosotros.</p>
-      <div class="modal-options">
-        <a class="modal-option" href="solicitar-demo.html">
-          <span class="option-icon">N</span><span><b>Probar Nize gratis</b><small>Empiezas en menos de 5 minutos</small></span><i>→</i>
-        </a>
-        <a class="modal-option" href="consultoria-gratuita.html">
-          <span class="option-icon">↗</span><span><b>Implantar Elite Gold</b><small>Cuéntanos tu caso y agenda una llamada</small></span><i>→</i>
-        </a>
+
+      <div class="modal-screen" data-screen="choose">
+        <div class="modal-icon"><img src="assets/images/nize-isotipo.png" alt="" /></div>
+        <p class="section-kicker">Elige cómo empezar</p>
+        <h2 id="modal-title">Nize se pone en marcha contigo.</h2>
+        <p class="modal-copy">Puedes entrar por tu cuenta ahora mismo o reservar una llamada para implantar el sistema completo con nosotros.</p>
+        <div class="modal-options">
+          <button class="modal-option" type="button" data-goto="trial-form">
+            <span class="option-icon">N</span><span><b>Probar Nize gratis</b><small>Empiezas en menos de 5 minutos</small></span><i>→</i>
+          </button>
+          <button class="modal-option" type="button" data-goto="elite-1">
+            <span class="option-icon">↗</span><span><b>Implantar Elite Gold</b><small>Cuéntanos tu caso y agenda una llamada</small></span><i>→</i>
+          </button>
+        </div>
+        <p class="modal-note">Sin compromiso. Tus datos se tratan según nuestra <a href="nize-privacy.html">política de privacidad</a>.</p>
       </div>
-      <p class="modal-note">Sin compromiso. Tus datos se tratan según nuestra <a href="nize-privacy.html">política de privacidad</a>.</p>
+
+      <div class="modal-screen" data-screen="trial-form" hidden>
+        <p class="section-kicker">Prueba gratis · 7 días</p>
+        <h2>Crea tu cuenta de Nize.</h2>
+        <p class="modal-copy">Rellena esto y en cuanto envíes tienes el instalador, tus credenciales y el código de activación en tu correo.</p>
+        <form id="trialForm" class="modal-form" novalidate>
+          <label>Nombre y apellidos<input type="text" name="nombre" required autocomplete="name" maxlength="80" placeholder="Tu nombre" /></label>
+          <label>Correo electrónico<input type="email" name="email" required autocomplete="email" maxlength="120" placeholder="tucorreo@ejemplo.com" /></label>
+          <label>Teléfono<input type="tel" name="telefono" required autocomplete="tel" inputmode="tel" placeholder="+34 600 00 00 00" /></label>
+          <label>NIF / DNI<input type="text" name="nif" required maxlength="12" autocomplete="off" placeholder="12345678A" /></label>
+          <div class="honeypot" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <p class="form-error" id="trialError"></p>
+          <button type="submit" class="button button-primary button-block">Solicitar demo y descargar</button>
+        </form>
+      </div>
+
+      <div class="modal-screen" data-screen="whatsapp" hidden>
+        <p class="alert-kicker">Importante: falta un paso</p>
+        <h2>Únete a la comunidad de WhatsApp.</h2>
+        <p class="modal-copy">Tu prueba dura 7 días. Si algo no te arranca o te atascas montando tu operativa, ahí te respondemos en minutos, directamente nosotros — no un ticket que tarda días. También es donde avisamos primero de arreglos y funciones nuevas. Revisa tu correo: ya tienes el acceso.</p>
+        <a id="joinWhatsapp" class="button button-primary button-block" href="gracias.html">Unirme al grupo de WhatsApp</a>
+      </div>
+
+      <div class="modal-screen" data-screen="elite-1" hidden>
+        <p class="section-kicker">Paso 1 de 3 · Elite Gold</p>
+        <h2>Cuéntanos quién eres.</h2>
+        <form id="eliteForm1" class="modal-form" novalidate>
+          <label>Nombre y apellidos<input type="text" name="nombre" required autocomplete="name" maxlength="80" placeholder="Tu nombre" /></label>
+          <label>Teléfono<input type="tel" name="telefono" required autocomplete="tel" inputmode="tel" placeholder="+34 600 00 00 00" /></label>
+          <label>Correo electrónico<input type="email" name="email" required autocomplete="email" maxlength="120" placeholder="tucorreo@ejemplo.com" /></label>
+          <button type="submit" class="button button-primary button-block">Continuar</button>
+        </form>
+      </div>
+
+      <div class="modal-screen" data-screen="elite-2" hidden>
+        <p class="section-kicker">Paso 2 de 3 · Elite Gold</p>
+        <h2>Tu situación ahora mismo.</h2>
+        <form id="eliteForm2" class="modal-form" novalidate>
+          <label>¿Cuántas habitaciones o inmuebles gestionas aprox.?<input type="text" name="volumen" required maxlength="80" placeholder="Ej: 25 habitaciones" /></label>
+          <label>¿Cuál es tu mayor problema ahora mismo?<textarea name="problema" required maxlength="500" rows="3" placeholder="Cuéntanos qué te está costando más..."></textarea></label>
+          <button type="submit" class="button button-primary button-block">Agendar llamada</button>
+        </form>
+      </div>
+
+      <div class="modal-screen" data-screen="elite-calcom" hidden>
+        <p class="section-kicker">Paso 3 de 3 · Elite Gold</p>
+        <h2>Elige el hueco que mejor te venga.</h2>
+        <p class="modal-copy">Agenda una llamada con nuestro equipo para implantar el sistema completo.</p>
+        <div class="calcom-embed"><iframe id="calcomFrame" title="Agenda tu llamada con Automanize" loading="lazy"></iframe></div>
+        <button type="button" class="button button-ghost button-block" data-goto="whatsapp">Ya he reservado, continuar</button>
+      </div>
     </div>
   </div>
 
-  <script src="landing.js" defer></script>
+  <script src="landing.js?v=4" defer></script>
 </body>
 </html>
