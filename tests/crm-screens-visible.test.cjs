@@ -32,4 +32,5 @@ test('crm muestra todas las pantallas reales en una cuadricula visible', () => {
   assert.match(css, /\.crm-stories__track\s*{[\s\S]*overflow:\s*visible;/);
   assert.match(css, /\.crm-stories__controls\s*{[\s\S]*display:\s*none;/);
   assert.doesNotMatch(css, /\.crm-stories__track\s*{[\s\S]*overflow-x:\s*auto;/);
+  assert.match(page, /assets\/css\/crm-apple-cards-carousel\.css\?v=\d+/);
 });
