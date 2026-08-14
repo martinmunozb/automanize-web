@@ -6,7 +6,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://assets.calendly.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://calendly.com https://assets.calendly.com; frame-src https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
-    <title>Agendar llamada - Automanize</title>
+    <title>Agenda tu llamada sobre Nize - Automanize</title>
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
@@ -42,12 +42,12 @@
             font-family: "Spline Sans", sans-serif;
         }
     </style>
-    <meta name="description" content="Agenda una llamada con el equipo de Automanize y descubre cómo automatizar tu negocio con IA." />
+    <meta name="description" content="Agenda una llamada con Automanize para ver cómo encaja Nize en tu gestión de alquileres." />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://automanize.com/agendar-llamada.html" />
-    <meta property="og:title" content="Agendar llamada - Automanize" />
-    <meta property="og:description" content="Agenda una llamada con el equipo de Automanize y descubre cómo automatizar tu negocio con IA." />
+    <meta property="og:title" content="Agenda tu llamada sobre Nize - Automanize" />
+    <meta property="og:description" content="Agenda una llamada con Automanize para ver cómo encaja Nize en tu gestión de alquileres." />
     <meta property="og:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
     <meta property="og:image:alt" content="Automanize" />
     <meta property="og:site_name" content="Automanize" />
@@ -55,8 +55,8 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Agendar llamada - Automanize" />
-    <meta name="twitter:description" content="Agenda una llamada con el equipo de Automanize y descubre cómo automatizar tu negocio con IA." />
+    <meta name="twitter:title" content="Agenda tu llamada sobre Nize - Automanize" />
+    <meta name="twitter:description" content="Agenda una llamada con Automanize para ver cómo encaja Nize en tu gestión de alquileres." />
     <meta name="twitter:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
     <link rel="stylesheet" href="assets/css/automanize-theme.css" />
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
@@ -68,9 +68,9 @@
 <main class="flex-1 w-full max-w-[920px] mx-auto px-4 md:px-10 py-12 md:py-20">
             <section class="rounded-2xl border border-[#e6e6db] bg-surface-light p-6 md:p-10 shadow-sm">
                 <p class="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Paso 2 de 2</p>
-                <h2 class="text-3xl md:text-4xl font-black leading-tight">Agenda tu llamada de consultoría gratuita</h2>
+                <h2 class="text-3xl md:text-4xl font-black leading-tight">Agenda una llamada para ver cómo encaja Nize</h2>
                 <p class="mt-4 text-text-muted text-lg">
-                    Ya tenemos tu información. Elige un horario y confirma la cita.
+                    Ya tenemos tu información. Elige un horario y hablamos de tu cartera, tus procesos y qué parte de Nize tiene más sentido para ti.
                 </p>
 
                 <div id="lead-summary" class="mt-6 rounded-xl border border-[#ececdc] bg-[#fafaf7] px-4 py-3 text-sm text-text-muted hidden"></div>
@@ -98,12 +98,14 @@
         };
         const nombre = sanitize(params.get("nombre"), 80);
         const email = sanitize(params.get("email"), 120);
-        const dedicacion = sanitize(params.get("dedicacion"), 120);
-        const problema = sanitize(params.get("problema"), 500);
+        const telefono = sanitize(params.get("telefono"), 30);
+        const tipoGestion = sanitize(params.get("tipo_gestion"), 120);
+        const cartera = sanitize(params.get("cartera"), 80);
+        const objetivo = sanitize(params.get("objetivo"), 500);
         const backLink = document.getElementById("back-link");
 
         const summary = document.getElementById("lead-summary");
-        if (summary && (nombre || email || dedicacion || problema)) {
+        if (summary && (nombre || email || telefono || tipoGestion || cartera || objetivo)) {
             const addLine = (label, value) => {
                 const row = document.createElement("div");
                 const strong = document.createElement("strong");
@@ -116,8 +118,10 @@
 
             if (nombre) addLine("Nombre", nombre);
             if (email) addLine("Email", email);
-            if (dedicacion) addLine("A qué te dedicas", dedicacion);
-            if (problema) addLine("Problema a solucionar", problema);
+            if (telefono) addLine("Teléfono", telefono);
+            if (tipoGestion) addLine("Tipo de gestión", tipoGestion);
+            if (cartera) addLine("Cartera", cartera);
+            if (objetivo) addLine("Qué quiere resolver", objetivo);
             summary.classList.remove("hidden");
         }
 
@@ -125,8 +129,10 @@
             const safeParams = new URLSearchParams();
             if (nombre) safeParams.set("nombre", nombre);
             if (email) safeParams.set("email", email);
-            if (dedicacion) safeParams.set("dedicacion", dedicacion);
-            if (problema) safeParams.set("problema", problema);
+            if (telefono) safeParams.set("telefono", telefono);
+            if (tipoGestion) safeParams.set("tipo_gestion", tipoGestion);
+            if (cartera) safeParams.set("cartera", cartera);
+            if (objetivo) safeParams.set("objetivo", objetivo);
 
             if (safeParams.toString()) {
                 backLink.href = `consultoria-gratuita.html?${safeParams.toString()}`;
@@ -150,7 +156,7 @@
                 <a href="our-services.html">Servicios</a>
                 <a href="casos-exito.html">Casos de éxito</a>
                 <a href="sobre-nosotros.html">Sobre nosotros</a>
-                <a href="consultoria-gratuita.html">Consultoría</a>
+                <a href="consultoria-gratuita.html">¿Qué es Nize?</a>
                 <a href="contactus.html">Contacto</a>
             </div>
 

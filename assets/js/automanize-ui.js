@@ -32,13 +32,18 @@
             </svg>
             <span class="dock-tooltip">Casos de éxito</span>
         </a>
-        <a class="dock-item" href="our-services.html" data-title="Servicios" data-menu="servicios">
-            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></svg>
-            <span class="dock-tooltip">Servicios</span>
-        </a>
-        <a class="dock-item" href="sobre-nosotros.html" data-title="Automanize">
-            <img class="dock-icon" src="assets/images/nize-isotipo.png" alt="" />
+        <a class="dock-item" href="sobre-nosotros.html" data-title="Sobre nosotros">
+            <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="7.5" r="3.2" />
+                <path d="M5.2 20a6.8 6.8 0 0 1 13.6 0" />
+                <path d="M17.8 8.2a2.5 2.5 0 0 1 2.2 2.5" stroke-width="1.5" />
+                <path d="M20.7 20a4.8 4.8 0 0 0-3.2-4.5" stroke-width="1.5" />
+            </svg>
             <span class="dock-tooltip">Sobre nosotros</span>
+        </a>
+        <a class="dock-item" href="crm.html" data-title="Nize">
+            <img class="dock-icon" src="assets/images/nize-isotipo.png" alt="" />
+            <span class="dock-tooltip">Nize</span>
         </a>
         <a class="dock-item" id="dockInstagram" href="https://www.instagram.com/automanize/" target="_blank" rel="noopener noreferrer" data-title="Instagram">
             <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -48,14 +53,14 @@
             </svg>
             <span class="dock-tooltip">Instagram</span>
         </a>
-        <a class="dock-item" href="consultoria-gratuita.html" data-title="Consultoría">
+        <a class="dock-item" href="consultoria-gratuita.html" data-title="¿Qué es Nize?">
             <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="7" cy="7" r="2.5" />
                 <path d="M2.4 19.6v-1a4.6 4.6 0 0 1 4.6-4.6 4.6 4.6 0 0 1 4.6 4.6v1" />
                 <path d="M13.3 4.5h6.4a1.8 1.8 0 0 1 1.8 1.8v3.2a1.8 1.8 0 0 1-1.8 1.8h-3.1l-2.3 2v-2h-.5a1.8 1.8 0 0 1-1.8-1.8V6.3a1.8 1.8 0 0 1 1.8-1.8z" stroke-width="1.5" />
                 <path d="M15 6.9h4.2M15 8.5h2.8" stroke-width="1.4" />
             </svg>
-            <span class="dock-tooltip">Consultoría</span>
+            <span class="dock-tooltip">¿Qué es Nize?</span>
         </a>
         <a class="dock-item" href="solicitar-demo.html" data-title="Solicitar demo">
             <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -328,18 +333,9 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 const el = entry.target;
-                if (!entry.isIntersecting) {
-                    // Al salir de pantalla se vuelve al estado inicial para
-                    // que la cascada se repita en la próxima entrada.
-                    el.classList.remove('is-revealed');
-                    return;
-                }
-                // Quitar y poner la clase en el mismo tick no basta: el
-                // navegador agrupa los cambios. Leer offsetWidth fuerza un
-                // reflow entre medias y reinicia la animación.
-                el.classList.remove('is-revealed');
-                void el.offsetWidth;
+                if (!entry.isIntersecting || el.classList.contains('is-revealed')) return;
                 el.classList.add('is-revealed');
+                observer.unobserve(el);
             });
         }, { threshold: THRESHOLD, rootMargin: ROOT_MARGIN });
 

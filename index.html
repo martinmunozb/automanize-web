@@ -7,9 +7,9 @@
     <!-- three.js servido desde 'self' (assets/js/): sin dominios externos de script -->
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" />
-    <title>Nize by Automanize — Sistema de Automatización Inteligente con IA</title>
-    <meta name="description" content="Nize es el sistema de automatización inteligente de Automanize. Gestión automática de clientes, agentes IA, chatbots para WhatsApp y flujos inteligentes a medida para tu empresa." />
-    <meta name="keywords" content="nize, nize IA, nize automatización, Automanize, agente IA, chatbot WhatsApp, automatización empresarial, sistema inteligente, automatización con IA" />
+    <title>Nize by Automanize — CRM para gestión de alquileres</title>
+    <meta name="description" content="Nize centraliza la gestión de alquileres para inmobiliarias y gestores: pisos, habitaciones, inquilinos, interesados, contratos, cobros, incidencias y automatizaciones por WhatsApp en un solo CRM." />
+    <meta name="keywords" content="nize, crm inmobiliario, gestion de alquileres, alquiler por habitaciones, inmobiliarias, gestores de alquiler, inquilinos, cobros alquiler, incidencias alquiler, automatizacion whatsapp" />
     <meta name="author" content="Automanize" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://automanize.com/" />
@@ -17,17 +17,17 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://automanize.com/" />
-    <meta property="og:title" content="Nize — Sistema de Automatización Inteligente con IA | Automanize" />
-    <meta property="og:description" content="Nize es el sistema de IA de Automanize. Automatiza la gestión de clientes, inquilinos y procesos empresariales con agentes inteligentes a medida." />
+    <meta property="og:title" content="Nize — CRM para gestión de alquileres | Automanize" />
+    <meta property="og:description" content="Centraliza pisos, habitaciones, inquilinos, cobros, contratos, incidencias y WhatsApp en un CRM creado para inmobiliarias y gestores de alquiler." />
     <meta property="og:image" content="https://automanize.com/assets/images/nize.png" />
-    <meta property="og:image:alt" content="Nize — Agente IA de Automanize" />
+    <meta property="og:image:alt" content="Nize — CRM de alquileres de Automanize" />
     <meta property="og:site_name" content="Automanize" />
     <meta property="og:locale" content="es_ES" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nize — Sistema de Automatización Inteligente con IA | Automanize" />
-    <meta name="twitter:description" content="Nize es el sistema de IA de Automanize. Automatiza la gestión de clientes, inquilinos y procesos empresariales con agentes inteligentes a medida." />
+    <meta name="twitter:title" content="Nize — CRM para gestión de alquileres | Automanize" />
+    <meta name="twitter:description" content="Centraliza pisos, habitaciones, inquilinos, cobros, contratos, incidencias y WhatsApp en un CRM creado para inmobiliarias y gestores de alquiler." />
     <meta name="twitter:image" content="https://automanize.com/assets/images/nize.png" />
 
     <!-- JSON-LD Structured Data -->
@@ -56,7 +56,7 @@
           "@type": "SoftwareApplication",
           "@id": "https://automanize.com/#nize",
           "name": "Nize",
-          "description": "Nize es el sistema de automatización inteligente desarrollado por Automanize. Gestiona clientes, inquilinos y procesos empresariales con agentes IA y chatbots a medida.",
+          "description": "Nize es el CRM de gestión de alquileres desarrollado por Automanize. Centraliza inmuebles, habitaciones, inquilinos, interesados, contratos, cobros, incidencias y automatizaciones por WhatsApp.",
           "applicationCategory": "BusinessApplication",
           "operatingSystem": "Web",
           "offers": {
@@ -75,7 +75,7 @@
           "@id": "https://automanize.com/#website",
           "url": "https://automanize.com/",
           "name": "Automanize — Nize",
-          "description": "Agencia de automatización con IA. Creadores de Nize, el sistema inteligente para empresas.",
+          "description": "Automanize crea Nize, un CRM con automatizaciones para inmobiliarias y gestores de alquileres.",
           "publisher": {
             "@id": "https://automanize.com/#organization"
           },
@@ -315,6 +315,32 @@
             background: var(--primary);
         }
 
+        .brand-cta-row {
+            margin-top: clamp(1rem, 2.2vw, 1.45rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .75rem;
+            pointer-events: auto;
+        }
+
+        .brand-cta {
+            height: 2.85rem;
+            padding: 0 1.45rem;
+            border-radius: 999px;
+            box-shadow: 0 14px 35px rgba(255, 171, 0, .28);
+            backdrop-filter: blur(14px);
+        }
+
+        .brand-cta svg {
+            width: 16px;
+            height: 16px;
+            margin-left: .5rem;
+            transition: transform .25s ease;
+        }
+
+        .brand-cta:hover svg { transform: translateX(3px); }
+
         /* ===== ETIQUETAS FLOTANTES — una por tarjeta, a su derecha =====
            Antes había un único pie de foto compartido abajo, que cambiaba
            de texto al relevar la protagonista. Ahora cada tarjeta lleva su
@@ -384,14 +410,26 @@
            tablets pequeñas. */
         @media (max-width: 760px) {
             .brand-name { font-size: clamp(2rem, 11.5vw, 3.4rem); }
-            .brand-tagline { font-size: clamp(.62rem, 2.3vw, .9rem); }
+            .brand-tagline {
+                max-width: calc(100vw - 28px);
+                font-size: clamp(.56rem, 2.1vw, .82rem);
+                line-height: 1.45;
+                text-align: center;
+            }
+            .brand-cta-row { margin-top: .95rem; }
+            .brand-cta {
+                height: 2.65rem;
+                padding: 0 1.15rem;
+                font-size: .88rem;
+            }
         }
 
         @media (max-width: 480px) {
             .brand { top: 8%; }
             .brand-name { letter-spacing: .1em; text-indent: .1em; }
-            .brand-tagline { letter-spacing: .16em; gap: .55rem; }
-            .brand-tagline::before, .brand-tagline::after { width: 14px; }
+            .brand-tagline { letter-spacing: .06em; gap: .35rem; }
+            .brand-tagline::before, .brand-tagline::after { width: 8px; }
+            .brand-cta { width: min(220px, calc(100vw - 40px)); }
         }
 
         /* Pista de scroll */
@@ -448,10 +486,8 @@
             transition: transform .3s ease;
         }
         .clientes-logos img:hover { transform: scale(1.1); }
-        /* El de TMM viene con más aire alrededor, se compensa a ojo */
-        .clientes-logos .logo-tmm { height: 2rem; }
         .clientes-logos .logo-invicta { border-radius: .5rem; }
-        /* Vortex viene en blanco sobre azul marino: quitarle el fondo dejaría
+        /* Vortex viene en blanco sobre fondo oscuro: quitarle el fondo dejaría
            el texto invisible sobre la página, así que se trata como insignia
            con esquinas redondeadas, igual que Invicta. Es muy apaisado, así
            que se le da algo más de alto para que no quede diminuto. */
@@ -1247,7 +1283,13 @@
             <!-- Logotipo, encima del isotipo -->
             <div class="brand">
                 <div class="brand-name" role="img" aria-label="Automanize"><svg class="glyph-a" viewBox="0 0 92 104" aria-hidden="true"><polyline class="stroke" points="4,101 46,4 88,101" /><circle class="dot" cx="46" cy="84" r="6.2" /></svg>UTOM<svg class="glyph-a" viewBox="0 0 92 104" aria-hidden="true"><polyline class="stroke" points="4,101 46,4 88,101" /><circle class="dot" cx="46" cy="84" r="6.2" /></svg>NIZE</div>
-                <div class="brand-tagline" data-split>Automatiza. Optimiza. Vive mejor.</div>
+                <div class="brand-tagline" data-split>Centraliza tus alquileres. Automatiza tu gestión.</div>
+                <div class="brand-cta-row">
+                    <a class="btn btn-primary brand-cta" href="crm.html">
+                        Ver Nize
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+                    </a>
+                </div>
             </div>
 
             <div class="scroll-hint" id="scrollHint">Scroll<span></span></div>
@@ -1287,20 +1329,11 @@
             <p class="clientes-titulo" data-split>Empresas que confían en Automanize</p>
 
             <div class="clientes-logos">
-                <a href="https://biscottocafe.es/" target="_blank" rel="noopener" aria-label="Biscotto Café">
-                    <img src="assets/images/logoBiscotto.ico" alt="Biscotto Café" loading="lazy" />
-                </a>
-                <a href="https://controldeplagastmm.com/" target="_blank" rel="noopener" aria-label="TMM Control de Plagas">
-                    <img class="logo-tmm" src="assets/images/tmmlogo.ico" alt="TMM Control de Plagas" loading="lazy" />
-                </a>
                 <a href="https://www.manuelconesa.com/" target="_blank" rel="noopener" aria-label="Manuel Conesa">
                     <img src="assets/images/logobusc.png" alt="Manuel Conesa" loading="lazy" />
                 </a>
                 <a href="https://www.instagram.com/invictarent/" target="_blank" rel="noopener" aria-label="Invicta Rent">
                     <img class="logo-invicta" src="assets/images/invictarent.jpeg" alt="Invicta Rent" loading="lazy" />
-                </a>
-                <a href="https://www.azulmarino.com/es-es/agencias-de-viajes/cartagena" target="_blank" rel="noopener" aria-label="Azul Marino">
-                    <img src="assets/images/azulmarino-logo.png" alt="Azul Marino" loading="lazy" />
                 </a>
                 <a href="https://vortexrooms.com/" target="_blank" rel="noopener" aria-label="Vortex Rooms">
                     <img class="logo-vortex" src="assets/images/vortexrooms-logo.png" alt="Vortex Rooms" loading="lazy" />
@@ -1314,13 +1347,13 @@
          cablear, es solo para ver el aspecto. -->
     <div class="beam-demo-wrap">
         <h2 class="beam-heading2" data-split>
-            Nize conecta todo.<br />
-            Tú enfócate en <span class="shiny-gold">hacer crecer tu negocio.</span>
+            Nize centraliza tus alquileres.<br />
+            Tú enfócate en <span class="shiny-gold">llenar y rentabilizar tu cartera.</span>
         </h2>
         <p class="beam-sub" data-split>
-            Integra las herramientas que ya usas y centraliza tu operación para
-            <span class="accent">ahorrar tiempo,</span> <strong>automatizar procesos</strong>
-            y tomar mejores decisiones.
+            Un CRM con automatizaciones para inmobiliarias, colivings y gestores de alquiler:
+            <span class="accent">pisos, habitaciones,</span> <strong>inquilinos, cobros e incidencias</strong>
+            coordinados desde un solo panel.
         </p>
 
         <div class="beam-card">
@@ -1348,7 +1381,7 @@
                             </div>
                             <div class="beam-copy">
                                 <strong>Google Drive</strong>
-                                <span>Almacenamiento seguro y siempre accesible.</span>
+                                <span>Contratos, recibos y documentos de cada inmueble ordenados por tenant.</span>
                             </div>
                             <span class="beam-dot" data-node="drive" style="background:#4285F4"></span>
                         </div>
@@ -1357,7 +1390,7 @@
                             <span class="beam-dot" data-node="docs" style="background:#4285F4"></span>
                             <div class="beam-copy">
                                 <strong>Google Docs</strong>
-                                <span>Documentos colaborativos sin complicaciones.</span>
+                                <span>Plantillas de contratos, anexos y comunicaciones listas para enviar.</span>
                             </div>
                             <div class="beam-node">
                                 <svg viewBox="0 0 47 65" xmlns="http://www.w3.org/2000/svg">
@@ -1408,8 +1441,8 @@
                                 <img src="assets/images/nize-crm-icon.png" alt="Nize CRM" />
                             </div>
                             <div class="beam-copy">
-                                <strong>CRM</strong>
-                                <span>Gestiona clientes, ventas y oportunidades.</span>
+                                <strong>CRM Nize</strong>
+                                <span>Inmuebles, habitaciones, interesados e inquilinos conectados.</span>
                             </div>
                             <span class="beam-dot" data-node="notion" style="background:#1a1a1a"></span>
                         </div>
@@ -1446,7 +1479,7 @@
                             </div>
                             <div class="beam-copy">
                                 <strong>WhatsApp</strong>
-                                <span>Comunicación directa y en tiempo real.</span>
+                                <span>Respuestas, filtros de leads, avisos de visita y recordatorios de pago.</span>
                             </div>
                             <span class="beam-dot" data-node="whatsapp" style="background:#25D366"></span>
                         </div>
@@ -1455,7 +1488,7 @@
                             <span class="beam-dot" data-node="messenger" style="background:#7c5cff"></span>
                             <div class="beam-copy">
                                 <strong>Nize App</strong>
-                                <span>Lleva tu negocio contigo, desde cualquier lugar.</span>
+                                <span>Consulta la cartera, cobros e incidencias desde cualquier lugar.</span>
                             </div>
                             <div class="beam-node">
                                 <img src="assets/images/nize-app-phone.png" alt="Nize App" />
@@ -1468,19 +1501,19 @@
             <div class="beam-features">
                 <div class="beam-feature">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z" /></svg>
-                    <span>Menos tareas <strong>repetitivas</strong></span>
+                    <span>Altas, avisos y seguimiento <strong>automatizados</strong></span>
                 </div>
                 <div class="beam-feature">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8" /><path d="M17 7h4v4" /></svg>
-                    <span>Más productividad, <strong>mejores resultados</strong></span>
+                    <span>Más ocupación, <strong>menos trabajo manual</strong></span>
                 </div>
                 <div class="beam-feature">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></svg>
-                    <span>Información centralizada <strong>y segura</strong></span>
+                    <span>Datos de alquiler <strong>en un solo CRM</strong></span>
                 </div>
                 <div class="beam-feature">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 3.5" /></svg>
-                    <span>Ahorra tiempo, <strong>gana tranquilidad</strong></span>
+                    <span>Cobros e incidencias <strong>siempre visibles</strong></span>
                 </div>
             </div>
         </div>
@@ -1867,33 +1900,33 @@
         // al cargar la página (recibe baseAngle 0), y el resto la siguen
         // según se hace scroll.
         // "href" es la página real a la que lleva el botón del lightbox.
-        // App móvil y Software a medida todavía no tienen página propia en
-        // el sitio, así que apuntan a our-services.html como mejor
-        // aproximación disponible — cámbialo en cuanto exista la suya.
+        // Algunas piezas del ecosistema siguen ampliándose en páginas
+        // internas; our-services.html permanece disponible aunque ya no sea
+        // el acceso principal del dock.
         const CARDS = [
             {
-                label: 'Software a medida',
-                blurb: 'Creamos la herramienta que tu negocio necesita.',
-                src: 'assets/images/nize-software-personalizado.png',
-                href: 'our-services.html',
+                label: 'Gestión de inmuebles',
+                blurb: 'Pisos, habitaciones, propietarios, contratos y documentos en una estructura clara.',
+                src: 'assets/images/crm-carousel/inmuebles.png',
+                href: 'crm.html',
             },
             {
-                label: 'Agente IA · WhatsApp',
-                blurb: 'Responde, filtra y agenda visitas. 24 horas al día.',
+                label: 'WhatsApp para alquileres',
+                blurb: 'Filtra interesados, agenda visitas y envía recordatorios sin perseguir mensajes.',
                 src: 'assets/images/nize-agente-ia.png',
                 href: 'our-services.html#whatsapp',
             },
             {
                 label: 'CRM Nize',
-                blurb: 'Contratos, cobros e incidencias en un solo panel.',
+                blurb: 'Centraliza inquilinos, cobros, incidencias, tareas y estado de ocupación.',
                 src: 'assets/images/crm-nize-dashboard.png',
                 href: 'crm.html',
             },
             {
                 label: 'App móvil Nize',
-                blurb: 'Tu cartera entera, en el bolsillo.',
+                blurb: 'Revisa la cartera, responde incidencias y consulta pagos desde el móvil.',
                 src: 'assets/images/nize-app-movil.png',
-                href: 'our-services.html',
+                href: 'crm.html',
             },
         ];
 
@@ -2574,7 +2607,7 @@
             const cfg = CARDS[mesh.userData.index];
             lightboxImg.src = cfg.src;
             lightboxImg.alt = cfg.label;
-            lightboxName.textContent    = 'Nize · Ecosistema';
+            lightboxName.textContent    = 'Nize · Gestión de alquileres';
             lightboxTitulo.textContent  = cfg.label;
             lightboxBlurb.textContent   = cfg.blurb;
             lightboxCta.href = cfg.href;

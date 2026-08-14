@@ -72,22 +72,6 @@
         .shiny-gold:hover { animation-play-state: paused; }
         @media (prefers-reduced-motion: reduce) { .shiny-gold { animation: none; background-position: 50% 50%; } }
 
-        /* ===== SPLIT TEXT (idéntico a hero-webgl-preview.html) ===== */
-        .split-char { display: inline-block; will-change: transform, opacity; }
-        .split-word { display: inline-block; white-space: nowrap; }
-        [data-split].is-split .split-char { opacity: 0; transform: translateY(40px); }
-        [data-split].is-split.is-revealed .split-char {
-            animation: splitIn var(--split-duration, 1.25s) cubic-bezier(.165, .84, .44, 1) forwards;
-        }
-        [data-split].is-split.is-revealed .shiny-gold.split-char {
-            animation: splitIn var(--split-duration, 1.25s) cubic-bezier(.165, .84, .44, 1) forwards,
-                       shinySweep var(--shine-speed, 3.4s) linear infinite;
-        }
-        @keyframes splitIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        @media (prefers-reduced-motion: reduce) {
-            [data-split].is-split .split-char { opacity: 1; transform: none; animation: none; }
-        }
-
         /* ===== HERO — Sobre nosotros ===== */
         .team-hero {
             position: relative;
@@ -258,10 +242,10 @@
 
     <!-- ===== Sobre nosotros ===== -->
     <section class="team-hero">
-        <h2 class="beam-heading2" data-split>
+        <h2 class="beam-heading2">
             Las personas detrás de <span class="shiny-gold">Automanize</span>
         </h2>
-        <p class="beam-sub" data-split>
+        <p class="beam-sub">
             Somos un equipo de tres personas construyendo <strong>Nize</strong> y el resto de sistemas de Automanize, con foco en <span class="accent">automatizar lo repetitivo</span> para que cada empresa dedique su tiempo a lo que de verdad importa.
         </p>
     </section>
@@ -270,7 +254,7 @@
     <section class="team-grid-section">
         <div class="team-grid">
 
-            <article class="team-card" data-split>
+            <article class="team-card">
                 <div class="team-photo">
                     <img src="assets/images/equipo-martin-munoz.jpeg" alt="Martín Muñoz" loading="lazy" />
                 </div>
@@ -279,7 +263,7 @@
                 <p class="team-bio">Programa y mantiene los sistemas de Automanize, desde la lógica de los agentes IA hasta la infraestructura que los sostiene en producción. También marca la estrategia del equipo y hacia dónde crece el producto.</p>
             </article>
 
-            <article class="team-card" data-split>
+            <article class="team-card">
                 <div class="team-photo">
                     <img src="assets/images/equipo-gabriel-gutierrez.jpeg" alt="Gabriel Gutiérrez" loading="lazy" />
                 </div>
@@ -288,7 +272,7 @@
                 <p class="team-bio">Diseña y desarrolla los productos de Automanize, cuidando que cada automatización funcione con la misma fiabilidad que un proceso hecho a mano. También marca la estrategia del equipo y hacia dónde crece el producto.</p>
             </article>
 
-            <article class="team-card" data-split>
+            <article class="team-card">
                 <div class="team-photo">
                     <img src="assets/images/equipo-antonio-arenas.jpeg" alt="Antonio Arenas" loading="lazy" />
                 </div>
@@ -303,10 +287,10 @@
     <!-- ===== CTA final ===== -->
     <section class="team-cta">
         <div class="team-cta-inner">
-            <h2 class="beam-heading2" data-split>¿Hablamos de tu proyecto?</h2>
-            <p class="beam-sub" data-split>Cuéntanos qué necesitas automatizar y te decimos, sin compromiso, cómo encaja con lo que hacemos.</p>
+            <h2 class="beam-heading2">¿Hablamos de tu proyecto?</h2>
+            <p class="beam-sub">Cuéntanos qué necesitas automatizar y te decimos, sin compromiso, cómo encaja con lo que hacemos.</p>
             <a class="specular-btn" href="consultoria-gratuita.html">
-                <span>Solicitar consultoría</span>
+                <span>Ver qué es Nize</span>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
             </a>
         </div>

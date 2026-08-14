@@ -26,6 +26,177 @@
         * { font-family: "Spline Sans", sans-serif; }
         .dashboard-shadow { box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08); }
         .chart-bar { transition: height 0.3s ease; }
+        .nize-how {
+            background: linear-gradient(180deg, #fff 0%, #fffaf0 48%, #f8fbfc 100%);
+            border-top: 1px solid #f1f1f1;
+            border-bottom: 1px solid #ededed;
+        }
+        .nize-how-shell {
+            width: min(1200px, calc(100% - 3rem));
+            margin: 0 auto;
+            padding: clamp(4rem, 8vw, 6rem) 0;
+        }
+        .nize-how-heading {
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(18rem, 0.68fr);
+            gap: clamp(1.8rem, 5vw, 5rem);
+            align-items: end;
+            margin-bottom: 2rem;
+        }
+        .nize-how-eyebrow {
+            display: block;
+            margin-bottom: .85rem;
+            color: #FFB300;
+            font-size: .68rem;
+            font-weight: 900;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+        }
+        .nize-how h2 {
+            margin: 0;
+            color: #111;
+            font-size: clamp(2rem, 4vw, 3.15rem);
+            font-weight: 900;
+            line-height: 1.02;
+            letter-spacing: -.045em;
+        }
+        .nize-how-lead {
+            margin: 0;
+            color: #666;
+            font-size: .98rem;
+            line-height: 1.7;
+        }
+        .nize-how-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .7rem;
+            margin-bottom: 1.4rem;
+        }
+        .nize-how-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            min-height: 2.55rem;
+            padding: 0 1rem;
+            border: 1px solid #e6e6e6;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .78);
+            color: #222;
+            font-size: .82rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: border-color .2s ease, background .2s ease, transform .2s ease;
+        }
+        .nize-how-nav a:hover {
+            border-color: #FFB300;
+            background: #fff;
+            transform: translateY(-1px);
+        }
+        .nize-how-block {
+            display: grid;
+            grid-template-columns: minmax(0, .38fr) minmax(0, .62fr);
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+            padding: clamp(1.1rem, 3vw, 1.6rem);
+            border: 1px solid rgba(17, 17, 17, .08);
+            border-radius: 1.5rem;
+            background: rgba(255, 255, 255, .88);
+            box-shadow: 0 18px 60px rgba(17, 17, 17, .055);
+        }
+        .nize-how-block h3 {
+            margin: 0 0 .75rem;
+            color: #111;
+            font-size: clamp(1.45rem, 2.8vw, 2.15rem);
+            font-weight: 900;
+            letter-spacing: -.035em;
+        }
+        .nize-how-block-intro {
+            color: #666;
+            font-size: .92rem;
+            line-height: 1.68;
+        }
+        .nize-module-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+        .nize-module-card {
+            border: 1px solid #e9e9e9;
+            border-radius: 1rem;
+            background: #fff;
+            overflow: hidden;
+        }
+        .nize-module-card summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            min-height: 3.35rem;
+            padding: .9rem 1rem;
+            color: #111;
+            font-size: .9rem;
+            font-weight: 850;
+            cursor: pointer;
+            list-style: none;
+        }
+        .nize-module-card summary::-webkit-details-marker { display: none; }
+        .nize-module-card summary::after {
+            content: "+";
+            display: grid;
+            flex: none;
+            width: 1.55rem;
+            height: 1.55rem;
+            place-items: center;
+            border-radius: 50%;
+            background: #f5f5f5;
+            color: #777;
+            font-weight: 900;
+        }
+        .nize-module-card[open] summary::after {
+            content: "−";
+            background: #FFB300;
+            color: #111;
+        }
+        .nize-module-card p {
+            margin: 0;
+            padding: 0 1rem 1rem;
+            color: #6b6b75;
+            font-size: .84rem;
+            line-height: 1.62;
+        }
+        .nize-how-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .75rem;
+            margin-top: 1.15rem;
+        }
+        .nize-action-note {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            min-height: 2.7rem;
+            padding: 0 1rem;
+            border-radius: 999px;
+            background: #111;
+            color: #fff;
+            font-size: .82rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .nize-action-note.secondary {
+            border: 1px solid #dedede;
+            background: #fff;
+            color: #111;
+        }
+        @media (max-width: 860px) {
+            .nize-how-heading,
+            .nize-how-block {
+                grid-template-columns: 1fr;
+            }
+            .nize-module-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -70,7 +241,7 @@
                             <a href="solicitar-demo.html" class="inline-flex items-center gap-2 bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-6 py-3 rounded-full transition-colors">
                                 Solicitar demo <span class="material-symbols-outlined text-[17px]">arrow_forward</span>
                             </a>
-                            <a href="#crm-stories-title" class="inline-flex items-center gap-2 border border-[#e0e0e0] hover:border-[#ccc] text-[#333] font-medium text-[14px] px-6 py-3 rounded-full transition-colors">
+                            <a href="#como-funciona" class="inline-flex items-center gap-2 border border-[#e0e0e0] hover:border-[#ccc] text-[#333] font-medium text-[14px] px-6 py-3 rounded-full transition-colors">
                                 Ver cómo funciona <span class="material-symbols-outlined text-[17px]">play_circle</span>
                             </a>
                         </div>
@@ -309,6 +480,149 @@
             </article>
         </div>
 
+        <!-- COMO FUNCIONA -->
+        <section id="como-funciona" class="nize-how" aria-labelledby="como-funciona-title">
+            <div class="nize-how-shell">
+                <div class="nize-how-heading">
+                    <div>
+                        <span class="nize-how-eyebrow">Funcionamiento de Nize</span>
+                        <h2 id="como-funciona-title">¿Cómo funciona?</h2>
+                    </div>
+                    <p class="nize-how-lead">
+                        Nize funciona como un sistema único: primero centralizas tu cartera en el CRM; después activas el Asistente, que es CRM + WhatsApp trabajando con tus datos reales. Pisos, interesados, visitas, pagos e incidencias dejan de vivir en chats sueltos.
+                    </p>
+                </div>
+
+                <nav class="nize-how-nav" aria-label="Apartados de funcionamiento">
+                    <a href="#nize-crm"><span class="material-symbols-outlined text-[17px]">dashboard</span>CRM</a>
+                    <a href="#nize-asistente"><span class="material-symbols-outlined text-[17px]">support_agent</span>Asistente</a>
+                    <a href="#nize-preguntas"><span class="material-symbols-outlined text-[17px]">help</span>Preguntas rápidas</a>
+                </nav>
+
+                <article id="nize-crm" class="nize-how-block">
+                    <div>
+                        <h3>CRM</h3>
+                        <p class="nize-how-block-intro">
+                            El CRM es la base de la empresa. Importas tu información con IA, la ordenas en minutos y desde ahí controlas cartera, interesados, contratos, cobros, gastos, incidencias, disponibilidad y automatizaciones desde el CRM.
+                        </p>
+                        <div class="nize-how-actions">
+                            <a class="nize-action-note" href="solicitar-demo.html">Quiero probar el CRM</a>
+                            <a class="nize-action-note secondary" href="#crm-stories-title">Ver capturas reales</a>
+                        </div>
+                    </div>
+
+                    <div class="nize-module-grid">
+                        <details class="nize-module-card" open>
+                            <summary>Panel de control</summary>
+                            <p>Resume ocupación, ingresos, cobros pendientes, tareas abiertas y alertas para revisar la empresa en pocos segundos.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Importación con IA</summary>
+                            <p>Convierte listados, documentos o información inicial en datos ordenados dentro del CRM para empezar sin picarlo todo a mano.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Inmuebles y habitaciones</summary>
+                            <p>Organiza pisos, habitaciones, zonas, disponibilidad, propietarios, documentos y estado comercial de cada unidad gestionada.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Interesados</summary>
+                            <p>Guarda cada lead, su origen, la vivienda que busca, su estado, el formulario y el seguimiento pendiente para no perder oportunidades.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Propietarios</summary>
+                            <p>Relaciona propietarios con inmuebles, contratos, documentación y pagos para tener una ficha completa y fácil de consultar.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Inquilinos</summary>
+                            <p>Centraliza datos, contrato activo, cobros, recordatorios, incidencias, documentos y comunicaciones de cada inquilino.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Contratos</summary>
+                            <p>Permite controlar borradores, versiones, fechas, firmas, vencimientos y documentación asociada a cada alquiler.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Cobros y gastos</summary>
+                            <p>Diferencia cobrado, pendiente, vencido, justificantes, suministros, gastos del inmueble y pagos a propietarios desde una misma lectura.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Incidencias</summary>
+                            <p>Registra avisos, prioridad, responsable, estado, fotos y resolución para que mantenimiento no dependa de notas sueltas.</p>
+                        </details>
+                    </div>
+                </article>
+
+                <article id="nize-asistente" class="nize-how-block">
+                    <div>
+                        <h3>Asistente</h3>
+                        <p class="nize-how-block-intro">
+                            El Asistente es Nize con WhatsApp conectado: CRM + WhatsApp. No es un bot de respuestas genéricas; utiliza los pisos, habitaciones, disponibilidad, interesados, pagos e incidencias que ya tienes registrados en el CRM.
+                        </p>
+                        <div class="nize-how-actions">
+                            <a class="nize-action-note" href="consultoria-gratuita.html">Agendar llamada del Asistente</a>
+                        </div>
+                    </div>
+
+                    <div class="nize-module-grid">
+                        <details class="nize-module-card" open>
+                            <summary>Atención por WhatsApp</summary>
+                            <p>Enseña pisos por WhatsApp usando las viviendas registradas en el CRM y el contexto de cada interesado.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Enseña pisos por WhatsApp</summary>
+                            <p>Comparte pisos o habitaciones disponibles según zona, presupuesto, fecha de entrada y lo que la inmobiliaria ya tiene cargado.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Panel de Interesados</summary>
+                            <p>Cada conversación se conecta con el Panel de Interesados: estado, necesidades, viviendas enviadas y siguiente acción quedan visibles para el equipo.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Agenda visitas en el CRM</summary>
+                            <p>Agenda visitas en el CRM con disponibilidad por zonas, franjas y días, como un calendario adaptado a la operativa real de alquileres.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Recordatorios a inquilinos</summary>
+                            <p>Envía seguimientos de pago, documentación pendiente y avisos importantes respetando lo configurado para cada contrato.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>Pagos e incidencias</summary>
+                            <p>Conecta subidas de justificantes, pagos pendientes e incidencias con el CRM para que el equipo revise, apruebe y cierre cada caso.</p>
+                        </details>
+                    </div>
+                </article>
+
+                <article id="nize-preguntas" class="nize-how-block">
+                    <div>
+                        <h3>Si estás pensando esto...</h3>
+                        <p class="nize-how-block-intro">
+                            Nize está pensado para empezar rápido sin perder control. La IA acelera la carga inicial y las automatizaciones se gobiernan desde el propio CRM, no desde herramientas sueltas.
+                        </p>
+                        <div class="nize-how-actions">
+                            <a class="nize-action-note" href="solicitar-demo.html">Verlo aplicado a mi cartera</a>
+                        </div>
+                    </div>
+
+                    <div class="nize-module-grid">
+                        <details class="nize-module-card" open>
+                            <summary>¿Tengo que meter todo a mano?</summary>
+                            <p>No. La importación con IA te ayuda a pasar información inicial, pisos, habitaciones, interesados y datos de gestión a una estructura lista para trabajar.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>¿Cuánto tardo en empezar?</summary>
+                            <p>En unos 2 minutos puedes tener la base creada, cargar disponibilidad y empezar a controlar qué ocurre con tu cartera.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>¿Puedo controlar la disponibilidad?</summary>
+                            <p>Sí. Puedes definir disponibilidad por zonas, días y franjas para que las visitas se agenden con reglas de tu equipo.</p>
+                        </details>
+                        <details class="nize-module-card">
+                            <summary>¿Quién controla las automatizaciones?</summary>
+                            <p>Tú. Activar, pausar o revisar automatizaciones desde el CRM mantiene WhatsApp, visitas, pagos e incidencias bajo control.</p>
+                        </details>
+                    </div>
+                </article>
+            </div>
+        </section>
+
         <!-- FEATURES -->
         <section id="funciona" class="py-20 md:py-28">
             <div class="max-w-[1200px] mx-auto px-6 md:px-10">
@@ -441,7 +755,7 @@
                 <a href="our-services.html">Servicios</a>
                 <a href="casos-exito.html">Casos de éxito</a>
                 <a href="sobre-nosotros.html">Sobre nosotros</a>
-                <a href="consultoria-gratuita.html">Consultoría</a>
+                <a href="consultoria-gratuita.html">¿Qué es Nize?</a>
                 <a href="contactus.html">Contacto</a>
             </div>
 

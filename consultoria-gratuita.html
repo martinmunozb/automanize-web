@@ -6,7 +6,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
-    <title>Consultoría gratuita - Automanize</title>
+    <title>¿Qué es Nize? - Automanize</title>
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
@@ -42,12 +42,12 @@
             font-family: "Spline Sans", sans-serif;
         }
     </style>
-    <meta name="description" content="Reserva tu consultoría gratuita con Automanize y descubre cómo automatizar tu negocio con IA." />
+    <meta name="description" content="Descubre qué es Nize y agenda una llamada con Automanize para ver cómo encaja el CRM en tu gestión de alquileres." />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://automanize.com/consultoria-gratuita.html" />
-    <meta property="og:title" content="Consultoría gratuita - Automanize" />
-    <meta property="og:description" content="Reserva tu consultoría gratuita con Automanize y descubre cómo automatizar tu negocio con IA." />
+    <meta property="og:title" content="¿Qué es Nize? - Automanize" />
+    <meta property="og:description" content="Descubre qué es Nize y agenda una llamada con Automanize para ver cómo encaja el CRM en tu gestión de alquileres." />
     <meta property="og:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
     <meta property="og:image:alt" content="Automanize" />
     <meta property="og:site_name" content="Automanize" />
@@ -55,8 +55,8 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Consultoría gratuita - Automanize" />
-    <meta name="twitter:description" content="Reserva tu consultoría gratuita con Automanize y descubre cómo automatizar tu negocio con IA." />
+    <meta name="twitter:title" content="¿Qué es Nize? - Automanize" />
+    <meta name="twitter:description" content="Descubre qué es Nize y agenda una llamada con Automanize para ver cómo encaja el CRM en tu gestión de alquileres." />
     <meta name="twitter:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
     <link rel="stylesheet" href="assets/css/automanize-theme.css" />
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
@@ -69,9 +69,9 @@
             <section class="rounded-2xl border border-[#e6e6db] bg-surface-light p-6 md:p-10 shadow-sm">
                 <div class="max-w-[760px] mx-auto text-center">
                     <p class="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Paso 1 de 2</p>
-                    <h2 class="text-3xl md:text-4xl font-black leading-tight">Ten tu consultoría totalmente gratuita</h2>
+                    <h2 class="text-3xl md:text-4xl font-black leading-tight">¿Qué es Nize?</h2>
                     <p class="mt-4 text-text-muted text-lg">
-                        Completa este formulario en 1 minuto y pasa al agendado de llamada.
+                        Cuéntanos cómo gestionas tus alquileres y agenda una llamada para ver si Nize encaja en tu operativa.
                     </p>
                 </div>
 
@@ -95,29 +95,47 @@
                     </div>
 
                     <label class="flex flex-col gap-2 text-left">
-                        <span class="text-sm font-semibold text-text-main">A qué te dedicas</span>
-                        <input type="text" name="dedicacion" required
-                            autocomplete="organization-title" maxlength="120"
-                            pattern="[A-Za-zÀ-ÿÑñ0-9 .,()&+/_-]{2,120}"
+                        <span class="text-sm font-semibold text-text-main">Teléfono (opcional)</span>
+                        <input type="tel" name="telefono"
+                            autocomplete="tel" maxlength="30"
+                            pattern="[0-9+() .-]{6,30}"
                             class="w-full rounded-xl border border-[#d9d9ce] bg-white px-4 py-3 text-text-main focus:border-primary focus:ring-primary"
-                            placeholder="Ej: ecommerce, asesoría, clínica, agencia..." />
+                            placeholder="+34 600 000 000" />
                     </label>
 
                     <label class="flex flex-col gap-2 text-left">
-                        <span class="text-sm font-semibold text-text-main">Problema a solucionar (opcional)</span>
-                        <textarea name="problema" rows="4"
+                        <span class="text-sm font-semibold text-text-main">Tipo de gestión</span>
+                        <input type="text" name="tipo_gestion" required
+                            autocomplete="organization-title" maxlength="120"
+                            pattern="[A-Za-zÀ-ÿÑñ0-9 .,()&+/_-]{2,120}"
+                            class="w-full rounded-xl border border-[#d9d9ce] bg-white px-4 py-3 text-text-main focus:border-primary focus:ring-primary"
+                            placeholder="Ej: inmobiliaria, alquiler por habitaciones, coliving, pisos propios..." />
+                    </label>
+
+                    <label class="flex flex-col gap-2 text-left">
+                        <span class="text-sm font-semibold text-text-main">Número de pisos o habitaciones</span>
+                        <input type="text" name="cartera" required
+                            maxlength="80"
+                            pattern="[A-Za-zÀ-ÿÑñ0-9 .,()&+/_-]{1,80}"
+                            class="w-full rounded-xl border border-[#d9d9ce] bg-white px-4 py-3 text-text-main focus:border-primary focus:ring-primary"
+                            placeholder="Ej: 8 pisos, 42 habitaciones, 120 inmuebles..." />
+                    </label>
+
+                    <label class="flex flex-col gap-2 text-left">
+                        <span class="text-sm font-semibold text-text-main">Qué quieres resolver con Nize</span>
+                        <textarea name="objetivo" rows="4" required
                             maxlength="500"
                             class="w-full rounded-xl border border-[#d9d9ce] bg-white px-4 py-3 text-text-main focus:border-primary focus:ring-primary"
-                            placeholder="Cuéntanos qué quieres automatizar..."></textarea>
+                            placeholder="Ej: centralizar inquilinos, controlar cobros, gestionar incidencias, automatizar WhatsApp..."></textarea>
                         <span class="text-xs text-text-muted">
-                            Si solamente quieres una consultoría general, no hace falta responder este campo.
+                            Con esto llegamos a la llamada sabiendo qué parte de Nize tiene más sentido enseñarte.
                         </span>
                     </label>
 
                     <div class="pt-2 flex justify-center">
                         <button type="submit"
                             class="h-12 px-8 bg-primary hover:bg-primary-hover text-black text-base font-bold rounded-full transition-all hover:shadow-lg hover:-translate-y-1 shadow-orange-500/20">
-                            Continuar para agendar llamada
+                            Continuar y agendar llamada
                         </button>
                     </div>
                 </form>
@@ -127,20 +145,26 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        const fields = ["nombre", "email", "dedicacion", "problema"];
+        const fields = ["nombre", "email", "telefono", "tipo_gestion", "cartera", "objetivo"];
         const blockedPattern = /(<|>|`|--|\/\*|\*\/|\b(select|insert|update|delete|drop|union|alter|create|truncate|exec|script)\b)/i;
         const sanitize = (value, maxLen = 300) => {
             if (!value) return "";
             return value.replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, maxLen);
         };
         const isValidName = (value) => /^[A-Za-zÀ-ÿÑñ' .-]{2,80}$/.test(value);
-        const isValidDedicacion = (value) => /^[A-Za-zÀ-ÿÑñ0-9 .,()&+/_-]{2,120}$/.test(value);
+        const isValidBusinessText = (value, max = 120) => {
+            const pattern = new RegExp(`^[A-Za-zÀ-ÿÑñ0-9 .,()&+/_-]{1,${max}}$`);
+            return pattern.test(value);
+        };
+        const isValidPhone = (value) => !value || /^[0-9+() .-]{6,30}$/.test(value);
         const isSafeText = (value) => !blockedPattern.test(value);
         const maxLenByField = {
             nombre: 80,
             email: 120,
-            dedicacion: 120,
-            problema: 500
+            telefono: 30,
+            tipo_gestion: 120,
+            cartera: 80,
+            objetivo: 500
         };
 
         fields.forEach((fieldName) => {
@@ -154,31 +178,45 @@
             form.addEventListener("submit", (event) => {
                 const nombreInput = form.querySelector('[name="nombre"]');
                 const emailInput = form.querySelector('[name="email"]');
-                const dedicacionInput = form.querySelector('[name="dedicacion"]');
-                const problemaInput = form.querySelector('[name="problema"]');
+                const telefonoInput = form.querySelector('[name="telefono"]');
+                const tipoGestionInput = form.querySelector('[name="tipo_gestion"]');
+                const carteraInput = form.querySelector('[name="cartera"]');
+                const objetivoInput = form.querySelector('[name="objetivo"]');
 
                 const nombre = sanitize(nombreInput.value, 80);
                 const email = sanitize(emailInput.value, 120);
-                const dedicacion = sanitize(dedicacionInput.value, 120);
-                const problema = sanitize(problemaInput.value, 500);
+                const telefono = sanitize(telefonoInput.value, 30);
+                const tipoGestion = sanitize(tipoGestionInput.value, 120);
+                const cartera = sanitize(carteraInput.value, 80);
+                const objetivo = sanitize(objetivoInput.value, 500);
 
                 nombreInput.value = nombre;
                 emailInput.value = email;
-                dedicacionInput.value = dedicacion;
-                problemaInput.value = problema;
+                telefonoInput.value = telefono;
+                tipoGestionInput.value = tipoGestion;
+                carteraInput.value = cartera;
+                objetivoInput.value = objetivo;
 
                 nombreInput.setCustomValidity("");
-                dedicacionInput.setCustomValidity("");
-                problemaInput.setCustomValidity("");
+                telefonoInput.setCustomValidity("");
+                tipoGestionInput.setCustomValidity("");
+                carteraInput.setCustomValidity("");
+                objetivoInput.setCustomValidity("");
 
                 if (!isValidName(nombre) || !isSafeText(nombre)) {
                     nombreInput.setCustomValidity("Introduce un nombre válido, sin símbolos o sentencias.");
                 }
-                if (!isValidDedicacion(dedicacion) || !isSafeText(dedicacion)) {
-                    dedicacionInput.setCustomValidity("Introduce una dedicación válida, sin sentencias.");
+                if (!isValidPhone(telefono) || !isSafeText(telefono)) {
+                    telefonoInput.setCustomValidity("Introduce un teléfono válido.");
                 }
-                if (problema && !isSafeText(problema)) {
-                    problemaInput.setCustomValidity("El texto incluye contenido no permitido.");
+                if (!isValidBusinessText(tipoGestion, 120) || !isSafeText(tipoGestion)) {
+                    tipoGestionInput.setCustomValidity("Introduce un tipo de gestión válido, sin sentencias.");
+                }
+                if (!isValidBusinessText(cartera, 80) || !isSafeText(cartera)) {
+                    carteraInput.setCustomValidity("Introduce el tamaño de cartera con texto o números.");
+                }
+                if (!objetivo || !isSafeText(objetivo)) {
+                    objetivoInput.setCustomValidity("Cuéntanos qué quieres resolver, sin contenido no permitido.");
                 }
 
                 if (!form.checkValidity()) {
@@ -204,7 +242,7 @@
                 <a href="our-services.html">Servicios</a>
                 <a href="casos-exito.html">Casos de éxito</a>
                 <a href="sobre-nosotros.html">Sobre nosotros</a>
-                <a href="consultoria-gratuita.html">Consultoría</a>
+                <a href="consultoria-gratuita.html">¿Qué es Nize?</a>
                 <a href="contactus.html">Contacto</a>
             </div>
 
