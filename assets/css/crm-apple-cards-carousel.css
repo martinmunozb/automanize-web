@@ -2,7 +2,7 @@
     --story-accent: #ffb300;
     padding: 4.75rem 0 3.75rem;
     background: linear-gradient(135deg, rgba(255, 249, 224, 0.38), rgba(244, 250, 252, 0.62));
-    overflow: hidden;
+    overflow: visible;
 }
 
 .crm-stories__heading {
@@ -45,20 +45,20 @@
 
 .crm-stories__viewport {
     position: relative;
-    margin-top: 2rem;
+    width: min(1200px, calc(100% - 3rem));
+    margin: 2rem auto 0;
 }
 
 .crm-stories__track {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
     gap: 1.15rem;
     width: 100%;
-    padding: 0 calc((100vw - min(1200px, calc(100vw - 3rem))) / 2) 1rem;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
+    padding: 0;
+    overflow: visible;
     scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+    scroll-snap-type: none;
 }
 
 .crm-stories__track::-webkit-scrollbar {
@@ -68,8 +68,9 @@
 .crm-story {
     position: relative;
     display: flex;
-    flex: 0 0 min(29rem, 72vw);
+    flex: none;
     flex-direction: column;
+    width: 100%;
     aspect-ratio: auto;
     height: auto;
     padding: 0;
@@ -79,7 +80,7 @@
     background: rgba(255, 255, 255, 0.92);
     color: #111;
     cursor: pointer;
-    scroll-snap-align: start;
+    scroll-snap-align: unset;
     box-shadow: 0 8px 28px rgba(17, 17, 17, 0.055);
     isolation: isolate;
     text-align: left;
@@ -185,7 +186,7 @@
 }
 
 .crm-stories__controls {
-    display: flex;
+    display: none;
     justify-content: flex-end;
     gap: 0.6rem;
     width: min(1200px, calc(100% - 3rem));
@@ -372,6 +373,7 @@ body.crm-modal-open {
     }
 
     .crm-stories__heading,
+    .crm-stories__viewport,
     .crm-stories__controls {
         width: calc(100% - 2rem);
     }
@@ -391,12 +393,12 @@ body.crm-modal-open {
     }
 
     .crm-stories__track {
+        grid-template-columns: 1fr;
         gap: 0.75rem;
-        padding-inline: 1rem;
+        padding: 0;
     }
 
     .crm-story {
-        flex-basis: min(18rem, calc(100vw - 3rem));
         aspect-ratio: auto;
         height: auto;
         border-radius: 1rem;
