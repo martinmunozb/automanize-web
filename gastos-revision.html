@@ -179,6 +179,37 @@
     .item-msg.ok { color: var(--ok); }
     .item-msg.error { color: var(--error); }
 
+    .unidad-trigger {
+      width: 100%; padding: 2px 20px 4px 0; font-size: 14.5px; font-weight: 500; font-family: inherit;
+      background: transparent; border: none; border-bottom: 1.5px solid transparent; border-radius: 0; color: var(--text);
+      text-align: left; cursor: pointer;
+    }
+    .unidad-trigger:focus { outline: none; border-bottom-color: var(--accent); }
+    .unidad-trigger.placeholder { color: var(--text-light); }
+
+    .unidad-dropdown {
+      position: fixed; z-index: 1000; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .unidad-dropdown .unidad-search { padding: 8px; border-bottom: 1px solid var(--border); }
+    .unidad-dropdown .unidad-search input {
+      width: 100%; padding: 8px 10px; font-size: 13.5px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface-soft); font-family: inherit;
+    }
+    .unidad-dropdown .unidad-search input:focus { outline: none; border-color: var(--accent); }
+    .unidad-list { overflow-y: auto; padding: 6px 0; }
+    .unidad-group-label {
+      padding: 8px 14px 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-light);
+    }
+    .unidad-option {
+      display: block; width: 100%; text-align: left; padding: 8px 14px; font-size: 13.5px; font-family: inherit;
+      background: none; border: none; cursor: pointer; color: var(--text);
+    }
+    .unidad-option:hover { background: var(--surface-soft); }
+    .unidad-option.selected { background: var(--accent-dim); font-weight: 600; }
+    .unidad-option.hab { padding-left: 26px; }
+    .unidad-empty { padding: 14px; font-size: 13px; color: var(--text-light); text-align: center; }
+
     .footer { border-top: 1px solid var(--border); padding: 16px 40px; text-align: center; background: var(--page); }
     .footer span { font-size: 12px; color: var(--text-light); }
 
@@ -310,7 +341,8 @@
     }
 
     lista.innerHTML = '';
-    items.forEach((item) => lista.appendChild(crearTarjeta(item, unidades)));
+    const grupos = agruparUnidades(unidades);
+    items.forEach((item) => lista.appendChild(crearTarjeta(item, unidades, grupos)));
     mostrarSoloEsto(lista);
   }
 
@@ -320,19 +352,158 @@
     return [...set].map((c) => `<option value="${c}" ${c === seleccionado ? 'selected' : ''}>${c}</option>`).join('');
   }
 
-  function opcionesUnidad(unidades, sugeridoId, sugeridoTipo) {
-    const vacio = `<option value="">— sin asignar —</option>`;
-    const resto = unidades
-      .map((u) => {
-        const value = `${u.inmuebleId}|${u.unidadTipo}`;
-        const seleccionado = u.inmuebleId === sugeridoId && u.unidadTipo === sugeridoTipo ? 'selected' : '';
-        return `<option value="${value}" ${seleccionado}>${u.label || u.inmuebleId}</option>`;
-      })
-      .join('');
-    return vacio + resto;
+  function normalizarBusqueda(str) {
+    return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   }
 
-  function crearTarjeta(item, unidades) {
+  // Agrupa las unidades igual que en el CRM: pisos con habitaciones primero
+  // (con sus habitaciones anidadas debajo), luego pisos sueltos, y por
+  // último las habitaciones sin piso asociado.
+  function agruparUnidades(unidades) {
+    const pisos = unidades.filter((u) => u.unidadTipo === 'piso');
+    const pisoIds = new Set(pisos.map((p) => p.inmuebleId));
+    const habsByPiso = new Map();
+    const huerfanas = [];
+    unidades.filter((u) => u.unidadTipo === 'habitacion').forEach((h) => {
+      if (h.pisoId && pisoIds.has(h.pisoId)) {
+        if (!habsByPiso.has(h.pisoId)) habsByPiso.set(h.pisoId, []);
+        habsByPiso.get(h.pisoId).push(h);
+      } else {
+        huerfanas.push(h);
+      }
+    });
+
+    const grupos = pisos.map((p) => ({
+      piso: p,
+      habs: (habsByPiso.get(p.inmuebleId) || []).sort((a, b) => (a.label || '').localeCompare(b.label || '')),
+    }));
+    huerfanas.forEach((h) => grupos.push({ piso: null, hab: h, habs: [] }));
+
+    grupos.sort((a, b) => {
+      const rank = (g) => (g.piso && g.habs.length > 0) ? 0 : g.piso ? 1 : 2;
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      const na = (a.piso && a.piso.label) || (a.hab && a.hab.label) || '';
+      const nb = (b.piso && b.piso.label) || (b.hab && b.hab.label) || '';
+      return na.localeCompare(nb);
+    });
+    return grupos;
+  }
+
+  function labelParaValor(unidades, inmuebleId, unidadTipo) {
+    const u = unidades.find((x) => x.inmuebleId === inmuebleId && x.unidadTipo === unidadTipo);
+    return u ? u.label : null;
+  }
+
+  // ── Dropdown flotante compartido (una sola instancia para todas las tarjetas) ──
+  let dropdownEl = null;
+  let dropdownActivoInput = null;
+  let dropdownActivoTrigger = null;
+
+  function crearDropdownGlobal() {
+    if (dropdownEl) return dropdownEl;
+    dropdownEl = document.createElement('div');
+    dropdownEl.className = 'unidad-dropdown';
+    dropdownEl.style.display = 'none';
+    dropdownEl.innerHTML = `
+      <div class="unidad-search"><input type="text" placeholder="Buscar piso, zona o habitación…" autocomplete="off" /></div>
+      <div class="unidad-list"></div>
+    `;
+    document.body.appendChild(dropdownEl);
+    dropdownEl.querySelector('input').addEventListener('input', (e) => renderDropdownList(e.target.value));
+    document.addEventListener('mousedown', (e) => {
+      if (dropdownEl.style.display === 'none') return;
+      if (dropdownEl.contains(e.target) || e.target === dropdownActivoTrigger) return;
+      cerrarDropdown();
+    });
+    window.addEventListener('resize', cerrarDropdown);
+    return dropdownEl;
+  }
+
+  function cerrarDropdown() {
+    if (dropdownEl) dropdownEl.style.display = 'none';
+    dropdownActivoInput = null;
+    dropdownActivoTrigger = null;
+  }
+
+  function renderDropdownList(query) {
+    const grupos = dropdownEl._grupos || [];
+    const valorActual = dropdownActivoInput ? dropdownActivoInput.value : '';
+    const q = normalizarBusqueda(query);
+    const match = (texto) => !q || normalizarBusqueda(texto).includes(q);
+    const list = dropdownEl.querySelector('.unidad-list');
+    let html = '';
+
+    if (!q) {
+      const sel = valorActual === '' ? 'selected' : '';
+      html += `<button type="button" class="unidad-option ${sel}" data-value="" data-label="— sin asignar —">— sin asignar —</button>`;
+    }
+
+    grupos.forEach((g) => {
+      if (!g.piso) {
+        const h = g.hab;
+        if (!match(`${h.label} ${h.zona || ''}`)) return;
+        const valor = `${h.inmuebleId}|habitacion`;
+        const sel = valor === valorActual ? 'selected' : '';
+        html += `<button type="button" class="unidad-option ${sel}" data-value="${valor}" data-label="${h.label}">${h.label}<span style="color:var(--text-light);font-weight:400"> · suelta</span></button>`;
+        return;
+      }
+      const valorPiso = `${g.piso.inmuebleId}|piso`;
+      const pisoMatches = match(`${g.piso.label} ${g.piso.zona || ''}`);
+      const habsMatch = q ? g.habs.filter((h) => match(h.label)) : g.habs;
+      if (q && !pisoMatches && habsMatch.length === 0) return;
+      html += `<div class="unidad-group-label">${g.piso.label}</div>`;
+      if (pisoMatches || !q) {
+        const sel = valorPiso === valorActual ? 'selected' : '';
+        html += `<button type="button" class="unidad-option ${sel}" data-value="${valorPiso}" data-label="${g.piso.label}">${g.piso.label}${g.habs.length ? ' (piso completo)' : ''}</button>`;
+      }
+      habsMatch.forEach((h) => {
+        const valor = `${h.inmuebleId}|habitacion`;
+        const sel = valor === valorActual ? 'selected' : '';
+        html += `<button type="button" class="unidad-option hab ${sel}" data-value="${valor}" data-label="${h.label}">Hab: ${h.label}</button>`;
+      });
+    });
+
+    list.innerHTML = html || `<div class="unidad-empty">Sin resultados</div>`;
+    list.querySelectorAll('.unidad-option').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (dropdownActivoInput) dropdownActivoInput.value = btn.dataset.value;
+        if (dropdownActivoTrigger) {
+          dropdownActivoTrigger.textContent = btn.dataset.label;
+          dropdownActivoTrigger.classList.toggle('placeholder', !btn.dataset.value);
+        }
+        cerrarDropdown();
+      });
+    });
+  }
+
+  function abrirDropdown(trigger, hiddenInput, grupos) {
+    crearDropdownGlobal();
+    dropdownEl._grupos = grupos;
+    dropdownActivoInput = hiddenInput;
+    dropdownActivoTrigger = trigger;
+    const rect = trigger.getBoundingClientRect();
+    const width = Math.max(rect.width, 280);
+    const maxHeight = 300;
+    const spaceBelow = window.innerHeight - rect.bottom - 12;
+    const spaceAbove = rect.top - 12;
+    dropdownEl.style.width = width + 'px';
+    dropdownEl.style.left = Math.min(rect.left, window.innerWidth - width - 12) + 'px';
+    if (spaceBelow < maxHeight && spaceAbove > spaceBelow) {
+      dropdownEl.style.top = Math.max(12, rect.top - Math.min(maxHeight, spaceAbove) - 6) + 'px';
+      dropdownEl.style.maxHeight = Math.min(maxHeight, spaceAbove) + 'px';
+    } else {
+      dropdownEl.style.top = (rect.bottom + 6) + 'px';
+      dropdownEl.style.maxHeight = Math.min(maxHeight, spaceBelow) + 'px';
+    }
+    dropdownEl.style.display = 'flex';
+    const input = dropdownEl.querySelector('input');
+    input.value = '';
+    renderDropdownList('');
+    requestAnimationFrame(() => input.focus());
+  }
+
+  function crearTarjeta(item, unidades, grupos) {
     const card = document.createElement('div');
     card.className = 'item-card';
 
@@ -345,6 +516,11 @@
 
     const nombreArchivo = item.archivo_nombre || 'Archivo';
     const ext = (nombreArchivo.split('.').pop() || 'DOC').toUpperCase().slice(0, 4);
+
+    const valorInicial = item.inmueble_id_sugerido ? `${item.inmueble_id_sugerido}|${item.unidad_tipo_sugerido}` : '';
+    const labelInicial = valorInicial
+      ? (labelParaValor(unidades, item.inmueble_id_sugerido, item.unidad_tipo_sugerido) || item.inmueble_label || '—')
+      : '— sin asignar —';
 
     card.innerHTML = `
       <div class="card-head">
@@ -385,7 +561,8 @@
           <span class="campo-icon">${ICONS.building}</span>
           <div class="campo-body chevron">
             <label>Inmueble</label>
-            <select class="campo-inmueble">${opcionesUnidad(unidades, item.inmueble_id_sugerido, item.unidad_tipo_sugerido)}</select>
+            <input type="hidden" class="campo-inmueble" value="${valorInicial}" />
+            <button type="button" class="unidad-trigger${valorInicial ? '' : ' placeholder'}">${labelInicial}</button>
           </div>
         </div>
       </div>
@@ -399,6 +576,10 @@
     const btnConfirmar = card.querySelector('.btn-confirmar');
     const btnRechazar  = card.querySelector('.btn-rechazar');
     const msg          = card.querySelector('.item-msg');
+
+    const unidadTrigger = card.querySelector('.unidad-trigger');
+    const unidadInput   = card.querySelector('.campo-inmueble');
+    unidadTrigger.addEventListener('click', () => abrirDropdown(unidadTrigger, unidadInput, grupos));
 
     function setBusy(busy) {
       btnConfirmar.disabled = busy;
