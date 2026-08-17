@@ -3,145 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Subir justificante · Invicta Rent</title>
+  <title>Subir justificante · Automanize</title>
   <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
   <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <meta name="description" content="Sube tu justificante de forma rápida y segura — Automanize." />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://automanize.com/subir/" />
+  <meta property="og:title" content="Subir justificante · Automanize" />
+  <meta property="og:description" content="Sube tu justificante de forma rápida y segura — Automanize." />
+  <meta property="og:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
+  <meta property="og:image:alt" content="Automanize" />
+  <meta property="og:site_name" content="Automanize" />
+  <meta property="og:locale" content="es_ES" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Subir justificante · Automanize" />
+  <meta name="twitter:description" content="Sube tu justificante de forma rápida y segura — Automanize." />
+  <meta name="twitter:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #F2F0EB;
+      --page:         #F6F3EC;
       --surface:      #FFFFFF;
-      --border:       #E0DDD6;
-      --border-dash:  #C8C5BE;
-      --accent:       #F0C000;
-      --accent-hover: #D9AC00;
-      --accent-dim:   rgba(240,192,0,0.08);
-      --accent-ring:  rgba(240,192,0,0.25);
-      --text:         #1A1918;
-      --text-muted:   #6B6866;
-      --text-light:   #A8A5A0;
-      --error:        #D94848;
+      --surface-soft: #F3EFE4;
+      --border:       #E7E1D2;
+      --accent:       #C0902E;
+      --accent-hover: #A5771F;
+      --accent-dim:   rgba(192,144,46,0.10);
+      --accent-ring:  rgba(192,144,46,0.28);
+      --text:         #1D1B16;
+      --text-muted:   #6C6459;
+      --text-light:   #9C9483;
+      --green:        #22C55E;
+      --green-dim:    rgba(34,197,94,0.12);
+      --red:          #DC4B4B;
+      --red-dim:      rgba(220,75,75,0.10);
+      --shadow:       0 24px 60px rgba(30,22,10,0.10);
     }
 
-    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; }
-    body { display: flex; flex-direction: column; }
+    html, body { min-height: 100vh; background: var(--page); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; }
+    body { display: flex; flex-direction: column; overflow-x: hidden; }
+    ::selection { background: var(--accent-ring); }
 
-    /* ── NAV ── */
+    /* ── NAVBAR ── */
     .navbar {
-      background: var(--surface);
+      background: rgba(246,243,236,0.9);
       border-bottom: 1px solid var(--border);
-      height: 56px;
-      padding: 0 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      height: 60px; padding: 0 40px;
+      display: flex; align-items: center; gap: 10px;
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(10px);
     }
-    .nav-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-    .nav-links { display: flex; gap: 28px; }
-    .nav-link {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-decoration: none;
-      padding-bottom: 3px;
-    }
-    .nav-link.active {
-      color: var(--text);
-      font-weight: 500;
-      border-bottom: 2px solid var(--accent);
-    }
+    .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; background: #fff; padding: 3px; border: 1px solid var(--border); }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-text strong { font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+    .brand-text span { font-size: 10.5px; color: var(--text-light); letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* ── MAIN / WIZARD ── */
+    .main { flex: 1; display: flex; justify-content: center; padding: 40px 20px 32px; }
+    .wizard { width: 100%; max-width: 560px; }
 
     /* ── STEPPER ── */
-    .stepper-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 28px 40px 0;
+    .stepper-wrap { display: flex; justify-content: center; margin-bottom: 28px; }
+    .stepper { display: flex; align-items: flex-start; width: 100%; max-width: 420px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11.5px; font-weight: 700;
+      background: var(--surface); border: 1.5px solid var(--border); color: var(--text-light);
+      transition: background 0.25s, border-color 0.25s, color 0.25s;
+      flex-shrink: 0;
     }
-    .stepper {
-      display: flex;
-      align-items: flex-start;
-      width: 100%;
-      max-width: 460px;
-    }
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .step-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--border);
-      transition: background 0.3s;
-    }
-    .step.active .step-dot,
-    .step.done   .step-dot { background: var(--accent); }
-    .step-label {
-      font-size: 11px;
-      color: var(--text-light);
-      white-space: nowrap;
-    }
-    .step.active .step-label,
-    .step.done   .step-label { color: var(--text); font-weight: 500; }
-    .step-line {
-      flex: 1;
-      height: 1.5px;
-      background: var(--border);
-      margin-top: 4px;
-      transition: background 0.3s;
-    }
+    .step.active .step-num { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .step.done .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .step.done .step-num .num { display: none; }
+    .step.done .step-num .check { display: block; }
+    .step-num .check { display: none; width: 12px; height: 12px; }
+    .step-label { font-size: 11px; color: var(--text-light); white-space: nowrap; font-weight: 500; }
+    .step.active .step-label, .step.done .step-label { color: var(--text); font-weight: 700; }
+    .step-line { flex: 1; height: 1.5px; background: var(--border); margin-top: 13px; transition: background 0.3s; }
     .step-line.done { background: var(--accent); }
-
-    /* ── MAIN ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 28px 16px 40px;
-    }
 
     /* ── CARD ── */
     .card {
       width: 100%;
-      max-width: 560px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      box-shadow: var(--shadow);
       padding: 40px;
     }
-    .card-title {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 400;
-      font-size: 18px;
-      margin-bottom: 6px;
-    }
-    .card-sub {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.55;
-      margin-bottom: 28px;
-    }
+    .card-title { font-weight: 800; font-size: 22px; letter-spacing: -0.01em; margin-bottom: 8px; }
+    .card-sub { font-size: 14px; color: var(--text-muted); line-height: 1.55; margin-bottom: 28px; }
 
     /* ── LOADING ── */
-    .loading-state { text-align: center; padding: 48px 0; }
+    .loading-state { text-align: center; padding: 44px 0; }
     .spinner {
       width: 30px; height: 30px;
-      border: 2px solid var(--border);
+      border: 2.5px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
@@ -151,388 +117,301 @@
     .loading-state p { font-size: 14px; color: var(--text-muted); }
 
     /* ── ERROR ── */
-    .error-state { display: none; text-align: center; padding: 48px 0; }
-    .error-icon  { font-size: 40px; margin-bottom: 16px; }
-    .error-state h2 {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 20px;
-      margin-bottom: 8px;
+    .error-state { display: none; text-align: center; padding: 24px 0; }
+    .icon-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
     }
-    .error-state p { font-size: 14px; color: var(--text-muted); }
+    .icon-circle svg { width: 24px; height: 24px; }
+    .icon-circle.tone-red { background: var(--red-dim); color: var(--red); }
+    .icon-circle.tone-green { background: var(--green-dim); border: 2px solid var(--green); color: var(--green); }
+    .error-state h2 { font-weight: 800; font-size: 19px; margin-bottom: 8px; }
+    .error-state p { font-size: 14px; color: var(--text-muted); line-height: 1.55; max-width: 320px; margin: 0 auto; }
 
     /* ── FORM ── */
     .form-state { display: none; }
 
     .gestor-info {
-      background: var(--accent-dim);
-      border: 1px solid var(--accent-ring);
-      border-radius: 4px;
-      padding: 12px 16px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
       margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 12px;
     }
-    .gestor-info .icon { font-size: 16px; }
-    .gestor-info .name { font-size: 14px; font-weight: 500; }
+    .gestor-info .icon-badge {
+      flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
+      background: var(--accent-dim); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gestor-info .icon-badge svg { width: 17px; height: 17px; }
+    .gestor-info .name { font-size: 14px; font-weight: 700; }
     .gestor-info .sub  { font-size: 12px; color: var(--text-muted); }
 
-    /* habitacion selector */
-    .hab-selector {
-      margin-bottom: 24px;
-    }
-    .hab-selector label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    /* file drop */
-    .file-drop {
-      border: 1.5px dashed var(--border-dash);
-      border-radius: 4px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
-      background: #FAFAF8;
-      transition: border-color 0.2s, background 0.2s;
-      position: relative;
-      margin-bottom: 8px;
-    }
-    .file-drop:hover,
-    .file-drop.dragover {
-      border-color: var(--accent);
-      background: var(--accent-dim);
-    }
-    .file-drop input[type="file"] {
-      position: absolute; inset: 0;
-      opacity: 0; cursor: pointer;
-      width: 100%; height: 100%;
-    }
-    .upload-icon {
-      width: 48px; height: 48px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-    }
-    .upload-icon svg { width: 24px; height: 24px; fill: #fff; }
-    .file-drop p { font-size: 14px; color: var(--text); margin-bottom: 4px; }
-    .file-drop .file-hint { font-size: 12px; color: var(--text-muted); }
-
-    .file-selected {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      background: var(--accent-dim);
-      border: 1px solid var(--accent-ring);
-      border-radius: 4px;
-      margin-bottom: 20px;
-    }
-    .file-selected.show { display: flex; }
-    .file-selected .file-name {
-      font-size: 13px; font-weight: 500;
-      flex: 1; overflow: hidden;
-      text-overflow: ellipsis; white-space: nowrap;
-    }
-    .file-remove {
-      background: none; border: none;
-      color: var(--text-muted); cursor: pointer;
-      font-size: 16px; padding: 0; line-height: 1;
-    }
-    .file-remove:hover { color: var(--error); }
-
-    /* fields */
-    .fields-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-      margin-top: 20px;
-    }
+    .field-group { margin-bottom: 20px; }
     label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      display: block; font-size: 11px; font-weight: 700; color: var(--text-muted);
+      margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.07em;
     }
-    .field-select,
-    .field-input {
-      width: 100%;
-      padding: 11px 14px;
-      background: #FAFAF8;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      appearance: none;
-      -webkit-appearance: none;
-      outline: none;
-      transition: border-color 0.2s;
+
+    /* select / input */
+    .field-select, .field-input {
+      width: 100%; padding: 12px 14px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+      appearance: none; -webkit-appearance: none; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .field-select:focus,
-    .field-input:focus { border-color: var(--accent); }
+    .field-select:focus, .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
     .select-wrapper { position: relative; }
-    .select-wrapper::after {
-      content: '▾';
-      position: absolute;
-      right: 12px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      pointer-events: none;
-      font-size: 12px;
+    .select-wrapper svg {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px; color: var(--text-muted); pointer-events: none;
     }
+    .select-wrapper .field-select { padding-right: 36px; }
     .field-input[type="number"]::-webkit-inner-spin-button,
     .field-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
     .input-prefix-wrapper { position: relative; }
     .input-prefix {
-      position: absolute;
-      left: 12px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted); font-size: 14px;
-      pointer-events: none;
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 14px; font-weight: 600; pointer-events: none;
     }
-    .input-prefix-wrapper .field-input { padding-left: 24px; }
+    .input-prefix-wrapper .field-input { padding-left: 26px; }
+
+    .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* file drop */
+    .file-drop {
+      border: 1.5px dashed var(--border);
+      border-radius: 14px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--surface-soft);
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .file-drop:hover, .file-drop.dragover { border-color: var(--accent); background: var(--accent-dim); }
+    .file-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon {
+      width: 44px; height: 44px; background: var(--accent); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .upload-icon svg { width: 20px; height: 20px; color: #fff; }
+    .file-drop p { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .file-drop .file-hint { font-size: 12px; color: var(--text-muted); }
+
+    .file-selected {
+      display: none; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: var(--accent-dim); border: 1px solid var(--accent-ring); border-radius: 12px;
+      margin-top: 10px;
+    }
+    .file-selected.show { display: flex; }
+    .file-selected .file-icon { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+    .file-selected .file-icon svg { width: 15px; height: 15px; }
+    .file-selected .file-name { font-size: 13px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-remove {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s;
+    }
+    .file-remove svg { width: 13px; height: 13px; }
+    .file-remove:hover { color: var(--red); background: var(--red-dim); }
 
     /* submit */
     .btn-submit {
-      width: 100%;
-      padding: 13px;
-      background: var(--accent);
-      color: #000;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
+      width: 100%; margin-top: 24px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 15px; background: var(--accent); color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 13px;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
     }
-    .btn-submit:hover:not(:disabled) { background: var(--accent-hover); }
-    .btn-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-submit:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
     .btn-submit.loading { position: relative; color: transparent; }
     .btn-submit.loading::after {
-      content: '';
-      position: absolute;
+      content: ''; position: absolute;
       width: 16px; height: 16px;
-      border: 2px solid #000;
-      border-top-color: transparent;
-      border-radius: 50%;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+      border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff;
+      border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);
       animation: spin 0.7s linear infinite;
     }
 
     /* success */
-    .success-state { display: none; text-align: center; padding: 48px 0; }
-    .success-icon {
-      width: 64px; height: 64px;
-      background: var(--accent-dim);
-      border: 2px solid var(--accent);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 20px;
-    }
-    .success-state h2 {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800; font-size: 22px; margin-bottom: 10px;
-    }
-    .success-state p { font-size: 14px; color: var(--text-muted); max-width: 300px; margin: 0 auto; }
+    .success-state { display: none; text-align: center; padding: 24px 0; }
+    .success-state h2 { font-weight: 800; font-size: 21px; margin-bottom: 10px; }
+    .success-state p { font-size: 14px; color: var(--text-muted); max-width: 300px; margin: 0 auto; line-height: 1.55; }
 
     /* badges */
-    .badges {
-      display: flex; align-items: center; justify-content: center;
-      gap: 40px; margin-top: 20px;
-    }
-    .badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-light); }
-    .badge svg { width: 13px; height: 13px; fill: var(--text-light); flex-shrink: 0; }
+    .badges { display: flex; align-items: center; justify-content: center; gap: 36px; margin-top: 22px; }
+    .badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-light); font-weight: 500; }
+    .badge svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     /* footer */
-    .footer {
-      border-top: 1px solid var(--border);
-      padding: 14px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface);
-    }
-    .footer-left { font-size: 12px; color: var(--text-light); }
-    .footer-links { display: flex; gap: 20px; }
-    .footer-links a { font-size: 12px; color: var(--text-light); text-decoration: none; }
-    .footer-links a:hover { color: var(--text-muted); }
+    .footer { border-top: 1px solid var(--border); padding: 16px 40px; text-align: center; background: var(--page); }
+    .footer span { font-size: 12px; color: var(--text-light); }
 
     @media (max-width: 600px) {
-      .navbar { padding: 0 16px; }
-      .card { padding: 24px 20px; }
+      .navbar { padding: 0 20px; }
+      .main { padding: 28px 16px 24px; }
+      .card { padding: 28px 22px; border-radius: 16px; }
       .fields-row { grid-template-columns: 1fr; }
-      .badges { flex-direction: column; gap: 10px; }
-      .footer { flex-direction: column; gap: 10px; text-align: center; }
-      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .badges { flex-direction: column; gap: 10px; margin-top: 24px; }
     }
   </style>
-  <meta name="description" content="Sube tu justificante de forma rápida y segura — Automanize." />
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://automanize.com/subir/" />
-  <meta property="og:title" content="Subir justificante · Invicta Rent" />
-  <meta property="og:description" content="Sube tu justificante de forma rápida y segura — Automanize." />
-  <meta property="og:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
-  <meta property="og:image:alt" content="Automanize" />
-  <meta property="og:site_name" content="Automanize" />
-  <meta property="og:locale" content="es_ES" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Subir justificante · Invicta Rent" />
-  <meta name="twitter:description" content="Sube tu justificante de forma rápida y segura — Automanize." />
-  <meta name="twitter:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
 </head>
 <body>
 
 <nav class="navbar">
-  <span class="nav-logo">Invicta Rent · Pagos</span>
-  <div class="nav-links">
-    <a class="nav-link active" href="#">Subir Justificante</a>
-    <a class="nav-link" href="#">Historial</a>
+  <img class="brand-mark" src="/assets/images/nize.png" alt="" />
+  <div class="brand-text">
+    <strong>Automanize</strong>
+    <span>Gestión de gastos</span>
   </div>
 </nav>
 
-<div class="stepper-wrap">
-  <div class="stepper">
-    <div class="step done" id="step1">
-      <div class="step-dot"></div>
-      <span class="step-label">Identificación</span>
-    </div>
-    <div class="step-line" id="line1"></div>
-    <div class="step active" id="step2">
-      <div class="step-dot"></div>
-      <span class="step-label">Carga</span>
-    </div>
-    <div class="step-line" id="line2"></div>
-    <div class="step" id="step3">
-      <div class="step-dot"></div>
-      <span class="step-label">Confirmación</span>
-    </div>
-  </div>
-</div>
-
 <main class="main">
-  <div class="card">
+  <div class="wizard">
 
-    <p class="card-title" id="cardTitle">Subir justificante</p>
-    <p class="card-sub">Adjunta el comprobante de pago para que quede registrado en nuestro sistema de facturación.</p>
-
-    <!-- LOADING -->
-    <div class="loading-state" id="loadingState">
-      <div class="spinner"></div>
-      <p>Verificando acceso...</p>
+    <div class="stepper-wrap">
+      <div class="stepper">
+        <div class="step done" id="step1">
+          <div class="step-num"><span class="num">1</span><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <span class="step-label">Identificación</span>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step active" id="step2">
+          <div class="step-num"><span class="num">2</span><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <span class="step-label">Carga</span>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step" id="step3">
+          <div class="step-num"><span class="num">3</span><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <span class="step-label">Confirmación</span>
+        </div>
+      </div>
     </div>
 
-    <!-- ERROR -->
-    <div class="error-state" id="errorState">
-      <div class="error-icon">🔒</div>
-      <h2 id="errorTitle">Acceso no válido</h2>
-      <p id="errorMsg">Este enlace no es válido o ha expirado. Contacta con soporte.</p>
-    </div>
+    <div class="card">
 
-    <!-- FORMULARIO -->
-    <div class="form-state" id="formState">
+      <p class="card-title" id="cardTitle">Subir justificante</p>
+      <p class="card-sub">Adjunta el comprobante de pago para que quede registrado en nuestro sistema de facturación.</p>
 
-      <div class="gestor-info">
-        <span class="icon">🏢</span>
-        <div>
-          <div class="name" id="gestorNombre">—</div>
-          <div class="sub" id="gestorSub">Gestor · Invicta Rent</div>
+      <!-- LOADING -->
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <p>Verificando acceso...</p>
+      </div>
+
+      <!-- ERROR -->
+      <div class="error-state" id="errorState">
+        <span class="icon-circle tone-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <h2 id="errorTitle">Acceso no válido</h2>
+        <p id="errorMsg">Este enlace no es válido o ha expirado. Contacta con soporte.</p>
+      </div>
+
+      <!-- FORMULARIO -->
+      <div class="form-state" id="formState">
+
+        <div class="gestor-info">
+          <span class="icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>
+          </span>
+          <div>
+            <div class="name" id="gestorNombre">—</div>
+            <div class="sub" id="gestorSub">Gestor · Automanize</div>
+          </div>
         </div>
-      </div>
 
-      <!-- SELECTOR DE HABITACIÓN / PISO -->
-      <div class="hab-selector">
-        <label for="habitacionSelect">Habitación / Piso</label>
-        <div class="select-wrapper">
-          <select class="field-select" id="habitacionSelect">
-            <option value="">— Seleccionar habitación —</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="file-drop" id="fileDrop">
-        <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" />
-        <div class="upload-icon">
-          <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-        </div>
-        <p>Haz clic o arrastra un archivo</p>
-        <span class="file-hint">Formatos soportados: PDF, PNG, JPG (Máx. 10MB)</span>
-      </div>
-
-      <div class="file-selected" id="fileSelected">
-        <span>📄</span>
-        <span class="file-name" id="fileName"></span>
-        <button class="file-remove" id="fileRemove">✕</button>
-      </div>
-
-      <div class="fields-row">
-        <div>
-          <label for="periodoSelect">Período</label>
+        <!-- SELECTOR DE HABITACIÓN / PISO -->
+        <div class="field-group">
+          <label for="habitacionSelect">Habitación / Piso</label>
           <div class="select-wrapper">
-            <select class="field-select" id="periodoSelect">
-              <option value="">— Seleccionar —</option>
+            <select class="field-select" id="habitacionSelect">
+              <option value="">— Seleccionar habitación —</option>
             </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
           </div>
         </div>
-        <div>
-          <label for="importeInput">Importe (€)</label>
-          <div class="input-prefix-wrapper">
-            <span class="input-prefix">€</span>
-            <input class="field-input" type="number" id="importeInput" placeholder="0.00" min="0" step="0.01" />
+
+        <div class="field-group">
+          <label>Comprobante</label>
+          <div class="file-drop" id="fileDrop">
+            <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" />
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+            </div>
+            <p>Haz clic o arrastra un archivo</p>
+            <span class="file-hint">PDF, PNG o JPG · Máx. 10 MB</span>
+          </div>
+
+          <div class="file-selected" id="fileSelected">
+            <span class="file-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </span>
+            <span class="file-name" id="fileName"></span>
+            <button class="file-remove" id="fileRemove" title="Quitar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
           </div>
         </div>
+
+        <div class="fields-row">
+          <div class="field-group">
+            <label for="periodoSelect">Período</label>
+            <div class="select-wrapper">
+              <select class="field-select" id="periodoSelect">
+                <option value="">— Seleccionar —</option>
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="importeInput">Importe (€)</label>
+            <div class="input-prefix-wrapper">
+              <span class="input-prefix">€</span>
+              <input class="field-input" type="number" id="importeInput" placeholder="0.00" min="0" step="0.01" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="btnSubmit" disabled>Finalizar carga</button>
       </div>
 
-      <button class="btn-submit" id="btnSubmit" disabled>Finalizar carga</button>
+      <!-- ÉXITO -->
+      <div class="success-state" id="successState">
+        <span class="icon-circle tone-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <h2>¡Justificante enviado!</h2>
+        <p>Lo revisaremos y recibirás confirmación en breve. ¡Gracias!</p>
+      </div>
+
     </div>
 
-    <!-- ÉXITO -->
-    <div class="success-state" id="successState">
-      <div class="success-icon">✓</div>
-      <h2>¡Justificante enviado!</h2>
-      <p>Lo revisaremos y recibirás confirmación en breve. ¡Gracias!</p>
-    </div>
-
-  </div>
-
-  <div class="badges">
-    <div class="badge">
-      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-      Conexión cifrada SSL 256-bit
-    </div>
-    <div class="badge">
-      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-      GDPR Compliance
+    <div class="badges">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5l-8-3Z"/></svg>
+        Conexión cifrada SSL 256-bit
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        GDPR Compliance
+      </div>
     </div>
   </div>
 </main>
 
 <footer class="footer">
-  <span class="footer-left">Gestionado por Automanize · Nize IA</span>
-  <div class="footer-links">
-    <a href="#">Términos de servicio</a>
-    <a href="#">Política de privacidad</a>
-    <a href="#">Soporte técnico</a>
-  </div>
+  <span>Gestionado por Automanize · Nize IA</span>
 </footer>
 
 <script>
@@ -581,7 +460,7 @@
 
   if (config) {
     document.getElementById('cardTitle').textContent = config.nombre + ' · Justificante';
-    document.title = `${config.nombre} · Justificante · Invicta Rent`;
+    document.title = `${config.nombre} · Justificante · Automanize`;
   }
 
   (function poblarMeses() {
