@@ -435,7 +435,12 @@
       body: JSON.stringify(params),
     });
     if (!r.ok) { const t = await r.text(); throw new Error(`RPC ${fn}: ${r.status} ${t}`); }
-    return r.json();
+    // Las RPC que devuelven void responden 204 sin cuerpo: r.json() petaría con
+    // "Unexpected end of JSON input" aunque la escritura en BD haya ido bien
+    // (es lo que hacía que registrar_estado_webhook_formulario acabara siempre
+    // marcando el aviso como 'error' pisando el 'enviado' correcto).
+    const cuerpo = await r.text();
+    return cuerpo ? JSON.parse(cuerpo) : null;
   }
 
   // ─── State ───────────────────────────────────────────────────────────────────

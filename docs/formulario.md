@@ -19,7 +19,8 @@ Formulario wizard paso a paso que recibe un lead (persona interesada en alquilar
    ```
 2. Su enlace público es directamente: `https://automanize.com/f/<slug>`.
 3. El tenant debe tener `activo = true` (si no, `get_tenant_by_slug` no lo encuentra → error "Enlace no válido").
-4. **Necesita preguntas activas en `tenant_preguntas`** — crear un tenant nuevo NO las copia automáticamente, hay que poblarlas a mano (si no, error genérico "No hemos podido cargar el formulario"):
+4. **El match del slug es tolerante** (desde el 17 de agosto de 2026): `get_tenant_by_slug` compara ignorando mayúsculas y cualquier carácter que no sea letra o número, así que para el slug `vortex-rooms` funcionan igual `/f/vortex-rooms`, `/f/vortexrooms` y `/f/VortexRooms`. Antes el match era exacto y un enlace compartido sin el guion daba "Enlace no válido" (le pasó a VORTEX ROOMS). El match exacto siempre tiene prioridad; si dos tenants normalizan al mismo slug solo se devuelve uno, así que **los slugs deben seguir siendo únicos ya normalizados** (`vortex-rooms` y `vortexrooms` no pueden coexistir como tenants distintos).
+5. **Necesita preguntas activas en `tenant_preguntas`** — crear un tenant nuevo NO las copia automáticamente, hay que poblarlas a mano (si no, error genérico "No hemos podido cargar el formulario"):
    ```sql
    insert into tenant_preguntas (tenant_id, pregunta_id, activa, orden)
    select '<tenant_id>', id, activa_por_defecto, orden_defecto
@@ -142,6 +143,8 @@ fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {...}, body: JSON.stringify({ 
   .catch(err => registrar_estado_webhook_formulario({ p_form_token: formToken, p_status: 'error', p_error: String(err) }));
 ```
 
+**Bug corregido el 17 de agosto de 2026 — el estado se registraba siempre como `error`:** `registrar_estado_webhook_formulario` es `RETURNS void`, así que PostgREST responde `204 No Content` sin cuerpo. El helper `sbRpc` hacía `return r.json()`, que reventaba con `SyntaxError: Unexpected end of JSON input` **después** de que la BD ya hubiera guardado `'enviado'`. Ese error caía en el `.catch`, que volvía a llamar a la RPC con `'error'` y pisaba el estado correcto. Resultado: todo envío quedaba marcado como fallido aunque el aviso hubiera llegado, y en los fallos reales el mensaje `HTTP <status>` se perdía sustituido por el `SyntaxError`. Se distingue un falso positivo de un fallo real mirando `webhook_formulario_enviado_en`: solo se rellena en la rama `'enviado'`, así que si tiene fecha, el aviso sí salió. Ahora `sbRpc` lee el cuerpo con `.text()` y solo parsea si no está vacío.
+
 - `registrar_estado_webhook_formulario` (RPC, `SECURITY DEFINER`, otorgada a `anon`) escribe en `clientes.webhook_formulario_status` (`'pendiente'|'enviado'|'error'`), `webhook_formulario_error` y `webhook_formulario_enviado_en`.
 - El backend procesa el matching y registra el resultado antes de responder `ok:true`; el canal del envío de opciones depende de la configuración WhatsApp del tenant.
 - Para tenants con WhatsApp, Nize (repo `automanize-app`) muestra este estado con un banner y permite reenviar el aviso con el mismo `form_token` sin tocar la base de datos — ver `docs/CLIENTES.md` → "Reenvío de notificación WhatsApp al gestor". Para tenants solo email no hay aviso que reenviar: el gestor revisa el lead desde Nize.
@@ -152,7 +155,7 @@ fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {...}, body: JSON.stringify({ 
 
 | errorKey | Cuándo |
 |---|---|
-| `notfound` | Token no existe en la BD |
+| `notfound` | Token no existe en la BD, o (modo público) ningún tenant activo coincide con el slug ni siquiera normalizado |
 | `expired` | `form_token_expira` ya pasó |
 | `used` | `formulario_enviado = true` |
 | `generic` | Error de red u otro inesperado |
