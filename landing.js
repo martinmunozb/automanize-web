@@ -181,6 +181,90 @@
     }
   });
 
+  // --- Precios por volumen: toggle mensual/anual + pago directo por Stripe ---
+  const BACKEND_URL = 'https://backend.automanize.com';
+  let periodoActual = 'mensual';
+  let tierSeleccionado = null;
+
+  const tierToggleButtons = document.querySelectorAll('.tier-toggle-btn');
+  tierToggleButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      periodoActual = btn.dataset.periodo;
+      tierToggleButtons.forEach((b) => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('.tier-amount[data-mensual]').forEach((el) => { el.textContent = el.dataset[periodoActual]; });
+      document.querySelectorAll('.tier-period[data-mensual]').forEach((el) => { el.textContent = el.dataset[periodoActual]; });
+    });
+  });
+
+  const TIER_NOMBRES = { tier1: 'Tier 1', tier2: 'Tier 2', tier3: 'Tier 3' };
+  const pagoKicker = document.getElementById('pagoKicker');
+  document.querySelectorAll('.js-open-pago').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tierSeleccionado = btn.dataset.tier;
+      if (pagoKicker) pagoKicker.textContent = `Contratar Nize — ${TIER_NOMBRES[tierSeleccionado] || ''}`;
+    });
+  });
+
+  const pagoForm = document.getElementById('pagoForm');
+  const pagoError = document.getElementById('pagoError');
+
+  pagoForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    pagoError.textContent = '';
+
+    if (!pagoForm.checkValidity()) {
+      pagoForm.reportValidity();
+      return;
+    }
+    if (!tierSeleccionado) {
+      pagoError.textContent = 'Elige un plan antes de continuar.';
+      return;
+    }
+
+    const datos = Object.fromEntries(new FormData(pagoForm).entries());
+    const submitButton = pagoForm.querySelector('button[type="submit"]');
+    const textoOriginal = submitButton.textContent;
+    const eventId = crypto.randomUUID();
+    submitButton.disabled = true;
+    submitButton.textContent = 'Creando tu cuenta...';
+
+    try {
+      const resSignup = await fetch(TRIAL_SIGNUP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          empresa: datos.nombre,
+          telefono: datos.telefono,
+          email: datos.email,
+          nif: datos.nif,
+          website: datos.website,
+          event_id: eventId,
+          event_source_url: window.location.href,
+        }),
+      });
+      const dataSignup = await resSignup.json().catch(() => ({}));
+      if (!resSignup.ok || dataSignup.error) throw new Error(dataSignup.error || 'No se pudo crear tu cuenta.');
+
+      trackPixel('CompleteRegistration', { content_name: `Nize - pago directo ${tierSeleccionado}` }, eventId);
+
+      submitButton.textContent = 'Abriendo el pago...';
+      const resCheckout = await fetch(`${BACKEND_URL}/webhook/checkout-directo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenant_id: dataSignup.tenant_id, tier: tierSeleccionado, periodo: periodoActual }),
+      });
+      const dataCheckout = await resCheckout.json().catch(() => ({}));
+      if (!resCheckout.ok || dataCheckout.error) throw new Error(dataCheckout.error || 'No se pudo abrir el pago.');
+
+      window.location.href = dataCheckout.url;
+    } catch (err) {
+      pagoError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
+      logEvento('pago_directo_error', 'pago-form', { mensaje: pagoError.textContent, tier: tierSeleccionado });
+      submitButton.disabled = false;
+      submitButton.textContent = textoOriginal;
+    }
+  });
+
   // --- Flujo Elite Gold: datos -> situacion -> agenda en Cal.com -> WhatsApp ---
   let eliteData = {};
 
