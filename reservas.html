@@ -216,16 +216,6 @@
     .contact-block .contact-sub {
       font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.5;
     }
-    .contact-phone-link {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 22px;
-      background: #111; color: white;
-      border-radius: 9px; text-decoration: none;
-      font-size: 15px; font-weight: 700; font-family: inherit;
-      transition: background 0.15s;
-    }
-    .contact-phone-link:hover { background: #333; }
-    .contact-phone-link svg { width: 16px; height: 16px; fill: currentColor; }
 
     /* ── RESERVA ── */
     .reservation-inset {
@@ -431,12 +421,8 @@
         <div class="contact-icon">📞</div>
         <div class="contact-title">Sin disponibilidad en esta zona</div>
         <div class="contact-sub" id="contactSub">
-          No hay huecos libres en este momento.<br>Contáctanos y te buscamos una cita.
+          No hay huecos libres en este momento.<br>Déjanos tus datos y te buscamos una cita.
         </div>
-        <a id="contactLink" href="#" class="contact-phone-link">
-          <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
-          <span id="contactPhoneText">Contactar</span>
-        </a>
 
         <div id="noAvailForm" style="margin-top:16px;text-align:left">
           <div style="margin-bottom:8px">
@@ -444,6 +430,9 @@
           </div>
           <div style="margin-bottom:8px">
             <input type="tel" id="noAvailTelefono" placeholder="Tu teléfono" />
+          </div>
+          <div style="margin-bottom:8px">
+            <input type="email" id="noAvailEmail" placeholder="Tu email" />
           </div>
           <div style="margin-bottom:8px">
             <textarea id="noAvailMensaje" rows="3" style="width:100%;padding:11px 13px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;color:#111;resize:vertical"></textarea>
@@ -543,7 +532,6 @@
   let selectedDay = null;
   let selectedInmuebles = []; // inmuebles elegidos en el picker (1..N)
   let allDaySlots = [];       // huecos completos del día cargado
-  let contactPhone = null;
   let selectedPrefix = '34';
   let calYear = new Date().getFullYear();
   let calMonth = new Date().getMonth();
@@ -651,18 +639,10 @@
     if (!tenantId || !UUID_REGEX.test(tenantId)) return;
 
     // Solo cargamos fecha+zona para el calendario (evita el límite de 1000 filas)
-    const [phoneRes, datesRes] = await Promise.all([
-      db.rpc('get_tenant_contact_phone', { p_tenant_id: tenantId }),
-      db.from('slots_disponibilidad')
-        .select('fecha, zona')
-        .eq('tenant_id', tenantId).eq('reservado', false)
-        .range(0, 49999)
-    ]);
-
-    if (phoneRes.data) {
-      contactPhone = String(phoneRes.data);
-      updateContactBlock();
-    }
+    const datesRes = await db.from('slots_disponibilidad')
+      .select('fecha, zona')
+      .eq('tenant_id', tenantId).eq('reservado', false)
+      .range(0, 49999);
 
     if (datesRes.error) {
       document.getElementById('zonasWrap').innerHTML = '';
@@ -674,21 +654,6 @@
     renderZonas();
   }
 
-  function updateContactBlock() {
-    if (!contactPhone) return;
-    const formatted = formatPhone(contactPhone);
-    document.getElementById('contactPhoneText').textContent = formatted;
-    document.getElementById('contactLink').href = 'tel:' + contactPhone;
-    document.getElementById('contactSub').innerHTML =
-      'No hay huecos libres en este momento.<br>Contáctanos y te buscamos una cita.';
-  }
-
-  function formatPhone(raw) {
-    const s = String(raw).replace(/\D/g, '');
-    if (s.length === 9) return '+34 ' + s.slice(0,3) + ' ' + s.slice(3,6) + ' ' + s.slice(6);
-    if (s.length === 11 && s.startsWith('34')) return '+' + s.slice(0,2) + ' ' + s.slice(2,5) + ' ' + s.slice(5,8) + ' ' + s.slice(8);
-    return '+' + s;
-  }
 
   const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const DOW_SHORT = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
@@ -913,10 +878,6 @@
   function showNoSlotsState(zona) {
     document.getElementById('calendarField').style.display = zona ? '' : 'none';
     document.getElementById('contactBlock').classList.add('show');
-    if (!contactPhone) {
-      document.getElementById('contactLink').style.display = 'none';
-      document.getElementById('contactSub').textContent = 'No hay huecos disponibles en este momento. Inténtalo más tarde.';
-    }
     resetNoAvailabilityForm(zona);
   }
 
@@ -925,6 +886,7 @@
     document.getElementById('noAvailOk').style.display = 'none';
     document.getElementById('noAvailNombre').value = '';
     document.getElementById('noAvailTelefono').value = '';
+    document.getElementById('noAvailEmail').value = '';
     const defaultMsg = zona
       ? `Hola, buenas. Estoy interesado/a en la zona de ${zona}, pero no me aparece disponibilidad para agendar la visita. ¿Podéis contactarme?`
       : 'Hola, buenas. Estoy interesado/a en este piso, pero no me aparece disponibilidad para agendar la visita. ¿Podéis contactarme?';
@@ -937,8 +899,9 @@
   async function submitNoAvailabilityMessage() {
     const nombre = document.getElementById('noAvailNombre').value.trim();
     const telefono = document.getElementById('noAvailTelefono').value.trim();
+    const email = document.getElementById('noAvailEmail').value.trim();
     const mensaje = document.getElementById('noAvailMensaje').value.trim();
-    if (!mensaje) return;
+    if (!nombre || !telefono || !email || !mensaje) { showErr('Completa todos los campos'); return; }
 
     const btn = document.getElementById('noAvailBtn');
     btn.disabled = true;
@@ -950,9 +913,10 @@
         p_tenant_id: tenantId,
         p_zona: selectedZona,
         p_inmuebles_ids: inmuebles.length ? inmuebles : null,
-        p_nombre: nombre || null,
-        p_telefono: telefono || null,
-        p_mensaje: mensaje
+        p_nombre: nombre,
+        p_telefono: telefono,
+        p_mensaje: mensaje,
+        p_email: email
       });
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || 'Error al enviar el mensaje.');
