@@ -172,41 +172,6 @@
             </div>
           </article>
         </div>
-
-        <div class="tier-heading">
-          <div><p class="section-kicker">Precios de Nize Premium</p><h3>Paga según el volumen que gestionas.</h3></div>
-          <div class="tier-toggle" role="group" aria-label="Periodo de pago">
-            <button type="button" class="tier-toggle-btn is-active" data-periodo="mensual">Mensual</button>
-            <button type="button" class="tier-toggle-btn" data-periodo="anual">Anual <span class="tier-save">2 meses gratis</span></button>
-          </div>
-        </div>
-        <div class="tier-grid">
-          <article class="tier-card">
-            <p class="plan-tag">Hasta 3 pisos · 17 habitaciones</p>
-            <h4>Gratis</h4>
-            <p class="tier-price"><span class="tier-amount">0€</span></p>
-            <button class="button button-ghost button-block js-open-cta" type="button" data-goto="trial-form">Probar gratis</button>
-          </article>
-          <article class="tier-card">
-            <p class="plan-tag">Hasta 50 habitaciones</p>
-            <h4>Tier 1</h4>
-            <p class="tier-price"><span class="tier-amount" data-mensual="75€" data-anual="750€">75€</span><span class="tier-period" data-mensual="/mes" data-anual="/año">/mes</span></p>
-            <button class="button button-primary button-block js-open-cta js-open-pago" type="button" data-goto="pago-form" data-tier="tier1">Contratar Tier 1</button>
-          </article>
-          <article class="tier-card">
-            <p class="plan-tag">Hasta 200 habitaciones</p>
-            <h4>Tier 2</h4>
-            <p class="tier-price"><span class="tier-amount" data-mensual="135€" data-anual="1.350€">135€</span><span class="tier-period" data-mensual="/mes" data-anual="/año">/mes</span></p>
-            <button class="button button-primary button-block js-open-cta js-open-pago" type="button" data-goto="pago-form" data-tier="tier2">Contratar Tier 2</button>
-          </article>
-          <article class="tier-card">
-            <p class="plan-tag">Hasta 400 habitaciones</p>
-            <h4>Tier 3</h4>
-            <p class="tier-price"><span class="tier-amount" data-mensual="207€" data-anual="2.070€">207€</span><span class="tier-period" data-mensual="/mes" data-anual="/año">/mes</span></p>
-            <button class="button button-primary button-block js-open-cta js-open-pago" type="button" data-goto="pago-form" data-tier="tier3">Contratar Tier 3</button>
-          </article>
-        </div>
-        <p class="tier-note">¿Más de 400 habitaciones, o quieres el asistente de WhatsApp incluido? <button type="button" class="js-open-cta tier-note-link" data-goto="elite-1">Habla con nosotros</button>.</p>
       </div>
     </section>
 
@@ -266,21 +231,6 @@
           <div class="honeypot" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
           <p class="form-error" id="trialError"></p>
           <button type="submit" class="button button-primary button-block">Solicitar demo y descargar</button>
-        </form>
-      </div>
-
-      <div class="modal-screen" data-screen="pago-form" hidden>
-        <p class="section-kicker" id="pagoKicker">Contratar Nize</p>
-        <h2>Crea tu cuenta y paga.</h2>
-        <p class="modal-copy">Accedes ya sin límite de tiempo, sin esperar los 7 días de prueba. Te llevamos a un pago seguro con Stripe.</p>
-        <form id="pagoForm" class="modal-form" novalidate>
-          <label>Nombre y apellidos<input type="text" name="nombre" required autocomplete="name" maxlength="80" placeholder="Tu nombre" /></label>
-          <label>Correo electrónico<input type="email" name="email" required autocomplete="email" maxlength="120" placeholder="tucorreo@ejemplo.com" /></label>
-          <label>Teléfono<input type="tel" name="telefono" required autocomplete="tel" inputmode="tel" placeholder="+34 600 00 00 00" /></label>
-          <label>NIF / DNI<input type="text" name="nif" required maxlength="12" autocomplete="off" placeholder="12345678A" /></label>
-          <div class="honeypot" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
-          <p class="form-error" id="pagoError"></p>
-          <button type="submit" class="button button-primary button-block">Ir al pago seguro</button>
         </form>
       </div>
 

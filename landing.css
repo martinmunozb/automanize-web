@@ -23,25 +23,6 @@
 .bonus-kicker::before{content:"★";font-size:11px}
 .stamp-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
 .stamp{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px solid #c9973a;border-radius:8px;background:#fff9e8;color:#7a5410;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;transform:rotate(-1.1deg)}
-
-/* Tabla de precios por volumen (Gratis + Tier 1/2/3) dentro de #planes */
-.tier-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:64px 0 28px;flex-wrap:wrap}
-.tier-heading h3{margin:8px 0 0;font-size:clamp(26px,3vw,34px);letter-spacing:-.04em}
-.tier-toggle{display:inline-flex;padding:4px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
-.tier-toggle-btn{padding:9px 16px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s,color .2s}
-.tier-toggle-btn.is-active{background:var(--accent);color:#17130a}
-.tier-save{padding:2px 7px;border-radius:999px;background:#181712;color:#ffd98a;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
-.tier-toggle-btn.is-active .tier-save{background:#17130a;color:#ffd98a}
-.tier-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.tier-card{padding:26px 22px;border:1px solid var(--line);border-radius:15px;background:var(--surface);text-align:left}
-.tier-card h4{margin:6px 0 14px;font-size:21px;letter-spacing:-.03em}
-.tier-price{margin:0 0 18px;display:flex;align-items:baseline;gap:2px}
-.tier-amount{font-size:30px;font-weight:700;letter-spacing:-.03em}
-.tier-period{color:var(--muted);font-size:13px}
-.tier-note{margin:26px 0 0;text-align:center;color:var(--muted);font-size:13px}
-.tier-note-link{border:0;background:none;padding:0;color:var(--ink);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
-@media(max-width:900px){.tier-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.tier-grid{grid-template-columns:1fr}.tier-heading{flex-direction:column;align-items:flex-start}}
 .stamp:nth-child(even){transform:rotate(1deg)}
 .stamp::before{content:"✓";display:inline-flex;flex:0 0 auto;width:15px;height:15px;align-items:center;justify-content:center;border-radius:50%;background:#c9973a;color:#fff;font-size:9px;font-weight:800}
 
