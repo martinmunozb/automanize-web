@@ -7,7 +7,7 @@
   const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
   const BACKEND_URL = 'https://backend.automanize.com';
 
-  const TIER_NOMBRES = { tier1: 'Tier 1', tier2: 'Tier 2', tier3: 'Tier 3' };
+  const TIER_NOMBRES = { tier1: 'Plus', tier2: 'Pro', tier3: 'Elite' };
   let periodoActual = 'mensual';
   let tierSeleccionado = null;
 
