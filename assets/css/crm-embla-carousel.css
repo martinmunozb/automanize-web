@@ -1,0 +1,651 @@
+/* ==========================================================================
+   CRM · Galería de capturas — Embla Carousel (patrón "Thumbs")
+   Carrusel principal + tira de miniaturas sincronizada.
+   Embla Carousel v8.6.0 (MIT) vendorizado en assets/js/embla-carousel.umd.js
+   ========================================================================== */
+
+.crm-stories {
+    --story-accent: #ffb300;
+    padding: 4.75rem 0 3.75rem;
+    background: linear-gradient(135deg, rgba(255, 249, 224, 0.38), rgba(244, 250, 252, 0.62));
+    overflow: hidden;
+}
+
+/* ── Encabezado de sección ────────────────────────────────────────────── */
+
+.crm-stories__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
+    column-gap: clamp(2rem, 6vw, 6rem);
+    align-items: end;
+    width: min(1200px, calc(100% - 3rem));
+    margin: 0 auto;
+}
+
+.crm-stories__eyebrow {
+    grid-column: 1 / -1;
+    display: block;
+    margin-bottom: 0.8rem;
+    color: var(--story-accent);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+}
+
+.crm-stories__heading h2 {
+    max-width: 700px;
+    margin: 0;
+    color: #111;
+    font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1.04;
+    letter-spacing: 0;
+}
+
+.crm-stories__intro {
+    max-width: 31rem;
+    margin: 0 0 0.18rem;
+    color: #777;
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+/* ── Carrusel principal ───────────────────────────────────────────────── */
+
+.crm-embla {
+    --slide-spacing: 1.25rem;
+    --slide-size: 100%;
+    width: min(1200px, calc(100% - 3rem));
+    margin: 2.25rem auto 0;
+}
+
+.crm-embla__viewport {
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+/* Sin JS el carrusel degrada a scroll horizontal nativo con snap. */
+.crm-embla:not(.is-ready) .crm-embla__viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.crm-embla:not(.is-ready) .crm-embla__viewport::-webkit-scrollbar {
+    display: none;
+}
+
+.crm-embla:not(.is-ready) .crm-embla__slide {
+    scroll-snap-align: start;
+}
+
+.crm-embla__container {
+    display: flex;
+    touch-action: pan-y pinch-zoom;
+    margin-left: calc(var(--slide-spacing) * -1);
+}
+
+.crm-embla__slide {
+    flex: 0 0 var(--slide-size);
+    min-width: 0;
+    padding-left: var(--slide-spacing);
+    transform: translate3d(0, 0, 0);
+}
+
+.crm-embla__figure {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #0a0713;
+    cursor: pointer;
+    isolation: isolate;
+    text-align: left;
+    box-shadow: 0 18px 46px rgba(17, 17, 17, 0.14);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.crm-embla__figure img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.7;
+    object-fit: cover;
+    object-position: center top;
+    user-select: none;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-user-drag: none;
+}
+
+.crm-embla__figure:hover img,
+.crm-embla__figure:focus-visible img {
+    transform: scale(1.02);
+}
+
+.crm-embla__figure::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    /* Aísla el rótulo del contenido de la captura, que puede ser muy claro. */
+    background: linear-gradient(180deg,
+        transparent 38%,
+        rgba(6, 0, 16, 0.30) 62%,
+        rgba(6, 0, 16, 0.72) 82%,
+        rgba(6, 0, 16, 0.94) 100%);
+    content: "";
+}
+
+.crm-embla__caption {
+    position: absolute;
+    left: clamp(16px, 2.2vw, 26px);
+    right: clamp(16px, 2.2vw, 26px);
+    bottom: clamp(14px, 2vw, 22px);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    color: #fff;
+    pointer-events: none;
+}
+
+.crm-embla__caption::before {
+    flex: 0 0 auto;
+    width: 3px;
+    height: 42px;
+    border-radius: 3px;
+    background: var(--story-accent);
+    box-shadow: 0 0 14px rgba(255, 179, 0, 0.42);
+    content: "";
+}
+
+.crm-embla__caption-text {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: auto;
+    margin-left: 14px;
+}
+
+.crm-embla__index {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+}
+
+.crm-embla__name {
+    color: #fff;
+    font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+    font-weight: 900;
+    line-height: 1.1;
+    text-shadow: 0 1px 12px rgba(6, 0, 16, 0.55);
+}
+
+.crm-embla__summary {
+    margin-top: 0.25rem;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.crm-embla__open {
+    display: grid;
+    flex: 0 0 auto;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 50%;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-size: 1rem;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.crm-embla__figure:hover .crm-embla__open {
+    background: var(--story-accent);
+    color: #111;
+    transform: translate(2px, -2px);
+}
+
+/* ── Controles: flechas + contador + progreso ─────────────────────────── */
+
+.crm-embla__controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.15rem;
+}
+
+.crm-embla__buttons {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.6rem;
+}
+
+.crm-embla__button {
+    display: grid;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    place-items: center;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(17, 17, 17, 0.12);
+    transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.crm-embla__button:hover:not(:disabled) {
+    background: var(--story-accent);
+    color: #111;
+}
+
+.crm-embla__button:disabled {
+    cursor: default;
+    opacity: 0.3;
+}
+
+.crm-embla__progress {
+    position: relative;
+    flex: 1 1 auto;
+    height: 3px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: rgba(17, 17, 17, 0.1);
+}
+
+.crm-embla__progress-bar {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border-radius: 99px;
+    background: var(--story-accent);
+    transform: scaleX(0.1);
+    transform-origin: left center;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.crm-embla__counter {
+    flex: 0 0 auto;
+    color: #777;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+}
+
+.crm-embla__counter strong {
+    color: #111;
+}
+
+/* ── Tira de miniaturas ───────────────────────────────────────────────── */
+
+.crm-embla-thumbs {
+    --thumbs-spacing: 0.7rem;
+    margin-top: 1.15rem;
+}
+
+.crm-embla-thumbs__viewport {
+    overflow: hidden;
+}
+
+.crm-embla-thumbs__container {
+    display: flex;
+    flex-direction: row;
+    margin-left: calc(var(--thumbs-spacing) * -1);
+}
+
+.crm-embla-thumbs__slide {
+    flex: 0 0 16.5%;
+    min-width: 0;
+    padding-left: var(--thumbs-spacing);
+}
+
+.crm-embla-thumbs__button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.crm-embla-thumbs__frame {
+    position: relative;
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0a0713;
+    box-shadow: 0 4px 14px rgba(17, 17, 17, 0.1);
+}
+
+.crm-embla-thumbs__frame::after {
+    position: absolute;
+    inset: 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    pointer-events: none;
+    transition: border-color 0.2s ease;
+    content: "";
+}
+
+.crm-embla-thumbs__button img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.7;
+    object-fit: cover;
+    object-position: center top;
+    opacity: 0.45;
+    filter: grayscale(1);
+    transition: opacity 0.25s ease, filter 0.25s ease;
+    -webkit-user-drag: none;
+}
+
+.crm-embla-thumbs__label {
+    display: block;
+    margin-top: 0.45rem;
+    overflow: hidden;
+    color: #999;
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.25s ease;
+}
+
+.crm-embla-thumbs__button:hover img {
+    opacity: 0.8;
+    filter: grayscale(0.35);
+}
+
+.crm-embla-thumbs__button.is-selected img {
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+.crm-embla-thumbs__button.is-selected .crm-embla-thumbs__frame::after {
+    border-color: var(--story-accent);
+}
+
+.crm-embla-thumbs__button.is-selected .crm-embla-thumbs__label {
+    color: #111;
+}
+
+.crm-embla__figure:focus-visible,
+.crm-embla__button:focus-visible,
+.crm-embla-thumbs__button:focus-visible,
+.crm-story-modal__close:focus-visible {
+    outline: 3px solid var(--story-accent);
+    outline-offset: 3px;
+}
+
+/* ── Modal de detalle (compartido con los enlaces "Ver pantalla real") ── */
+
+.crm-story-modal[hidden] {
+    display: none;
+}
+
+.crm-story-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    padding: 2.5rem 1.5rem;
+    overflow-y: auto;
+}
+
+.crm-story-modal__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(12px);
+    animation: crm-fade-in 0.2s ease both;
+}
+
+.crm-story-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: min(960px, 100%);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+    border-radius: 2rem;
+    background: #fff;
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.28);
+    animation: crm-modal-in 0.38s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes crm-fade-in {
+    from { opacity: 0; }
+}
+
+@keyframes crm-modal-in {
+    from { opacity: 0; transform: translateY(22px) scale(0.98); }
+}
+
+.crm-story-modal__close {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    place-items: center;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+}
+
+.crm-story-modal__close .material-symbols-outlined {
+    font-size: 1.25rem;
+}
+
+.crm-story-modal__category {
+    margin: 0 0 0.75rem;
+    color: #777;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.crm-story-modal h2 {
+    max-width: 760px;
+    margin: 0;
+    color: #111;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.03;
+    letter-spacing: 0;
+    text-wrap: balance;
+}
+
+.crm-story-modal__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-top: 2.5rem;
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    border-radius: 1.5rem;
+    background: #f5f5f7;
+}
+
+.crm-story-modal__lead {
+    margin: 0;
+    color: #595959;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.55;
+}
+
+.crm-story-modal__list {
+    display: grid;
+    gap: 0.8rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.crm-story-modal__list li {
+    position: relative;
+    padding-left: 1.4rem;
+    color: #222;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.crm-story-modal__list li::before {
+    position: absolute;
+    top: 0.52rem;
+    left: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--story-accent);
+    content: "";
+}
+
+.crm-story-modal__media {
+    width: 100%;
+    height: auto;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: #e9e9eb;
+}
+
+.crm-story-modal__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: unset;
+}
+
+body.crm-modal-open {
+    overflow: hidden;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+    .crm-embla-thumbs__slide {
+        flex: 0 0 22%;
+    }
+}
+
+@media (max-width: 767px) {
+    .crm-stories {
+        padding: 3.75rem 0 3rem;
+    }
+
+    .crm-stories__heading,
+    .crm-embla {
+        width: calc(100% - 2rem);
+    }
+
+    .crm-stories__heading {
+        grid-template-columns: 1fr;
+    }
+
+    .crm-stories__eyebrow {
+        grid-column: auto;
+    }
+
+    .crm-stories__intro {
+        margin-top: 0.9rem;
+        font-size: 0.84rem;
+        line-height: 1.5;
+    }
+
+    .crm-embla {
+        --slide-spacing: 0.85rem;
+        margin-top: 1.75rem;
+    }
+
+    .crm-embla__viewport {
+        border-radius: 16px;
+    }
+
+    .crm-embla__figure {
+        border-radius: 14px;
+    }
+
+    .crm-embla__caption::before {
+        height: 34px;
+    }
+
+    .crm-embla__summary {
+        display: none;
+    }
+
+    .crm-embla__controls {
+        gap: 0.75rem;
+        margin-top: 0.9rem;
+    }
+
+    .crm-embla__button {
+        width: 2.35rem;
+        height: 2.35rem;
+    }
+
+    .crm-embla-thumbs__slide {
+        flex: 0 0 33%;
+    }
+
+    .crm-embla-thumbs__label {
+        font-size: 0.66rem;
+    }
+
+    .crm-story-modal {
+        padding: 1rem;
+    }
+
+    .crm-story-modal__panel {
+        min-height: calc(100vh - 2rem);
+        border-radius: 1.5rem;
+    }
+
+    .crm-story-modal__content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 419px) {
+    .crm-embla-thumbs__slide {
+        flex: 0 0 42%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .crm-embla__figure img,
+    .crm-embla__open,
+    .crm-embla__progress-bar,
+    .crm-embla-thumbs__button img,
+    .crm-embla-thumbs__label,
+    .crm-story-modal__backdrop,
+    .crm-story-modal__panel {
+        transition: none;
+        animation: none;
+    }
+
+    .crm-embla__figure:hover img,
+    .crm-embla__figure:focus-visible img {
+        transform: none;
+    }
+}

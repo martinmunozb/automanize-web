@@ -1,3 +1,11 @@
+/* ==========================================================================
+   CRM · Galería de capturas — Embla Carousel (patrón "Thumbs")
+   Puerto a JS nativo del componente React "Embla Carousel Thumbs".
+   El paquete embla-carousel-react es solo un hook alrededor de este mismo
+   core (EmblaCarousel), por lo que el comportamiento es idéntico sin
+   necesidad de React ni de un paso de build en un sitio estático.
+   ========================================================================== */
+
 (function () {
     "use strict";
 
@@ -84,121 +92,37 @@
         }
     };
 
-    var carousel = document.querySelector("[data-crm-carousel]");
+    var root = document.querySelector("[data-crm-embla]");
     var modal = document.querySelector("[data-crm-modal]");
-    if (!carousel || !modal) return;
+    if (!root || !modal) return;
 
-    var track = carousel.querySelector("[data-crm-track]");
-    var cards = Array.prototype.slice.call(carousel.querySelectorAll("[data-story]"));
-    var previousButton = carousel.querySelector("[data-crm-prev]");
-    var nextButton = carousel.querySelector("[data-crm-next]");
+    var mainNode = root.querySelector("[data-embla-main]");
+    var thumbsNode = root.querySelector("[data-embla-thumbs]");
+    var figures = Array.prototype.slice.call(root.querySelectorAll("[data-story]"));
+    var thumbButtons = Array.prototype.slice.call(root.querySelectorAll("[data-embla-thumb]"));
+    var prevButton = root.querySelector("[data-embla-prev]");
+    var nextButton = root.querySelector("[data-embla-next]");
+    var progressBar = root.querySelector("[data-embla-progress]");
+    var counterCurrent = root.querySelector("[data-embla-current]");
+
     var panel = modal.querySelector(".crm-story-modal__panel");
     var category = modal.querySelector("[data-modal-category]");
     var title = modal.querySelector("[data-modal-title]");
     var lead = modal.querySelector("[data-modal-lead]");
     var list = modal.querySelector("[data-modal-list]");
     var image = modal.querySelector("[data-modal-image]");
-    var gsap = window.gsap;
-    var active = Math.min(2, cards.length - 1);
-    var firstRun = true;
+
     var lastTrigger = null;
-    var timeline = null;
-    var mediaSize = 420;
-    var prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var mainApi = null;
+    var thumbsApi = null;
 
-    function isVertical() {
-        return window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
-    }
-
-    function activeGrow() {
-        var ratio = 0.52;
-        return cards.length > 1 ? (ratio * (cards.length - 1)) / (1 - ratio) : 1;
-    }
-
-    function setImmediate(card, img, footer, isActive, index) {
-        var vertical = isVertical();
-        var rotate = isActive ? 0 : index < active ? 8 : -8;
-        var drift = Math.max(-1.5, Math.min(1.5, active - index)) * 0.5 * mediaSize * 0.06;
-        card.style.flexGrow = isActive ? activeGrow() : 1;
-        card.style.transform = vertical ? "rotateX(" + -rotate + "deg)" : "rotateY(" + rotate + "deg)";
-        card.style.setProperty("--ag-dim", isActive ? "0" : "0.35");
-        img.style.setProperty("--ag-gray", isActive ? "0" : "1");
-        img.style.transform = "translate(-50%, -50%) translate(" + (vertical ? 0 : drift) + "px, " + (vertical ? drift : 0) + "px)";
-        footer.style.opacity = isActive ? "1" : "0";
-        footer.style.transform = isActive ? "translateX(0)" : "translateX(-14px)";
-    }
-
-    function applyLayout(animate) {
-        if (!cards.length) return;
-        if (timeline) timeline.kill();
-
-        var duration = animate && !prefersReduced ? 0.6 : 0;
-        var vertical = isVertical();
-        timeline = gsap && !prefersReduced ? gsap.timeline() : null;
-
-        cards.forEach(function (card, index) {
-            var isActive = index === active;
-            var img = card.querySelector("img");
-            var footer = card.querySelector(".crm-story__footer");
-            var rotate = isActive ? 0 : index < active ? 8 : -8;
-            var drift = Math.max(-1.5, Math.min(1.5, active - index)) * 0.5 * mediaSize * 0.06;
-
-            card.classList.toggle("crm-story--active", isActive);
-            card.setAttribute("aria-current", isActive ? "true" : "false");
-            card.style.setProperty("--ag-dim", isActive ? "0" : "0.35");
-
-            if (!timeline || !img || !footer) {
-                if (img && footer) setImmediate(card, img, footer, isActive, index);
-                return;
-            }
-
-            timeline.to(card, {
-                flexGrow: isActive ? activeGrow() : 1,
-                rotateX: vertical ? -rotate : 0,
-                rotateY: vertical ? 0 : rotate,
-                duration: duration,
-                ease: "power3.out"
-            }, 0);
-
-            timeline.to(img, {
-                xPercent: -50,
-                yPercent: -50,
-                x: vertical ? 0 : drift,
-                y: vertical ? drift : 0,
-                "--ag-gray": isActive ? 0 : 1,
-                duration: duration,
-                ease: "power3.out"
-            }, 0);
-
-            timeline.to(footer, {
-                opacity: isActive ? 1 : 0,
-                x: isActive ? 0 : -14,
-                duration: isActive ? duration : duration * 0.6,
-                ease: "power3.out"
-            }, 0);
-        });
-    }
-
-    function measure() {
-        var rect = track.getBoundingClientRect();
-        var total = isVertical() ? Math.max(rect.height, 860) : rect.width;
-        var usable = Math.max(total - 10 * (cards.length - 1), 120);
-        mediaSize = Math.max(180, usable * 0.52 * 1.22);
-        track.style.setProperty("--ag-media-size", mediaSize + "px");
-        applyLayout(!firstRun);
-        firstRun = false;
-    }
-
-    function setActive(index, animate) {
-        active = (index + cards.length) % cards.length;
-        applyLayout(animate !== false);
-    }
+    /* ── Modal ─────────────────────────────────────────────────────────── */
 
     function openStory(key, trigger) {
         var story = stories[key];
         if (!story) return;
 
-        lastTrigger = trigger;
+        lastTrigger = trigger || null;
         category.textContent = story.category;
         title.textContent = story.title;
         lead.textContent = story.lead;
@@ -215,56 +139,12 @@
         panel.focus();
     }
 
-    function revealStory(key, trigger) {
-        var card = carousel.querySelector('[data-story="' + key + '"]');
-        var index = cards.indexOf(card);
-        if (!card || index < 0) return;
-
-        setActive(index, true);
-        card.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
-        openStory(key, trigger);
-    }
-
     function closeStory() {
         if (modal.hidden) return;
         modal.hidden = true;
         document.body.classList.remove("crm-modal-open");
         if (lastTrigger) lastTrigger.focus();
     }
-
-    cards.forEach(function (card, index) {
-        card.addEventListener("mouseenter", function () { setActive(index, true); });
-        card.addEventListener("focus", function () { setActive(index, true); });
-        card.addEventListener("click", function (event) {
-            if (index !== active) {
-                event.preventDefault();
-                setActive(index, true);
-                return;
-            }
-            openStory(card.getAttribute("data-story"), card);
-        });
-        card.addEventListener("keydown", function (event) {
-            if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-                event.preventDefault();
-                setActive(index + 1, true);
-                cards[active].focus();
-            } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-                event.preventDefault();
-                setActive(index - 1, true);
-                cards[active].focus();
-            }
-        });
-    });
-
-    if (previousButton) previousButton.addEventListener("click", function () { setActive(active - 1, true); });
-    if (nextButton) nextButton.addEventListener("click", function () { setActive(active + 1, true); });
-
-    document.querySelectorAll("[data-open-story]").forEach(function (link) {
-        link.addEventListener("click", function (event) {
-            event.preventDefault();
-            revealStory(link.getAttribute("data-open-story"), link);
-        });
-    });
 
     modal.querySelectorAll("[data-crm-close]").forEach(function (control) {
         control.addEventListener("click", closeStory);
@@ -275,6 +155,7 @@
         if (modal.hidden || event.key !== "Tab") return;
 
         var focusable = modal.querySelectorAll("button:not([disabled]), [href], [tabindex]:not([tabindex='-1'])");
+        if (!focusable.length) return;
         var first = focusable[0];
         var last = focusable[focusable.length - 1];
         if (event.shiftKey && document.activeElement === first) {
@@ -286,10 +167,146 @@
         }
     });
 
-    if ("ResizeObserver" in window) {
-        new ResizeObserver(measure).observe(track);
-    } else {
-        window.addEventListener("resize", measure);
+    /* ── Carrusel ──────────────────────────────────────────────────────── */
+
+    function goTo(index) {
+        if (mainApi) mainApi.scrollTo(index);
     }
-    measure();
+
+    function selectedIndex() {
+        return mainApi ? mainApi.selectedScrollSnap() : 0;
+    }
+
+    function pad(value) {
+        return value < 10 ? "0" + value : String(value);
+    }
+
+    function onSelect() {
+        var index = selectedIndex();
+        var total = figures.length;
+
+        if (thumbsApi) thumbsApi.scrollTo(index);
+
+        thumbButtons.forEach(function (button, i) {
+            var isSelected = i === index;
+            button.classList.toggle("is-selected", isSelected);
+            button.setAttribute("aria-current", isSelected ? "true" : "false");
+        });
+
+        figures.forEach(function (figure, i) {
+            // Solo la lámina visible es alcanzable con teclado.
+            figure.tabIndex = i === index ? 0 : -1;
+        });
+
+        if (counterCurrent) counterCurrent.textContent = pad(index + 1);
+        if (progressBar && total) {
+            progressBar.style.transform = "scaleX(" + ((index + 1) / total) + ")";
+        }
+
+        if (prevButton && mainApi) prevButton.disabled = !mainApi.canScrollPrev();
+        if (nextButton && mainApi) nextButton.disabled = !mainApi.canScrollNext();
+    }
+
+    function revealStory(key, trigger) {
+        var figure = root.querySelector('[data-story="' + key + '"]');
+        var index = figures.indexOf(figure);
+        if (!figure || index < 0) return;
+
+        goTo(index);
+        root.scrollIntoView({ block: "center", behavior: "smooth" });
+        openStory(key, trigger);
+    }
+
+    document.querySelectorAll("[data-open-story]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            revealStory(link.getAttribute("data-open-story"), link);
+        });
+    });
+
+    // Embla v8 no expone clickAllowed(), así que descartamos el clic que cierra
+    // un arrastre para que deslizar no abra el modal ni salte de lámina.
+    // En fase de captura: se ejecuta antes que los manejadores de los hijos.
+    function preventClickAfterDrag(node) {
+        var startX = 0;
+        var startY = 0;
+        var pressed = false;
+        var dragged = false;
+        var THRESHOLD = 6;
+
+        node.addEventListener("pointerdown", function (event) {
+            startX = event.clientX;
+            startY = event.clientY;
+            pressed = true;
+            dragged = false;
+        });
+
+        node.addEventListener("pointermove", function (event) {
+            if (!pressed) return;
+            if (Math.abs(event.clientX - startX) > THRESHOLD || Math.abs(event.clientY - startY) > THRESHOLD) {
+                dragged = true;
+            }
+        });
+
+        node.addEventListener("pointerup", function () { pressed = false; });
+        node.addEventListener("pointercancel", function () { pressed = false; dragged = false; });
+
+        node.addEventListener("click", function (event) {
+            if (!dragged) return;
+            event.preventDefault();
+            event.stopPropagation();
+        }, true);
+    }
+
+    figures.forEach(function (figure) {
+        figure.addEventListener("click", function () {
+            openStory(figure.getAttribute("data-story"), figure);
+        });
+    });
+
+    if (typeof window.EmblaCarousel !== "function" || !mainNode || !thumbsNode) {
+        // Sin la librería el carrusel queda como scroll horizontal nativo:
+        // el modal y los enlaces "Ver pantalla real" siguen funcionando.
+        return;
+    }
+
+    mainApi = window.EmblaCarousel(mainNode, {
+        loop: false,
+        align: "start",
+        skipSnaps: false,
+        containScroll: "trimSnaps"
+    });
+
+    thumbsApi = window.EmblaCarousel(thumbsNode, {
+        containScroll: "keepSnaps",
+        dragFree: true,
+        align: "start"
+    });
+
+    root.classList.add("is-ready");
+
+    preventClickAfterDrag(mainNode);
+    preventClickAfterDrag(thumbsNode);
+
+    thumbButtons.forEach(function (button, index) {
+        button.addEventListener("click", function () {
+            goTo(index);
+        });
+    });
+
+    if (prevButton) prevButton.addEventListener("click", function () { mainApi.scrollPrev(); });
+    if (nextButton) nextButton.addEventListener("click", function () { mainApi.scrollNext(); });
+
+    mainNode.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            mainApi.scrollNext();
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            mainApi.scrollPrev();
+        }
+    });
+
+    mainApi.on("select", onSelect).on("reInit", onSelect);
+    onSelect();
 })();
