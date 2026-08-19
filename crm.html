@@ -215,8 +215,7 @@
     <meta name="twitter:image" content="https://automanize.com/assets/images/automanize-og-image.png" />
     <link rel="stylesheet" href="assets/css/automanize-theme.css" />
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
-    <link rel="stylesheet" href="assets/css/crm-apple-cards-carousel.css?v=2026081403" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <link rel="stylesheet" href="assets/css/crm-embla-carousel.css?v=20260818" />
     <script src="assets/js/automanize-ui.js?v=20260814" defer></script>
 </head>
 <body class="bg-white text-[#111] overflow-x-hidden">
@@ -389,7 +388,7 @@
             </div>
         </section>
 
-        <!-- ACCORDION GALLERY — adaptación nativa para la web estática -->
+        <!-- GALERÍA DE CAPTURAS — Embla Carousel (patrón "Thumbs") -->
         <section class="crm-stories" aria-labelledby="crm-stories-title">
             <div class="crm-stories__heading">
                 <span class="crm-stories__eyebrow">Capturas reales · Nize CRM</span>
@@ -397,66 +396,253 @@
                 <p class="crm-stories__intro">Pantallas reales de la plataforma que ya utilizan equipos inmobiliarios para centralizar su operativa diaria.</p>
             </div>
 
-            <div class="crm-stories__viewport" data-crm-carousel>
-                <div class="crm-stories__track accordion-gallery" data-crm-track tabindex="0" aria-label="Funciones de Nize">
-                    <button class="crm-story ag-panel" type="button" data-story="control" aria-haspopup="dialog" aria-label="Ver panel de control">
-                        <img src="assets/images/crm-carousel/panel-control.png" alt="Resumen de operaciones del CRM Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">01</span><span class="crm-story__name">Panel de control</span><span class="crm-story__summary">Ocupación, ingresos, cobros y tareas en una vista.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+            <div class="crm-embla" data-crm-embla>
+                <div class="crm-embla__viewport" data-embla-main role="region" aria-roledescription="carrusel" aria-label="Capturas reales del CRM Nize" tabindex="0">
+                    <div class="crm-embla__container">
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="control" aria-haspopup="dialog" aria-label="Ver detalle de Panel de control">
+                            <img src="assets/images/crm-carousel/panel-control.png" alt="Resumen de operaciones del CRM Nize" width="1633" height="963" fetchpriority="high" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">01</span>
+                                    <span class="crm-embla__name">Panel de control</span>
+                                    <span class="crm-embla__summary">Ocupación, ingresos, cobros y tareas en una vista.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="inmuebles" aria-haspopup="dialog" aria-label="Ver gestión de inmuebles">
-                        <img src="assets/images/crm-carousel/inmuebles.png" alt="Gestión de inmuebles del CRM Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">02</span><span class="crm-story__name">Inmuebles</span><span class="crm-story__summary">Cartera, disponibilidad y estado de cada inmueble.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="inmuebles" aria-haspopup="dialog" aria-label="Ver detalle de Inmuebles">
+                            <img src="assets/images/crm-carousel/inmuebles.png" alt="Gestión de inmuebles del CRM Nize" width="1619" height="971" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">02</span>
+                                    <span class="crm-embla__name">Inmuebles</span>
+                                    <span class="crm-embla__summary">Cartera, disponibilidad y estado de cada inmueble.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="interesados" aria-haspopup="dialog" aria-label="Ver seguimiento de interesados">
-                        <img src="assets/images/crm-carousel/interesados.png" alt="Seguimiento de contactos interesados en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">03</span><span class="crm-story__name">Interesados</span><span class="crm-story__summary">Contactos, oportunidades y evolución comercial.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="interesados" aria-haspopup="dialog" aria-label="Ver detalle de Interesados">
+                            <img src="assets/images/crm-carousel/interesados.png" alt="Seguimiento de contactos interesados en Nize" width="1619" height="971" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">03</span>
+                                    <span class="crm-embla__name">Interesados</span>
+                                    <span class="crm-embla__summary">Contactos, oportunidades y evolución comercial.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="propietarios" aria-haspopup="dialog" aria-label="Ver gestión de propietarios">
-                        <img src="assets/images/crm-carousel/propietarios.png" alt="Gestión de propietarios en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">04</span><span class="crm-story__name">Propietarios</span><span class="crm-story__summary">Datos, inmuebles y documentación de propietarios.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="propietarios" aria-haspopup="dialog" aria-label="Ver detalle de Propietarios">
+                            <img src="assets/images/crm-carousel/propietarios.png" alt="Gestión de propietarios en Nize" width="1635" height="962" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">04</span>
+                                    <span class="crm-embla__name">Propietarios</span>
+                                    <span class="crm-embla__summary">Datos, inmuebles y documentación de propietarios.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="calendario" aria-haspopup="dialog" aria-label="Ver calendario y tareas">
-                        <img src="assets/images/crm-carousel/calendario.png" alt="Calendario y tareas del equipo en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">05</span><span class="crm-story__name">Calendario</span><span class="crm-story__summary">Eventos, visitas, tareas y recordatorios del equipo.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="calendario" aria-haspopup="dialog" aria-label="Ver detalle de Calendario">
+                            <img src="assets/images/crm-carousel/calendario.png" alt="Calendario y tareas del equipo en Nize" width="1630" height="965" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">05</span>
+                                    <span class="crm-embla__name">Calendario</span>
+                                    <span class="crm-embla__summary">Eventos, visitas, tareas y recordatorios del equipo.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="inquilinos" aria-haspopup="dialog" aria-label="Ver gestión de inquilinos">
-                        <img src="assets/images/crm-carousel/inquilinos.png" alt="Gestión de inquilinos en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">06</span><span class="crm-story__name">Inquilinos</span><span class="crm-story__summary">Contratos, cobros e incidencias de cada inquilino.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="inquilinos" aria-haspopup="dialog" aria-label="Ver detalle de Inquilinos">
+                            <img src="assets/images/crm-carousel/inquilinos.png" alt="Gestión de inquilinos en Nize" width="1636" height="961" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">06</span>
+                                    <span class="crm-embla__name">Inquilinos</span>
+                                    <span class="crm-embla__summary">Contratos, cobros e incidencias de cada inquilino.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="contratos" aria-haspopup="dialog" aria-label="Ver gestión de contratos">
-                        <img src="assets/images/crm-carousel/contratos.png" alt="Gestión de contratos en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">07</span><span class="crm-story__name">Contratos</span><span class="crm-story__summary">Versiones, firma y seguimiento de cada contrato.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="contratos" aria-haspopup="dialog" aria-label="Ver detalle de Contratos">
+                            <img src="assets/images/crm-carousel/contratos.png" alt="Gestión de contratos en Nize" width="1637" height="960" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">07</span>
+                                    <span class="crm-embla__name">Contratos</span>
+                                    <span class="crm-embla__summary">Versiones, firma y seguimiento de cada contrato.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="incidencias" aria-haspopup="dialog" aria-label="Ver gestión de incidencias">
-                        <img src="assets/images/crm-carousel/incidencias.png" alt="Gestión de incidencias en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">08</span><span class="crm-story__name">Incidencias</span><span class="crm-story__summary">Prioridades, estados y resolución de incidencias.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="incidencias" aria-haspopup="dialog" aria-label="Ver detalle de Incidencias">
+                            <img src="assets/images/crm-carousel/incidencias.png" alt="Gestión de incidencias en Nize" width="1635" height="962" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">08</span>
+                                    <span class="crm-embla__name">Incidencias</span>
+                                    <span class="crm-embla__summary">Prioridades, estados y resolución de incidencias.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="cobros" aria-haspopup="dialog" aria-label="Ver gestión de cobros">
-                        <img src="assets/images/crm-carousel/cobros.png" alt="Gestión de cobros en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">09</span><span class="crm-story__name">Cobros</span><span class="crm-story__summary">Cobrado, pendiente e historial por inmueble.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="cobros" aria-haspopup="dialog" aria-label="Ver detalle de Cobros">
+                            <img src="assets/images/crm-carousel/cobros.png" alt="Gestión de cobros en Nize" width="1672" height="941" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">09</span>
+                                    <span class="crm-embla__name">Cobros</span>
+                                    <span class="crm-embla__summary">Cobrado, pendiente e historial por inmueble.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
 
-                    <button class="crm-story ag-panel" type="button" data-story="gastos" aria-haspopup="dialog" aria-label="Ver gestión de gastos">
-                        <img src="assets/images/crm-carousel/gastos.png" alt="Gestión de gastos en Nize" loading="lazy" />
-                        <span class="crm-story__footer" aria-hidden="true"><span><span class="crm-story__index">10</span><span class="crm-story__name">Gastos</span><span class="crm-story__summary">Gastos, suministros y pagos a propietarios.</span></span><span class="material-symbols-outlined">north_east</span></span>
-                    </button>
+                    <div class="crm-embla__slide">
+                        <button class="crm-embla__figure" type="button" data-story="gastos" aria-haspopup="dialog" aria-label="Ver detalle de Gastos">
+                            <img src="assets/images/crm-carousel/gastos.png" alt="Gestión de gastos en Nize" width="1631" height="964" loading="lazy" />
+                            <span class="crm-embla__caption" aria-hidden="true">
+                                <span class="crm-embla__caption-text">
+                                    <span class="crm-embla__index">10</span>
+                                    <span class="crm-embla__name">Gastos</span>
+                                    <span class="crm-embla__summary">Gastos, suministros y pagos a propietarios.</span>
+                                </span>
+                                <span class="crm-embla__open material-symbols-outlined">north_east</span>
+                            </span>
+                        </button>
+                    </div>
+                    </div>
                 </div>
 
-                <div class="crm-stories__controls" aria-label="Controles del carrusel">
-                    <button type="button" class="crm-stories__arrow" data-crm-prev aria-label="Ver tarjeta anterior" disabled>
-                        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-                    </button>
-                    <button type="button" class="crm-stories__arrow" data-crm-next aria-label="Ver tarjeta siguiente">
-                        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                    </button>
+                <div class="crm-embla__controls">
+                    <div class="crm-embla__buttons">
+                        <button class="crm-embla__button" type="button" data-embla-prev aria-label="Ver captura anterior">
+                            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+                        </button>
+                        <button class="crm-embla__button" type="button" data-embla-next aria-label="Ver captura siguiente">
+                            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                        </button>
+                    </div>
+
+                    <div class="crm-embla__progress" aria-hidden="true">
+                        <div class="crm-embla__progress-bar" data-embla-progress></div>
+                    </div>
+
+                    <p class="crm-embla__counter"><strong data-embla-current>01</strong> / 10</p>
+                </div>
+
+                <div class="crm-embla-thumbs">
+                    <div class="crm-embla-thumbs__viewport" data-embla-thumbs>
+                        <div class="crm-embla-thumbs__container">
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Panel de control">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/panel-control.png" alt="" width="1633" height="963" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">01 · Panel de control</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Inmuebles">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/inmuebles.png" alt="" width="1619" height="971" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">02 · Inmuebles</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Interesados">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/interesados.png" alt="" width="1619" height="971" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">03 · Interesados</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Propietarios">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/propietarios.png" alt="" width="1635" height="962" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">04 · Propietarios</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Calendario">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/calendario.png" alt="" width="1630" height="965" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">05 · Calendario</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Inquilinos">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/inquilinos.png" alt="" width="1636" height="961" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">06 · Inquilinos</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Contratos">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/contratos.png" alt="" width="1637" height="960" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">07 · Contratos</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Incidencias">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/incidencias.png" alt="" width="1635" height="962" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">08 · Incidencias</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Cobros">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/cobros.png" alt="" width="1672" height="941" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">09 · Cobros</span>
+                            </button>
+                        </div>
+                        <div class="crm-embla-thumbs__slide">
+                            <button class="crm-embla-thumbs__button" type="button" data-embla-thumb aria-label="Ir a Gastos">
+                                <span class="crm-embla-thumbs__frame">
+                                    <img src="assets/images/crm-carousel/gastos.png" alt="" width="1631" height="964" loading="lazy" />
+                                </span>
+                                <span class="crm-embla-thumbs__label">10 · Gastos</span>
+                            </button>
+                        </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -930,7 +1116,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/crm-apple-cards-carousel.js?v=2026081403" defer></script>
+    <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
+    <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
     <script src="assets/js/crm-pricing.js?v=2" defer></script>
 </body>
 </html>

@@ -8,76 +8,53 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
   <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #090B0F;
-      --surface:      #FCFBF8;
-      --surface-soft: #F3F1EC;
-      --border:       #DDD6C8;
-      --border-dash:  #BEB5A4;
-      --accent:       #C69733;
-      --accent-hover: #A87820;
-      --accent-dim:   rgba(198,151,51,0.12);
-      --accent-ring:  rgba(198,151,51,0.34);
-      --text:         #14171C;
-      --text-muted:   #626A76;
-      --text-light:   #8A929E;
+      --page:         #F6F3EC;
+      --surface:      #FFFFFF;
+      --surface-soft: #F3EFE4;
+      --border:       #E7E1D2;
+      --border-dash:  #CFC5AE;
+      --accent:       #C0902E;
+      --accent-hover: #A5771F;
+      --accent-dim:   rgba(192,144,46,0.12);
+      --accent-ring:  rgba(192,144,46,0.28);
+      --text:         #1D1B16;
+      --text-muted:   #6C6459;
+      --text-light:   #9C9483;
+      --green:        #22C55E;
+      --green-dim:    rgba(34,197,94,0.12);
       --error:        #D94848;
-      --blocked-bg:   #F1F3F5;
-      --blocked-border: #D3D8DE;
-      --blocked-text: #8A929E;
-      --shadow:       0 28px 90px rgba(0,0,0,0.34);
+      --error-dim:    rgba(217,72,72,0.10);
+      --blocked-bg:   #F3EFE4;
+      --blocked-border: #E7E1D2;
+      --blocked-text: #9C9483;
+      --shadow:       0 24px 60px rgba(30,22,10,0.10);
     }
 
-    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; }
+    html, body { min-height: 100vh; background: var(--page); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; }
     body { display: flex; flex-direction: column; overflow-x: hidden; }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background:
-        linear-gradient(rgba(9,11,15,0.78), rgba(9,11,15,0.94)),
-        url('assets/images/hero-house.jpg') center / cover no-repeat,
-        linear-gradient(145deg, #090B0F 0%, #171A20 52%, #08090D 100%);
-    }
 
     /* ── NAV ── */
     .navbar {
-      background: rgba(15,17,21,0.84);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      height: 64px; padding: 0 40px;
+      background: rgba(246,243,236,0.9);
+      border-bottom: 1px solid var(--border);
+      height: 60px; padding: 0 40px;
       display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 10;
-      backdrop-filter: blur(16px);
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(10px);
     }
-    .brand-lockup {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-    .brand-mark {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      object-fit: cover;
-      background: #fff;
-      padding: 3px;
-    }
-    .nav-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800; font-size: 15px;
-      letter-spacing: 0.16em; text-transform: uppercase;
-      color: #FFFFFF;
-      white-space: nowrap;
-    }
+    .brand-lockup { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; background: #fff; padding: 3px; border: 1px solid var(--border); }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-text strong { font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+    .brand-text span { font-size: 10.5px; color: var(--text-light); letter-spacing: 0.04em; text-transform: uppercase; }
     .nav-links { display: flex; gap: 28px; }
-    .nav-link { font-size: 13px; color: rgba(255,255,255,0.58); text-decoration: none; padding-bottom: 3px; }
-    .nav-link.active { color: #FFFFFF; font-weight: 500; border-bottom: 2px solid var(--accent); }
+    .nav-link { font-size: 13px; color: var(--text-muted); text-decoration: none; padding-bottom: 3px; }
+    .nav-link.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--accent); }
 
     /* ── STEPPER ── */
     .stepper-wrap { display: flex; justify-content: center; padding: 28px 40px 0; }
@@ -85,14 +62,14 @@
     .step { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .step-dot {
       width: 10px; height: 10px; border-radius: 50%;
-      background: rgba(255,255,255,0.18); transition: background 0.3s;
+      background: var(--border); transition: background 0.3s;
     }
     .step.active .step-dot,
     .step.done   .step-dot { background: var(--accent); }
-    .step-label { font-size: 11px; color: rgba(255,255,255,0.42); white-space: nowrap; }
+    .step-label { font-size: 11px; color: var(--text-light); white-space: nowrap; }
     .step.active .step-label,
-    .step.done   .step-label { color: rgba(255,255,255,0.88); font-weight: 500; }
-    .step-line { flex: 1; height: 1.5px; background: rgba(255,255,255,0.16); margin-top: 4px; transition: background 0.3s; }
+    .step.done   .step-label { color: var(--text); font-weight: 600; }
+    .step-line { flex: 1; height: 1.5px; background: var(--border); margin-top: 4px; transition: background 0.3s; }
     .step-line.done { background: var(--accent); }
 
     /* ── MAIN ── */
@@ -104,82 +81,58 @@
       display: grid;
       grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px;
       background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
       box-shadow: var(--shadow);
     }
 
+    /* ── TRUST PANEL ── */
     .trust-panel {
-      position: relative;
-      min-height: 100%;
-      padding: 38px 32px;
-      color: #fff;
-      background:
-        linear-gradient(180deg, rgba(10,12,16,0.72), rgba(10,12,16,0.94)),
-        url('assets/images/nize.png') center 82% / 290px auto no-repeat,
-        #101217;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 34px;
+      display: flex; flex-direction: column;
+      padding: 44px 40px 0;
     }
-
     .panel-kicker {
-      color: rgba(255,255,255,0.58);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+      font-weight: 700; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--text-light); margin-bottom: 16px;
     }
+    .trust-panel h1 { font-weight: 800; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 12px; max-width: 260px; }
+    .trust-panel h1 .accent { color: var(--accent); }
+    .trust-panel p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 26px; max-width: 280px; }
 
-    .trust-panel h1 {
-      max-width: 260px;
-      font-family: 'Syne', sans-serif;
-      font-size: 34px;
-      line-height: 1.02;
-      font-weight: 800;
-    }
-
-    .trust-panel p {
-      max-width: 280px;
-      margin-top: 14px;
-      color: rgba(255,255,255,0.68);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .panel-proof {
-      display: grid;
-      gap: 12px;
-    }
-
+    .panel-proof { display: grid; gap: 12px; margin-bottom: 8px; }
     .proof-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: rgba(255,255,255,0.76);
-      font-size: 13px;
+      display: flex; align-items: center; gap: 10px;
+      color: var(--text-muted); font-size: 13px;
+    }
+    .proof-item svg {
+      width: 17px; height: 17px; stroke: var(--accent); flex-shrink: 0;
     }
 
-    .proof-item svg {
-      width: 17px;
-      height: 17px;
-      stroke: var(--accent);
-      flex-shrink: 0;
+    .hero-photo {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 140px;
+      margin: 24px -40px 0;
+      background-image: url('assets/images/descarga-nize-hero.png');
+      background-size: cover; background-position: center 40%;
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+    }
+    .hero-photo::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, var(--surface) 0%, rgba(255,255,255,0.55) 22%, rgba(255,255,255,0) 55%);
     }
 
     /* ── CARD ── */
     .card {
       width: 100%;
       background: var(--surface);
-      border: 0;
-      border-radius: 0;
+      border-left: 1px solid var(--border);
       padding: 46px 52px;
-      box-shadow: none;
     }
-    .card-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 25px; line-height: 1.15; margin-bottom: 8px; }
+    .card-title { font-weight: 800; font-size: 24px; line-height: 1.2; margin-bottom: 8px; color: var(--text); }
     .card-sub   { font-size: 14px; color: var(--text-muted); line-height: 1.55; margin-bottom: 30px; }
 
     /* ── LOADING ── */
@@ -196,50 +149,42 @@
     .error-state { display: none; text-align: center; padding: 48px 0; }
     .error-icon,
     .success-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
       margin: 0 auto 18px;
     }
     .error-icon {
-      background: rgba(217,72,72,0.10);
+      background: var(--error-dim);
       border: 1px solid rgba(217,72,72,0.22);
       color: var(--error);
     }
     .error-icon svg,
     .success-icon svg { width: 30px; height: 30px; stroke: currentColor; }
-    .error-state h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 8px; }
+    .error-state h2 { font-weight: 800; font-size: 19px; margin-bottom: 8px; color: var(--text); }
     .error-state p  { font-size: 14px; color: var(--text-muted); }
 
     /* ── FORM ── */
     .form-state { display: none; }
 
     .inquilino-info {
-      background: #FFFFFF;
+      background: var(--surface-soft);
       border: 1px solid var(--border);
       border-left: 3px solid var(--accent);
-      border-radius: 8px; padding: 14px 16px; margin-bottom: 24px;
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 24px;
       display: flex; align-items: center; gap: 10px;
     }
     .identity-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      background: var(--accent-dim);
-      color: var(--accent);
+      width: 32px; height: 32px; border-radius: 8px;
+      display: grid; place-items: center;
+      background: var(--accent-dim); color: var(--accent);
       flex-shrink: 0;
     }
     .identity-icon svg { width: 17px; height: 17px; stroke: currentColor; }
-    .inquilino-info .name { font-size: 14px; font-weight: 500; }
+    .inquilino-info .name { font-size: 14px; font-weight: 700; color: var(--text); }
     .inquilino-info .sub  { font-size: 12px; color: var(--text-muted); }
 
     label {
-      display: block; font-size: 11px; font-weight: 500;
+      display: block; font-size: 11px; font-weight: 700;
       color: var(--text-muted); margin-bottom: 8px;
       text-transform: uppercase; letter-spacing: 0.08em;
     }
@@ -251,19 +196,19 @@
     .mes-option {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 16px;
-      background: #FFFFFF;
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
       position: relative; overflow: hidden;
     }
-    .mes-option:hover    { border-color: var(--accent); background: #FBF7EE; }
+    .mes-option:hover    { border-color: var(--accent); background: var(--surface-soft); }
     .mes-option.selected {
-      border-color: #1B1D22;
-      background: #111318;
+      border-color: var(--text);
+      background: var(--text);
       color: #FFFFFF;
-      box-shadow: 0 12px 28px rgba(17,19,24,0.12);
+      box-shadow: 0 12px 28px rgba(29,27,22,0.14);
     }
     .mes-option.selected .mes-importe { color: #F0C86B; }
 
@@ -275,25 +220,25 @@
       padding: 14px 16px;
       background: var(--blocked-bg);
       border: 1px solid var(--blocked-border);
-      border-radius: 6px;
+      border-radius: 10px;
       pointer-events: none;   /* no clickable */
       user-select: none;       /* no seleccionable */
     }
     .mes-bloqueado-static .mes-nombre {
       color: var(--blocked-text);
-      font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px;
+      font-weight: 600; font-size: 14px;
     }
     .mes-bloqueado-static .mes-importe {
       color: var(--blocked-text);
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+      font-weight: 700; font-size: 15px;
     }
     .mes-bloqueado-badge {
       display: flex; align-items: center; gap: 5px;
-      font-size: 11px; font-weight: 500;
+      font-size: 11px; font-weight: 600;
       color: var(--blocked-text);
-      background: #E8EAEE;
+      background: #EAE4D4;
       border: 1px solid var(--blocked-border);
-      border-radius: 3px;
+      border-radius: 6px;
       padding: 3px 8px;
       white-space: nowrap;
       letter-spacing: 0.02em;
@@ -304,9 +249,9 @@
       flex-shrink: 0;
     }
 
-    .mes-nombre  { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
+    .mes-nombre  { font-weight: 700; font-size: 14px; }
     .mes-right   { display: flex; align-items: center; gap: 10px; }
-    .mes-importe { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+    .mes-importe { font-weight: 800; font-size: 15px; }
 
     .mes-check {
       width: 18px; height: 18px; border-radius: 50%;
@@ -321,8 +266,7 @@
     .mes-check::after {
       content: '';
       position: absolute;
-      width: 5px;
-      height: 9px;
+      width: 5px; height: 9px;
       top: 50%; left: 50%;
       border: solid #101010;
       border-width: 0 2px 2px 0;
@@ -339,16 +283,13 @@
       font-size: 13px;
       color: var(--text-muted);
     }
-    .seleccion-resumen strong {
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-    }
+    .seleccion-resumen strong { color: var(--text); }
 
     /* ── MODAL CONFIRMACIÓN ── */
     .modal-overlay {
       display: none;
       position: fixed; inset: 0; z-index: 100;
-      background: rgba(9,11,15,0.62);
+      background: rgba(29,27,22,0.55);
       align-items: center; justify-content: center;
       padding: 20px;
     }
@@ -356,11 +297,11 @@
     .modal-box {
       width: 100%; max-width: 420px;
       background: var(--surface);
-      border-radius: 8px;
+      border-radius: 16px;
       padding: 30px 30px 26px;
       box-shadow: var(--shadow);
     }
-    .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 19px; margin-bottom: 10px; }
+    .modal-title { font-weight: 800; font-size: 18px; margin-bottom: 10px; color: var(--text); }
     .modal-sub { font-size: 13.5px; color: var(--text-muted); line-height: 1.55; margin-bottom: 16px; }
     .modal-list {
       list-style: none;
@@ -373,44 +314,39 @@
       padding: 9px 12px;
       background: var(--surface-soft);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 13px;
     }
-    .modal-list li span:last-child {
-      font-family: 'Syne', sans-serif; font-weight: 700;
-    }
+    .modal-list li span:last-child { font-weight: 700; }
     .modal-actions { display: grid; gap: 10px; }
     .btn-secondary {
       width: 100%; padding: 13px; margin-top: 0;
       background: transparent; color: var(--text-muted);
-      font-family: 'Syne', sans-serif; font-weight: 700;
-      font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
-      border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+      font-weight: 700;
+      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
       transition: border-color 0.2s, color 0.2s;
     }
     .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
 
     /* ── FILE DROP ── */
     .file-drop {
-      border: 1.5px dashed var(--border-dash); border-radius: 8px;
+      border: 1.5px dashed var(--border-dash); border-radius: 12px;
       min-height: 180px;
       padding: 34px 20px; text-align: center; cursor: pointer;
       background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-soft) 100%);
       transition: border-color 0.2s, background 0.2s, transform 0.2s;
       position: relative; margin-bottom: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .file-drop:hover, .file-drop.dragover { border-color: var(--accent); background: #FBF7EE; transform: translateY(-1px); }
     .file-drop input[type="file"] {
       position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
     }
     .upload-icon {
-      width: 50px; height: 50px; background: #111318; border-radius: 8px;
+      width: 50px; height: 50px; background: var(--text); border-radius: 10px;
       display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
-      box-shadow: 0 16px 34px rgba(17,19,24,0.18);
+      box-shadow: 0 16px 34px rgba(29,27,22,0.18);
     }
     .upload-icon svg { width: 24px; height: 24px; fill: #fff; }
     .file-drop p         { font-size: 14px; color: var(--text); margin-bottom: 4px; }
@@ -419,32 +355,26 @@
     .file-selected {
       display: none; align-items: center; gap: 12px;
       padding: 12px 16px; background: var(--accent-dim);
-      border: 1px solid var(--accent-ring); border-radius: 6px;
+      border: 1px solid var(--accent-ring); border-radius: 10px;
       margin-top: 8px;
     }
     .file-selected.show { display: flex; }
     .file-selected .file-name {
-      font-size: 13px; font-weight: 500; flex: 1;
+      font-size: 13px; font-weight: 600; flex: 1;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .file-chip-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 7px;
-      display: grid;
-      place-items: center;
-      background: #fff;
-      color: var(--accent);
+      width: 30px; height: 30px; border-radius: 8px;
+      display: grid; place-items: center;
+      background: #fff; color: var(--accent);
       flex-shrink: 0;
     }
     .file-chip-icon svg { width: 16px; height: 16px; stroke: currentColor; }
     .file-remove {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      background: rgba(255,255,255,0.55); border: 1px solid rgba(0,0,0,0.06); color: var(--text-muted);
-      cursor: pointer; padding: 0; line-height: 1; border-radius: 6px;
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.06); color: var(--text-muted);
+      cursor: pointer; padding: 0; line-height: 1; border-radius: 8px;
     }
     .file-remove svg { width: 15px; height: 15px; stroke: currentColor; }
     .file-remove:hover { color: var(--error); }
@@ -452,17 +382,17 @@
     /* ── SUBMIT ── */
     .btn-submit {
       width: 100%; padding: 15px; margin-top: 24px;
-      background: var(--accent); color: #101010;
-      font-family: 'Syne', sans-serif; font-weight: 700;
-      font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
-      border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 14px 32px rgba(198,151,51,0.22);
+      background: var(--accent); color: #FFFFFF;
+      font-weight: 700;
+      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 14px 32px rgba(192,144,46,0.24);
     }
-    .btn-submit:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 14px 30px rgba(201,155,50,0.24); }
+    .btn-submit:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 14px 30px rgba(192,144,46,0.28); }
     .btn-submit:disabled {
       opacity: 1;
-      background: #E9DDC0;
-      color: rgba(20,23,28,0.38);
+      background: var(--border);
+      color: var(--text-light);
       box-shadow: none;
       cursor: not-allowed;
     }
@@ -470,7 +400,7 @@
     .btn-submit.loading::after {
       content: ''; position: absolute;
       width: 16px; height: 16px;
-      border: 2px solid #000; border-top-color: transparent;
+      border: 2px solid #fff; border-top-color: transparent;
       border-radius: 50%; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       animation: spin 0.7s linear infinite;
@@ -479,50 +409,41 @@
     /* ── SUCCESS ── */
     .success-state { display: none; text-align: center; padding: 48px 0; }
     .success-icon { background: var(--accent-dim); border: 2px solid var(--accent); color: var(--accent); }
-    .success-state h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 10px; }
+    .success-state h2 { font-weight: 800; font-size: 21px; margin-bottom: 10px; color: var(--text); }
     .success-state p  { font-size: 14px; color: var(--text-muted); max-width: 300px; margin: 0 auto; }
 
     /* ── BADGES ── */
-    .badges { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 20px; }
-    .badge  { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.52); }
-    .badge svg { width: 13px; height: 13px; fill: rgba(255,255,255,0.52); flex-shrink: 0; }
+    .badges { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 24px; }
+    .badge  { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-light); }
+    .badge svg { width: 13px; height: 13px; fill: var(--text-light); flex-shrink: 0; }
 
     /* ── FOOTER ── */
     .footer {
-      border-top: 1px solid rgba(255,255,255,0.08); padding: 16px 40px;
+      border-top: 1px solid var(--border); padding: 16px 40px;
       display: flex; align-items: center; justify-content: space-between;
-      background: rgba(15,17,21,0.72);
+      background: var(--page);
     }
-    .footer-left { font-size: 12px; color: rgba(255,255,255,0.48); }
+    .footer-left { font-size: 12px; color: var(--text-light); }
     .footer-links { display: flex; gap: 20px; }
-    .footer-links a { font-size: 12px; color: rgba(255,255,255,0.48); text-decoration: none; }
-    .footer-links a:hover { color: rgba(255,255,255,0.72); }
+    .footer-links a { font-size: 12px; color: var(--text-light); text-decoration: none; }
+    .footer-links a:hover { color: var(--text-muted); }
 
     @media (max-width: 760px) {
-      .navbar { height: auto; min-height: 66px; padding: 12px 16px; gap: 12px; }
-      .brand-mark { width: 25px; height: 25px; }
-      .nav-logo { font-size: 12px; letter-spacing: 0.12em; }
-      .nav-links { gap: 12px; }
+      .navbar { height: auto; min-height: 60px; padding: 12px 20px; gap: 12px; }
+      .nav-links { gap: 16px; }
       .nav-link { font-size: 12px; }
       .stepper-wrap { padding: 24px 20px 0; }
       .stepper { max-width: 360px; }
       .step-label { font-size: 10px; }
       .main { padding: 22px 12px 34px; }
-      .payment-shell { grid-template-columns: 1fr; }
-      .trust-panel {
-        min-height: 0;
-        padding: 18px 18px;
-        background:
-          linear-gradient(90deg, rgba(10,12,16,0.94), rgba(10,12,16,0.74)),
-          url('assets/images/nize.png') right 18px center / 116px auto no-repeat,
-          #101217;
-      }
-      .panel-kicker { margin-bottom: 7px; }
-      .trust-panel h1 { font-size: 22px; max-width: 220px; }
-      .trust-panel p { max-width: 250px; margin-top: 7px; font-size: 12px; line-height: 1.45; }
+      .payment-shell { grid-template-columns: 1fr; border-radius: 20px; }
+      .trust-panel { padding: 32px 24px 0; }
+      .trust-panel h1 { max-width: none; }
+      .trust-panel p { max-width: none; }
       .panel-proof { display: none; }
-      .card { padding: 28px 18px; }
-      .card-title { font-size: 21px; }
+      .hero-photo { flex: 0 0 150px; margin: 24px -24px 0; border-radius: 0; }
+      .card { padding: 32px 24px; border-left: none; border-top: 1px solid var(--border); }
+      .card-title { font-size: 20px; }
       .inquilino-info { align-items: flex-start; }
       .mes-option,
       .mes-bloqueado-static { padding: 13px 12px; gap: 10px; }
@@ -556,7 +477,10 @@
 <nav class="navbar">
   <span class="brand-lockup">
     <img class="brand-mark" src="assets/images/nize.png" alt="" />
-    <span class="nav-logo">NIZE · Pagos</span>
+    <span class="brand-text">
+      <strong>Nize · Pagos</strong>
+      <span>Portal de justificantes</span>
+    </span>
   </span>
   <div class="nav-links">
     <a class="nav-link active" href="#">Subir Justificante</a>
@@ -586,11 +510,9 @@
 <main class="main">
   <section class="payment-shell" aria-label="Subida de justificante de pago">
     <aside class="trust-panel" aria-label="Pago seguro con NIZE">
-      <div>
-        <div class="panel-kicker">Portal de pagos</div>
-        <h1>Gestión segura de justificantes</h1>
-        <p>Sube tu comprobante en un entorno privado. El equipo revisará el pago y confirmará el estado cuando quede validado.</p>
-      </div>
+      <div class="panel-kicker">Portal de pagos</div>
+      <h1>Gestión segura de <span class="accent">justificantes</span></h1>
+      <p>Sube tu comprobante en un entorno privado. El equipo revisará el pago y confirmará el estado cuando quede validado.</p>
       <div class="panel-proof">
         <div class="proof-item">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 1 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-5"/></svg>
@@ -601,6 +523,7 @@
           Archivo protegido durante el envío
         </div>
       </div>
+      <div class="hero-photo"></div>
     </aside>
 
     <div class="card">
