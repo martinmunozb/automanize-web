@@ -26,6 +26,21 @@
 .stamp:nth-child(even){transform:rotate(1deg)}
 .stamp::before{content:"✓";display:inline-flex;flex:0 0 auto;width:15px;height:15px;align-items:center;justify-content:center;border-radius:50%;background:#c9973a;color:#fff;font-size:9px;font-weight:800}
 
+/* Precios mas compactos: que quepan ambas tarjetas sin tanto scroll */
+.pricing-section{padding:64px 0}
+.pricing-heading{margin-bottom:34px}
+.pricing-heading h2{font-size:clamp(30px,4vw,46px)}
+.pricing-grid{gap:18px}
+.price-card{padding:26px}
+.price-top h3{margin:8px 0 6px;font-size:24px}
+.price-top p{min-height:0}
+.feature-kicker{margin:16px 0 0}
+.feature-list li{padding:9px 0 9px 22px;font-size:13px}
+.button-block{margin:16px 0}
+.bonus-kicker{margin:16px 0 0}
+.stamp-row{margin-top:9px;gap:8px}
+.stamp{padding:6px 10px;font-size:10px}
+
 /* Pasos del modal: back button + pantallas + formularios embebidos */
 .modal-back{position:absolute;top:15px;left:15px;height:38px;padding:0 13px 0 10px;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer}
 .modal-back[hidden]{display:none}

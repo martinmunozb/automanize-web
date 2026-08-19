@@ -1,11 +1,12 @@
 // crm-pricing.js — Sección de precios de crm.html: toggle mensual/anual y
-// modal de "contratar" que crea la cuenta (misma Edge Function que la prueba
-// gratis) y encadena un checkout directo de Stripe para el tier elegido.
+// modal que crea la cuenta con 7 días de prueba gratis (misma Edge Function
+// que solicitar-demo.html). No cobra nada al alta: si al terminar el trial
+// el tenant no cabe en el plan gratuito, se bloquea y ahí se le ofrece pagar
+// (flujo ya existente de trial-checkout, ver docs/REGLAS_NEGOCIO.md).
 (() => {
   const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
   const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
-  const BACKEND_URL = 'https://backend.automanize.com';
 
   const TIER_NOMBRES = { tier1: 'Plus', tier2: 'Pro', tier3: 'Elite' };
   let periodoActual = 'mensual';
@@ -33,12 +34,17 @@
   const modalKicker = document.getElementById('pricingModalKicker');
   const form = document.getElementById('pricingForm');
   const formError = document.getElementById('pricingError');
+  const success = document.getElementById('pricingSuccess');
+  const successTitulo = document.getElementById('pricingSuccessTitulo');
   let lastFocus = null;
 
   const openModal = (tier) => {
     tierSeleccionado = tier;
-    modalKicker.textContent = `Contratar Nize — ${TIER_NOMBRES[tier] || ''}`;
+    modalKicker.textContent = `Prueba de 7 días — ${TIER_NOMBRES[tier] || ''}`;
     formError.textContent = '';
+    form.reset();
+    form.classList.remove('hidden');
+    success.classList.add('hidden');
     lastFocus = document.activeElement;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -96,16 +102,10 @@
       const dataSignup = await resSignup.json().catch(() => ({}));
       if (!resSignup.ok || dataSignup.error) throw new Error(dataSignup.error || 'No se pudo crear tu cuenta.');
 
-      submitButton.textContent = 'Abriendo el pago...';
-      const resCheckout = await fetch(`${BACKEND_URL}/webhook/checkout-directo`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenant_id: dataSignup.tenant_id, tier: tierSeleccionado, periodo: periodoActual }),
-      });
-      const dataCheckout = await resCheckout.json().catch(() => ({}));
-      if (!resCheckout.ok || dataCheckout.error) throw new Error(dataCheckout.error || 'No se pudo abrir el pago.');
-
-      window.location.href = dataCheckout.url;
+      const primero = String(datos.nombre || '').trim().split(/\s+/)[0];
+      successTitulo.textContent = primero ? `¡Gracias, ${primero}!` : '¡Listo!';
+      form.classList.add('hidden');
+      success.classList.remove('hidden');
     } catch (err) {
       formError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
       submitButton.disabled = false;
