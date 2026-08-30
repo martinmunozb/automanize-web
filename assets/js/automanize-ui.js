@@ -53,7 +53,7 @@
             </svg>
             <span class="dock-tooltip">Instagram</span>
         </a>
-        <a class="dock-item" href="consultoria-gratuita.html" data-title="¿Qué es Nize?">
+        <a class="dock-item" href="que-es-nize.html" data-title="¿Qué es Nize?">
             <svg class="dock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="7" cy="7" r="2.5" />
                 <path d="M2.4 19.6v-1a4.6 4.6 0 0 1 4.6-4.6 4.6 4.6 0 0 1 4.6 4.6v1" />

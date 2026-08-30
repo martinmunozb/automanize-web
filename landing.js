@@ -55,7 +55,7 @@
   const openModal = (startScreen) => {
     lastFocus = document.activeElement;
     screenHistory = [];
-    showScreen(startScreen || 'choose', false);
+    showScreen(startScreen || 'elite-1', false);
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
@@ -79,7 +79,7 @@
 
   const goBack = () => {
     const previous = screenHistory.pop();
-    showScreen(previous || 'choose', screenHistory.length > 0);
+    showScreen(previous || 'elite-1', screenHistory.length > 0);
   };
 
   // Envia un evento al Pixel de Meta si el script cargo (puede fallar por bloqueadores).
@@ -127,57 +127,6 @@
       if (!first || !last) return;
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-    }
-  });
-
-  // --- Alta real del trial de 7 dias: misma Edge Function que solicitar-demo.html ---
-  const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
-
-  const trialForm = document.getElementById('trialForm');
-  const trialError = document.getElementById('trialError');
-
-  trialForm?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    trialError.textContent = '';
-
-    if (!trialForm.checkValidity()) {
-      trialForm.reportValidity();
-      return;
-    }
-
-    const datos = Object.fromEntries(new FormData(trialForm).entries());
-    const submitButton = trialForm.querySelector('button[type="submit"]');
-    const textoOriginal = submitButton.textContent;
-    const eventId = crypto.randomUUID();
-    submitButton.disabled = true;
-    submitButton.textContent = 'Enviando...';
-
-    try {
-      const res = await fetch(TRIAL_SIGNUP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
-        body: JSON.stringify({
-          empresa: datos.nombre,
-          telefono: datos.telefono,
-          email: datos.email,
-          nif: datos.nif,
-          website: datos.website,
-          event_id: eventId,
-          event_source_url: window.location.href,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.error) throw new Error(data.error || 'No se pudo procesar tu solicitud.');
-      // El CompleteRegistration server-side ya lo manda trial-signup con este mismo
-      // event_id; aqui solo el del navegador, para que Meta deduplique los dos.
-      trackPixel('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
-      goToScreen('whatsapp');
-    } catch (err) {
-      trialError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
-      logEvento('trial_error', 'trial-form', { mensaje: trialError.textContent });
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = textoOriginal;
     }
   });
 

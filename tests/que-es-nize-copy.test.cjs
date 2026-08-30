@@ -19,7 +19,7 @@ test('el dock presenta la llamada como Qué es Nize', () => {
 });
 
 test('el paso 1 explica Nize y recoge datos de gestión de alquileres', () => {
-  const page = read('consultoria-gratuita.html');
+  const page = read('que-es-nize.html');
 
   assert.match(page, /<title>¿Qué es Nize\? - Automanize<\/title>/);
   assert.match(page, /Descubre qué es Nize y agenda una llamada/);
