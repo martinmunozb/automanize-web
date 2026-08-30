@@ -16,7 +16,7 @@ test('todas las paginas versionan el javascript compartido de interfaz', () => {
 
     assert.match(
       page,
-      /assets\/js\/automanize-ui\.js\?v=20260814/,
+      /assets\/js\/automanize-ui\.js\?v=20260830/,
       `${file} debe cargar automanize-ui.js versionado`,
     );
     assert.doesNotMatch(

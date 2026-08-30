@@ -42,7 +42,7 @@
             <span class="dock-tooltip">Sobre nosotros</span>
         </a>
         <a class="dock-item" href="crm.html" data-title="Nize">
-            <img class="dock-icon" src="assets/images/nize-isotipo.png" alt="" />
+            <img class="dock-icon" src="assets/images/nize-isotipo-64.webp" alt="" width="64" height="64" decoding="async" />
             <span class="dock-tooltip">Nize</span>
         </a>
         <a class="dock-item" id="dockInstagram" href="https://www.instagram.com/automanize/" target="_blank" rel="noopener noreferrer" data-title="Instagram">

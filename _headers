@@ -7,3 +7,20 @@
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://assets.calendly.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://calendly.com https://assets.calendly.com https://www.googletagmanager.com https://www.google-analytics.com https://edjugpekcntzvqaskbmc.supabase.co https://n8n.automanize.com; frame-src https://calendly.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# Los ficheros de assets/ solo cambian cuando cambia su nombre o su ?v=,
+# así que se pueden cachear para siempre. Sin esto el navegador revalidaba
+# —y a menudo volvía a descargar— las texturas del hero en cada visita.
+/assets/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# El HTML sí tiene que revalidarse: es donde viven las referencias a todo
+# lo anterior.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate

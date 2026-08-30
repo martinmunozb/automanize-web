@@ -94,13 +94,54 @@
     </script>
 
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <!-- Montserrat: geométrica de palo seco, la más cercana al logotipo original -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500&display=swap"
-        rel="stylesheet" />
+    <!-- Una sola petición para las dos familias en lugar de dos hojas
+         encadenadas, y solo con los pesos que la página usa de verdad:
+         Montserrat 300/400 (logotipo y claim) y Spline Sans 400/500/600/700.
+         El 800 de los h1 lo sintetiza el navegador a partir del 700, así que
+         no hace falta pedirlo. Cada hoja de fuentes bloquea el primer
+         pintado; quitar una adelanta la aparición del hero.
+         Montserrat va primero porque css2 exige orden alfabético. -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Spline+Sans:wght@400;500;600;700&display=swap" />
+
+    <!-- Esta hoja también bloquea el primer pintado, así que va DELANTE de los
+         preloads de abajo. Estaba al final del <head> y los 700 KB de three.js
+         se le colaban por delante en la cola: en 4G tardaba 1,7 s en llegar en
+         vez de 0,5 s, y hasta entonces la página se quedaba en blanco. -->
+    <link rel="stylesheet" href="assets/css/automanize-dock.css" />
+
+    <!-- El hero es WebGL: hasta que no llega three.js no hay nada que pintar
+         en el canvas. Pidiéndolo aquí arranca en paralelo con el resto en vez
+         de esperar a que el parser llegue al <script type="module"> del final.
+         Van los DOS ficheros porque three.module importa a three.core: si el
+         navegador no se entera del segundo hasta terminar de analizar el
+         primero, las descargas se encadenan y se pierde un viaje de ida y
+         vuelta justo en la ruta crítica del hero.
+
+         fetchpriority="low" es lo que evita que estos 700 KB se pongan por
+         delante de la hoja de fuentes, que sí bloquea el primer pintado. Sin
+         él, en 4G el texto del logotipo tardaba el doble en aparecer: el hero
+         terminaba antes, pero la página se veía en blanco más tiempo. -->
+    <link rel="modulepreload" href="assets/js/three.module.min.js" fetchpriority="low" />
+    <link rel="modulepreload" href="assets/js/three.core.min.js" fetchpriority="low" />
+
+    <!-- Las texturas que se ven en el primer pintado del hero; el resto del
+         carrusel se pide más tarde, cuando el navegador está libre. Se eligen
+         por tamaño: en móvil solo se ve una tarjeta y basta con la de 760px.
+         "crossorigin" es imprescindible: three.js las pide con
+         crossOrigin="anonymous", y un preload sin el atributo va a otra entrada
+         de caché, con lo que el fichero se descargaría dos veces. -->
+    <link rel="preload" as="image" type="image/webp" crossorigin media="(max-width: 759px)"
+        href="assets/images/nize-isotipo-256.webp" />
+    <link rel="preload" as="image" type="image/webp" crossorigin media="(max-width: 759px)"
+        href="assets/images/crm-carousel/inmuebles-760.webp" />
+    <link rel="preload" as="image" type="image/webp" crossorigin media="(min-width: 760px)"
+        href="assets/images/nize-isotipo-512.webp" />
+    <link rel="preload" as="image" type="image/webp" crossorigin media="(min-width: 760px)"
+        href="assets/images/crm-carousel/inmuebles-1440.webp" />
     <style>
         :root {
             --primary: #FFAB00;
@@ -1272,7 +1313,6 @@
             .scroll-hint { display: none; }
         }
     </style>
-    <link rel="stylesheet" href="assets/css/automanize-dock.css" />
 </head>
 
 <body>
@@ -1330,13 +1370,16 @@
 
             <div class="clientes-logos">
                 <a href="https://www.manuelconesa.com/" target="_blank" rel="noopener" aria-label="Manuel Conesa">
-                    <img src="assets/images/logobusc.png" alt="Manuel Conesa" loading="lazy" />
+                    <img src="assets/images/logobusc.webp" alt="Manuel Conesa"
+                        width="141" height="192" loading="lazy" decoding="async" />
                 </a>
                 <a href="https://www.instagram.com/invictarent/" target="_blank" rel="noopener" aria-label="Invicta Rent">
-                    <img class="logo-invicta" src="assets/images/invictarent.jpeg" alt="Invicta Rent" loading="lazy" />
+                    <img class="logo-invicta" src="assets/images/invictarent.webp" alt="Invicta Rent"
+                        width="320" height="318" loading="lazy" decoding="async" />
                 </a>
                 <a href="https://vortexrooms.com/" target="_blank" rel="noopener" aria-label="Vortex Rooms">
-                    <img class="logo-vortex" src="assets/images/vortexrooms-logo.png" alt="Vortex Rooms" loading="lazy" />
+                    <img class="logo-vortex" src="assets/images/vortexrooms-logo.webp" alt="Vortex Rooms"
+                        width="412" height="132" loading="lazy" decoding="async" />
                 </a>
             </div>
         </div>
@@ -1438,7 +1481,8 @@
                     <div class="beam-row">
                         <div class="beam-entry">
                             <div class="beam-node">
-                                <img src="assets/images/nize-crm-icon.png" alt="Nize CRM" />
+                                <img src="assets/images/nize-crm-icon.webp" alt="Nize CRM"
+                                    width="320" height="336" loading="lazy" decoding="async" />
                             </div>
                             <div class="beam-copy">
                                 <strong>CRM Nize</strong>
@@ -1448,7 +1492,12 @@
                         </div>
 
                         <div class="beam-node beam-node--center" data-node="center">
-                            <img src="assets/images/nize-isotipo.png" alt="Nize" />
+                            <!-- Tamaño propio (160px) y no el de 256 que usa el
+                                 hero en WebGL: aquel se pide con crossorigin y
+                                 acabarían siendo dos descargas del mismo fichero.
+                                 Aquí el icono se ve a 58px, así que 160 sobra. -->
+                            <img src="assets/images/nize-isotipo-160.webp" alt="Nize"
+                                width="160" height="160" loading="lazy" decoding="async" />
                         </div>
 
                         <div class="beam-entry beam-entry--right">
@@ -1458,7 +1507,8 @@
                                 <span>Agenda sincronizada, nunca más te pierdas algo.</span>
                             </div>
                             <div class="beam-node">
-                                <img src="assets/images/google-calendar-icon.png" alt="Google Calendar" />
+                                <img src="assets/images/google-calendar-icon.webp" alt="Google Calendar"
+                                    width="298" height="320" loading="lazy" decoding="async" />
                             </div>
                         </div>
                     </div>
@@ -1491,7 +1541,8 @@
                                 <span>Consulta la cartera, cobros e incidencias desde cualquier lugar.</span>
                             </div>
                             <div class="beam-node">
-                                <img src="assets/images/nize-app-phone.png" alt="Nize App" />
+                                <img src="assets/images/nize-app-phone.webp" alt="Nize App"
+                                    width="560" height="1046" loading="lazy" decoding="async" />
                             </div>
                         </div>
                     </div>
@@ -1525,7 +1576,8 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <a class="footer-brand-link" href="index.html#inicio-principal" aria-label="Ir al inicio principal">
-                    <img src="assets/images/Automanize%20(4).png" alt="Automanize Logo" loading="lazy" />
+                    <img src="assets/images/Automanize%20(4).webp" alt="Automanize Logo"
+                        width="400" height="400" loading="lazy" decoding="async" />
                     <h3>Automanize</h3>
                 </a>
                 <p>Empoderando a propietarios e inmobiliarias con automatización inteligente.</p>
@@ -1562,9 +1614,9 @@
          estar fuera, se posiciona por JS en coordenadas de pantalla. -->
 
     <!-- Dock flotante y SplitText: comportamiento compartido con el resto
-         del sitio (assets/js/automanize-ui.js?v=20260814). El marcado del dock sigue
+         del sitio (assets/js/automanize-ui.js?v=20260830). El marcado del dock sigue
          escrito arriba en HTML; el script lo detecta y no lo duplica. -->
-    <script src="assets/js/automanize-ui.js?v=20260814" defer></script>
+    <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
 
     <script>
         // Animated Beam — versión vanilla de Magic UI. En vez de animar
@@ -1583,6 +1635,12 @@
             // Se declara arriba porque los manejadores de resize la consultan
             // y esos pueden dispararse antes de llegar al bloque de montaje.
             let built = false;
+            // Identificador del bucle de animación de los cables. El bucle solo
+            // corre cuando la sección está en pantalla y la pestaña visible:
+            // antes seguía despertando al hilo principal 60 veces por segundo
+            // durante toda la visita, incluso con la sección a tres pantallas
+            // de distancia, y eso se nota en el scroll y en la batería.
+            let rafId = 0;
 
             // Ancho de escenario para el que se calibraron las curvaturas.
             const ANCHO_BASE = 760;
@@ -1805,10 +1863,23 @@
 
             dibujarLineas(false);   // estado inicial: líneas sin dibujar
 
+            function arrancarBucle() {
+                if (!rafId && !document.hidden) rafId = requestAnimationFrame(tick);
+            }
+            function pararBucle() {
+                if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+            }
+
             new IntersectionObserver(([e]) => {
-                if (e.isIntersecting) construir();
-                else desmontar();
+                if (e.isIntersecting) { construir(); arrancarBucle(); }
+                else { desmontar(); pararBucle(); }
             }, { threshold: 0.2 }).observe(card);
+
+            // Cambiar de pestaña o minimizar tampoco debe dejar el bucle vivo.
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) pararBucle();
+                else if (built) arrancarBucle();
+            });
 
             // Bucle propio: independiente del render loop de Three.js del
             // hero, para que esta sección siga viva aunque el hero esté
@@ -1836,7 +1907,7 @@
             }
 
             function tick(t) {
-                requestAnimationFrame(tick);
+                rafId = requestAnimationFrame(tick);
 
                 BEAMS.forEach((cfg) => {
                     if (!cfg._total) return;
@@ -1880,7 +1951,9 @@
                     }
                 });
             }
-            requestAnimationFrame(tick);
+            // El primer arranque lo da el IntersectionObserver al entrar la
+            // sección en pantalla, no esta línea: si la sección está abajo del
+            // todo, no hay nada que animar todavía.
         })();
     </script>
 
@@ -1903,32 +1976,43 @@
         // Algunas piezas del ecosistema siguen ampliándose en páginas
         // internas; our-services.html permanece disponible aunque ya no sea
         // el acceso principal del dock.
+        // "src" va SIN extensión ni tamaño: de cada imagen existen dos
+        // versiones WebP (-760 y -1440) y se elige la que toque según la
+        // pantalla. Los PNG originales pesaban entre 1 y 1,6 MB cada uno —
+        // más de 5 MB solo en el hero — y el WebP equivalente ronda los
+        // 30-80 KB sin pérdida visible de nitidez en el texto del panel.
         const CARDS = [
             {
                 label: 'Gestión de inmuebles',
                 blurb: 'Pisos, habitaciones, propietarios, contratos y documentos en una estructura clara.',
-                src: 'assets/images/crm-carousel/inmuebles.png',
+                src: 'assets/images/crm-carousel/inmuebles',
                 href: 'crm.html',
             },
             {
                 label: 'WhatsApp para alquileres',
                 blurb: 'Filtra interesados, agenda visitas y envía recordatorios sin perseguir mensajes.',
-                src: 'assets/images/nize-agente-ia.png',
+                src: 'assets/images/nize-agente-ia',
                 href: 'our-services.html#whatsapp',
             },
             {
                 label: 'CRM Nize',
                 blurb: 'Centraliza inquilinos, cobros, incidencias, tareas y estado de ocupación.',
-                src: 'assets/images/crm-nize-dashboard.png',
+                src: 'assets/images/crm-nize-dashboard',
                 href: 'crm.html',
             },
             {
                 label: 'App móvil Nize',
                 blurb: 'Revisa la cartera, responde incidencias y consulta pagos desde el móvil.',
-                src: 'assets/images/nize-app-movil.png',
+                src: 'assets/images/nize-app-movil',
                 href: 'crm.html',
             },
         ];
+
+        // En móvil solo se ve la tarjeta protagonista (ver "soloProtagonista"
+        // más abajo), así que la textura grande no aportaría nada: se pediría
+        // el triple de bytes para pintarlos en un tercio de píxeles.
+        const ANCHO_TEXTURA = innerWidth < 760 ? 760 : 1440;
+        const urlTextura = (base) => `${base}-${ANCHO_TEXTURA}.webp`;
 
         // --- Parámetros de la órbita (lo que querrás tocar) ---------
         const RADIUS_X   = 5.0;    // ancho del círculo
@@ -1943,6 +2027,7 @@
         const canvas   = document.getElementById('gl');
         const hintEl   = document.getElementById('scrollHint');
         const stageEl  = document.querySelector('.scroll-stage');
+        const brandEl  = document.querySelector('.brand');
 
         // Una etiqueta DOM por tarjeta — se posiciona y se atenúa cada
         // frame según dónde proyecte esa tarjeta en pantalla (ver animate()).
@@ -1980,11 +2065,25 @@
         const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
         camera.position.set(0, 0, 11.5);
 
+        // El coste de pintar crece con el CUADRADO de este número. Los móviles
+        // declaran devicePixelRatio de 3 y hasta 4, así que el hero acababa
+        // rasterizando varios millones de píxeles por frame para un canvas que
+        // se ve a 400 puntos de ancho: eso es lo que hacía que el scroll fuera
+        // a tirones. A 1.5 sigue viéndose nítido porque lo que se pinta son
+        // fotografías, no texto fino.
+        const densidadPixel = () => Math.min(devicePixelRatio, innerWidth < 760 ? 1.5 : 2);
+
         const renderer = new THREE.WebGLRenderer({
-            canvas, alpha: true, antialias: true, powerPreference: 'high-performance',
+            canvas,
+            alpha: true,
+            // El antialias por multimuestreo se paga en cada frame y a pantalla
+            // completa. En móvil no compensa: los bordes redondeados de las
+            // tarjetas ya los suaviza el propio shader con smoothstep.
+            antialias: innerWidth >= 760,
+            powerPreference: 'high-performance',
         });
         renderer.setSize(innerWidth, innerHeight);
-        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.setPixelRatio(densidadPixel());
 
         // --- Shaders -----------------------------------------------
         const vertexShader = /* glsl */`
@@ -2126,6 +2225,9 @@
         const geometry = new THREE.PlaneGeometry(PLANE_W, PLANE_H, 32, 24);
         const cards    = [];
 
+        // Texturas que aún no se han pedido, para poder diferirlas.
+        const pendientes = [];
+
         CARDS.forEach((cfg, i) => {
             const material = new THREE.ShaderMaterial({
                 vertexShader, fragmentShader,
@@ -2145,14 +2247,29 @@
                 },
             });
 
-            const texture = loader.load(
-                cfg.src,
-                (tex) => { tex.colorSpace = THREE.SRGBColorSpace; fitCover(tex, material); },
-                undefined,
-                () => console.warn('No se pudo cargar la textura:', cfg.src)
-            );
-            texture.colorSpace = THREE.SRGBColorSpace;
-            material.uniforms.uTex.value = texture;
+            const pedirTextura = () => {
+                const texture = loader.load(
+                    urlTextura(cfg.src),
+                    (tex) => { tex.colorSpace = THREE.SRGBColorSpace; fitCover(tex, material); },
+                    undefined,
+                    () => console.warn('No se pudo cargar la textura:', cfg.src)
+                );
+                texture.colorSpace = THREE.SRGBColorSpace;
+                // Las tarjetas nunca se ven de cerca ni giran en 3D real, así
+                // que las mipmaps trilineales no aportan y sí cuestan memoria
+                // y tiempo de subida a GPU en móvil.
+                texture.generateMipmaps = false;
+                texture.minFilter = THREE.LinearFilter;
+                material.uniforms.uTex.value = texture;
+            };
+
+            // La tarjeta 0 es la que está de frente al entrar: se pide ya.
+            // Las demás solo aparecen al hacer scroll, así que en móvil —donde
+            // además están ocultas del todo— se dejan para cuando el navegador
+            // termine con lo urgente. En escritorio se ven atenuadas desde el
+            // principio, así que ahí se cargan todas de inmediato.
+            if (i === 0) pedirTextura();
+            else pendientes.push(pedirTextura);
 
             const mesh = new THREE.Mesh(geometry, material);
             // Posición inicial equiespaciada en el círculo
@@ -2182,17 +2299,26 @@
         // --- Isotipo Nize en el centro del círculo -----------------
         // Va como plano 3D (no como <img> en HTML) para que las tarjetas
         // que pasan por delante lo tapen y las de detrás queden debajo.
-        const LOGO_SIZE = 2.0;   // tamaño del isotipo
+        const LOGO_SIZE = 2.0;   // lado del plano que lleva el isotipo
         const LOGO_LIFT = 0.3;   // lo sube respecto al centro de la órbita,
                                  // para despegarlo de la imagen de delante
+        // Fracción del alto del PNG que tiene píxeles opacos (422 de 768): el
+        // resto es margen transparente y no cuenta para separar del botón.
+        const OPACO_Y   = 0.55;
+        const FLOTACION = 0.09;  // amplitud del vaivén que le da animate()
+        const AIRE_PX   = 18;    // separación mínima con el botón, en píxeles
 
         const logoTex = loader.load(
-            'assets/images/nize-isotipo.png',
+            innerWidth < 760
+                ? 'assets/images/nize-isotipo-256.webp'
+                : 'assets/images/nize-isotipo-512.webp',
             (t) => { t.colorSpace = THREE.SRGBColorSpace; },
             undefined,
             () => console.warn('No se pudo cargar el isotipo')
         );
         logoTex.colorSpace = THREE.SRGBColorSpace;
+        logoTex.generateMipmaps = false;
+        logoTex.minFilter = THREE.LinearFilter;
 
         const logo = new THREE.Mesh(
             new THREE.PlaneGeometry(LOGO_SIZE, LOGO_SIZE),
@@ -2214,6 +2340,9 @@
         let centerY = CENTER_Y;
         let cardScale = 1;
         let logoY = CENTER_Y + LOGO_LIFT;
+        // El isotipo ya no hereda la escala de las tarjetas: puede encoger por
+        // su cuenta cuando el hueco entre el botón y la tarjeta es estrecho.
+        let logoScale = 1;
         // En móvil solo se muestra la tarjeta protagonista. Con la pantalla
         // estrecha, las hermanas a medio desintegrar se apelotonan y forman
         // una banda de ruido cruzando el hero: el efecto que en escritorio
@@ -2255,6 +2384,37 @@
                 logoY = CENTER_Y + LOGO_LIFT;
             }
 
+            // --- Isotipo: colocado por medida, no por número fijo ----------
+            // El bloque del logotipo (nombre + claim + botón "Ver Nize") mide
+            // lo que mide según el ancho de la pantalla, el tamaño de fuente
+            // del sistema y si el claim parte en dos líneas. Con una Y fija,
+            // en pantallas cortas la N acababa metiéndose DEBAJO del botón
+            // (se veía asomar por los lados). Aquí se lee dónde termina el
+            // bloque de verdad y se traduce esa coordenada de pantalla a
+            // coordenadas de mundo del plano z = 0, que es donde está el
+            // isotipo.
+            const mitadFov  = (camera.fov * Math.PI / 180) / 2;
+            const altoMundo = 2 * camera.position.z * Math.tan(mitadFov);
+            const aMundoY   = (py) => (0.5 - py / innerHeight) * altoMundo;
+
+            // Techo: donde acaba el bloque del logotipo, más un respiro.
+            const techo = aMundoY(brandEl.getBoundingClientRect().bottom + AIRE_PX);
+            // Suelo: borde superior de la tarjeta que está de frente (ángulo 0),
+            // con la escala que le toca al estar delante del todo.
+            const suelo = (-radiusY + centerY) + (PLANE_H / 2) * (1.22 * cardScale);
+
+            // Alto que el isotipo puede ocupar sin tocar ni el botón ni la
+            // tarjeta, descontando el vaivén de la animación de flotación.
+            // Solo una parte del PNG tiene píxeles opacos: el resto es margen
+            // transparente, y contarlo daría una separación mucho mayor que la
+            // que se ve en pantalla.
+            const disponible = Math.max(techo - suelo - FLOTACION * 2, 0);
+            const deseado    = LOGO_SIZE * OPACO_Y * cardScale;
+            const visible    = Math.min(deseado, disponible);
+
+            logoScale = visible / (LOGO_SIZE * OPACO_Y);
+            logoY     = techo - FLOTACION - visible / 2;
+
             // El ancho de la etiqueta depende del viewport (86vw en móvil),
             // así que se remide aquí, que es lo que corre al redimensionar.
             labelHalf = sideLabels.length
@@ -2262,6 +2422,18 @@
                 : 0;
         }
         fitScene();
+
+        // Las texturas que no se ven en el primer pintado se piden cuando el
+        // navegador ya no tiene nada urgente entre manos. En escritorio las
+        // tarjetas del fondo sí se ven (atenuadas) desde el principio, así que
+        // allí solo se espera a que termine la carga; en móvil están ocultas
+        // del todo y pueden esperar de verdad.
+        (function cargarResto() {
+            const soltar = () => pendientes.splice(0).forEach((fn) => fn());
+            if (!soloProtagonista) { soltar(); return; }
+            if ('requestIdleCallback' in window) requestIdleCallback(soltar, { timeout: 3000 });
+            else addEventListener('load', () => setTimeout(soltar, 400), { once: true });
+        })();
 
         // --- Scroll → ángulo del círculo ---------------------------
         let targetAngle  = 0;   // destino marcado por el scroll
@@ -2433,8 +2605,8 @@
             camera.lookAt(0, 0, 0);
 
             // Isotipo: flotación suave y giro leve siguiendo al ratón
-            logo.position.y = logoY + Math.sin(t * 0.5) * 0.09;
-            logo.scale.setScalar(cardScale);
+            logo.position.y = logoY + Math.sin(t * 0.5) * FLOTACION;
+            logo.scale.setScalar(logoScale);
             logo.rotation.y = pointer.x * 0.22;
             logo.rotation.x = -pointer.y * 0.16;
 
@@ -2605,7 +2777,7 @@
 
         function openLightbox(mesh) {
             const cfg = CARDS[mesh.userData.index];
-            lightboxImg.src = cfg.src;
+            lightboxImg.src = `${cfg.src}-1440.webp`;
             lightboxImg.alt = cfg.label;
             lightboxName.textContent    = 'Nize · Gestión de alquileres';
             lightboxTitulo.textContent  = cfg.label;
@@ -2686,7 +2858,7 @@
                 camera.aspect = innerWidth / innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(innerWidth, innerHeight);
-                renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+                renderer.setPixelRatio(densidadPixel());
                 fitScene();
                 halfW = innerWidth / 2;
                 halfH = innerHeight / 2;
