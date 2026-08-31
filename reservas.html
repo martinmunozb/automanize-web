@@ -898,7 +898,7 @@
 
   async function submitNoAvailabilityMessage() {
     const nombre = document.getElementById('noAvailNombre').value.trim();
-    const telefono = document.getElementById('noAvailTelefono').value.trim();
+    const telefono = document.getElementById('noAvailTelefono').value.trim().replace(/\s+/g, '');
     const email = document.getElementById('noAvailEmail').value.trim();
     const mensaje = document.getElementById('noAvailMensaje').value.trim();
     if (!nombre || !telefono || !email || !mensaje) { showErr('Completa todos los campos'); return; }

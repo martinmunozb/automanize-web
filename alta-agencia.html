@@ -476,11 +476,11 @@
 
     const nombreAgencia = document.getElementById('fNombreAgencia').value.trim();
     const razonSocial   = document.getElementById('fRazonSocial').value.trim();
-    const nif           = document.getElementById('fNif').value.trim();
+    const nif           = document.getElementById('fNif').value.trim().replace(/\s+/g, '');
     const email         = document.getElementById('fEmail').value.trim();
-    const telAdmin      = document.getElementById('fTelAdmin').value.trim();
-    const telWhatsapp   = document.getElementById('fTelWhatsapp').value.trim();
-    const iban          = document.getElementById('fIban').value.trim();
+    const telAdmin      = document.getElementById('fTelAdmin').value.trim().replace(/\s+/g, '');
+    const telWhatsapp   = document.getElementById('fTelWhatsapp').value.trim().replace(/\s+/g, '');
+    const iban          = document.getElementById('fIban').value.trim().replace(/\s+/g, '');
     const persona       = document.getElementById('fPersona').value.trim();
     const fecha         = document.getElementById('fFecha').value;
     const notas         = document.getElementById('fNotas').value.trim();

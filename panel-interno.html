@@ -1592,7 +1592,7 @@
       p_nombre_agencia: nombre,
       p_contacto_nombre: document.getElementById('crmContactoNombre').value.trim() || null,
       p_email: document.getElementById('crmEmail').value.trim() || null,
-      p_telefono: document.getElementById('crmTelefono').value.trim() || null,
+      p_telefono: document.getElementById('crmTelefono').value.trim().replace(/\s+/g, '') || null,
       p_estado: document.getElementById('crmEstado').value,
       p_plan: document.getElementById('crmPlan').value.trim() || null,
       p_fecha_alta: document.getElementById('crmFechaAlta').value || null,
