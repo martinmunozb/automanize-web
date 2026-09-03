@@ -51,7 +51,41 @@
         <div class="mockup-wrap reveal delay-4" id="producto">
           <div class="mockup-frame">
             <div class="browser-bar"><span></span><span></span><span></span><b>Tu negocio, ordenado en un solo lugar</b></div>
-            <img src="assets/images/nize-dashboard-hero-4k.png" alt="Panel profesional del CRM inmobiliario Nize" width="3840" height="2160" loading="eager" fetchpriority="high" />
+            <!-- Vídeo de producto. Para publicarlo basta con dejar los ficheros
+                 en assets/video/ con estos nombres; no hay que tocar nada más.
+                 Los comandos de exportación están en assets/video/README.md.
+
+                 El póster se ve mientras el vídeo carga y es lo que queda si el
+                 navegador no puede reproducirlo, así que nunca hay un hueco.
+
+                 muted + playsinline son OBLIGATORIOS para que el navegador deje
+                 arrancar solo: ningún navegador permite autoplay con sonido.
+                 El botón de sonido de abajo lo activa con un clic. -->
+            <div class="video-shell" data-video-shell>
+              <video
+                class="hero-video"
+                data-hero-video
+                width="1920" height="1080"
+                poster="assets/images/nize-demo-poster-1920.webp"
+                autoplay muted loop playsinline preload="metadata"
+                disablepictureinpicture
+                aria-label="Demostración del CRM inmobiliario Nize">
+                <!-- El orden importa: el navegador coge la PRIMERA que entiende.
+                     AV1 y VP9 dan mejor calidad por MB; el MP4 es el que
+                     garantiza que funcione en Safari y en equipos antiguos. -->
+                <source src="assets/video/nize-demo.av1.mp4" type="video/mp4; codecs=av01.0.08M.08" />
+                <source src="assets/video/nize-demo.webm" type="video/webm; codecs=vp9,opus" />
+                <source src="assets/video/nize-demo.mp4" type="video/mp4; codecs=avc1.640028,mp4a.40.2" />
+                <img src="assets/images/nize-demo-poster-1920.webp"
+                     alt="Panel profesional del CRM inmobiliario Nize" width="1920" height="1080" />
+              </video>
+
+              <button class="video-sound" type="button" data-video-sound
+                      aria-label="Activar sonido" hidden>
+                <span class="video-sound-icon" aria-hidden="true">🔇</span>
+                <span class="video-sound-text">Activar sonido</span>
+              </button>
+            </div>
           </div>
           <div class="hero-glow"></div>
         </div>
