@@ -1,6 +1,7 @@
 (function () {
   var STORAGE_KEY = 'automanize_cookie_consent';
   var PIXEL_ID = '878301471795466';
+  var GA_ID = 'G-SQ2QT5PJTL';
 
   function getConsent() {
     try {
@@ -25,8 +26,23 @@
     fbq('track', 'PageView');
   }
 
+  function loadGA4() {
+    if (window.gtag) return;
+    var t = document.createElement('script');
+    t.async = true;
+    t.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(t);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', GA_ID);
+  }
+
   function applyConsent(consent) {
-    if (consent && consent.marketing) loadMetaPixel();
+    if (consent && consent.marketing) {
+      loadMetaPixel();
+      loadGA4();
+    }
   }
 
   function setConsent(marketing) {
