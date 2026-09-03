@@ -26,23 +26,51 @@
     fbq('track', 'PageView');
   }
 
-  function loadGA4() {
-    if (window.gtag) return;
+  // Modo de consentimiento v2 de Google: gtag.js se carga siempre, pero arranca con
+  // el consentimiento DENEGADO — no escribe cookies ni identificadores hasta que el
+  // usuario acepta. Es lo que permite que Google detecte la etiqueta sin saltarse el
+  // consentimiento. El Pixel de Meta no tiene equivalente, asi que sigue sin cargarse
+  // hasta que hay consentimiento explicito.
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { dataLayer.push(arguments); };
+
+  function initGoogleConsentMode() {
+    var stored = getConsent();
+    var initial = stored && stored.marketing ? 'granted' : 'denied';
+
+    gtag('consent', 'default', {
+      ad_storage: initial,
+      ad_user_data: initial,
+      ad_personalization: initial,
+      analytics_storage: initial,
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+
+    gtag('js', new Date());
+    gtag('config', GA_ID);
+
     var t = document.createElement('script');
     t.async = true;
     t.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
     document.head.appendChild(t);
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function () { dataLayer.push(arguments); };
-    gtag('js', new Date());
-    gtag('config', GA_ID);
+  }
+
+  function updateGoogleConsent(marketing) {
+    var value = marketing ? 'granted' : 'denied';
+    gtag('consent', 'update', {
+      ad_storage: value,
+      ad_user_data: value,
+      ad_personalization: value,
+      analytics_storage: value
+    });
   }
 
   function applyConsent(consent) {
-    if (consent && consent.marketing) {
-      loadMetaPixel();
-      loadGA4();
-    }
+    var marketing = !!(consent && consent.marketing);
+    updateGoogleConsent(marketing);
+    if (marketing) loadMetaPixel();
   }
 
   function setConsent(marketing) {
@@ -83,7 +111,7 @@
     wrap.id = 'automanize-cookie-banner';
     wrap.innerHTML =
       '<div class="acb-box">' +
-        '<p class="acb-text">Utilizamos cookies propias y de terceros para garantizar el funcionamiento del sitio y, con tu consentimiento, para analizar el uso y/o mostrar contenido personalizado. Puedes aceptar, rechazar o configurar las cookies. Más información en nuestra <a href="cookies.html">Política de Cookies</a>.</p>' +
+        '<p class="acb-text">Utilizamos cookies propias y de terceros para garantizar el funcionamiento del sitio y, con tu consentimiento, para analizar el uso y/o mostrar contenido personalizado. Puedes aceptar, rechazar o configurar las cookies. Más información en nuestra <a href="/cookies.html">Política de Cookies</a>.</p>' +
         '<div class="acb-actions">' +
           '<button type="button" class="acb-btn acb-reject" id="acb-reject">Rechazar</button>' +
           '<button type="button" class="acb-btn acb-config" id="acb-config">Configurar</button>' +
@@ -91,7 +119,7 @@
         '</div>' +
         '<div class="acb-settings" id="acb-settings" hidden>' +
           '<label class="acb-toggle"><input type="checkbox" checked disabled /> Necesarias (siempre activas)</label>' +
-          '<label class="acb-toggle"><input type="checkbox" id="acb-marketing" /> Publicidad / medición (Meta Pixel)</label>' +
+          '<label class="acb-toggle"><input type="checkbox" id="acb-marketing" /> Publicidad / medición (Google Analytics y Meta Pixel)</label>' +
           '<button type="button" class="acb-btn acb-save" id="acb-save">Guardar preferencias</button>' +
         '</div>' +
       '</div>';
@@ -106,9 +134,13 @@
     });
   }
 
+  // El modo de consentimiento se declara siempre, antes de nada: si ya hay decision
+  // guardada arranca con ese estado; si no, arranca denegado y espera al banner.
+  initGoogleConsentMode();
+
   var existing = getConsent();
   if (existing) {
-    applyConsent(existing);
+    if (existing.marketing) loadMetaPixel();
   } else {
     showBanner();
   }
