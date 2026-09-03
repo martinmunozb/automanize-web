@@ -142,7 +142,9 @@
         <li>Herramientas de agenda, videollamada y sincronizacion de calendario.</li>
         <li>Proveedores de correo electronico y comunicaciones.</li>
         <li>Proveedores asociados a las integraciones usadas por el cliente, incluyendo Meta y OpenAI cuando resulten necesarios para funcionalidades conectadas.</li>
-        <li>Herramientas de analitica y medicion, si estan activadas.</li>
+        <li>Stripe, para el procesamiento de pagos de suscripcion; no almacenamos los datos de la tarjeta.</li>
+        <li>DocuSeal, para la firma electronica de contratos cuando el usuario utiliza esta funcionalidad.</li>
+        <li>Meta Pixel, unicamente si aceptas la categoria de publicidad/medicion en el banner de cookies.</li>
       </ul>
       <p>Con estos proveedores se formalizan los correspondientes contratos de encargo de tratamiento cuando resulten exigibles.</p>
     </section>
@@ -211,12 +213,13 @@
           art. 6.1.b RGPD.
         </li>
         <li>
-          <strong>Destinatarios:</strong> Supabase (alojamiento y base de datos), n8n
-          (automatizacion de flujos internos), Meta / WhatsApp Business API (envio y recepcion de
-          mensajes), OpenAI (asistencia automatizada en la gestion de conversaciones) y Google
-          Drive / Gmail (gestion documental y de correo asociada a tu solicitud). Meta y OpenAI
-          pueden tratar datos fuera del Espacio Economico Europeo; en esos casos aplicamos las
-          garantias del art. 44 y siguientes del RGPD, como clausulas contractuales tipo.
+          <strong>Destinatarios:</strong> Supabase (alojamiento y base de datos), nuestro backend
+          propio de automatizacion (automanize-backend), Meta / WhatsApp Business API (envio y
+          recepcion de mensajes), OpenAI (asistencia automatizada en la gestion de conversaciones),
+          DocuSeal (si tu contrato se firma electronicamente) y Google Drive / Gmail (gestion
+          documental y de correo asociada a tu solicitud). Meta, OpenAI y DocuSeal pueden tratar
+          datos fuera del Espacio Economico Europeo; en esos casos aplicamos las garantias del
+          art. 44 y siguientes del RGPD, como clausulas contractuales tipo.
         </li>
         <li>
           <strong>Conservacion:</strong> mientras dure la gestion de tu solicitud y, si prospera,
