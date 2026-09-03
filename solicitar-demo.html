@@ -113,7 +113,16 @@
         .demo-form.intentado .demo-campo input:invalid { border-color: #e0705f; }
         .demo-form.intentado .demo-campo input:invalid ~ .demo-error { display: block; }
 
-        .demo-legal { font-size: .72rem; line-height: 1.45; color: var(--muted); margin-top: .1rem; }
+        .demo-campo-check { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: .55rem; }
+        .demo-campo-check input[type="checkbox"] {
+            width: 1rem; height: 1rem; flex: 0 0 auto; margin-top: .15rem; padding: 0;
+            accent-color: var(--primary);
+        }
+        .demo-campo-check > span:not(.demo-error) {
+            flex: 1 1 auto; font-size: .82rem; font-weight: 400; line-height: 1.5; color: var(--muted);
+        }
+        .demo-campo-check > span:not(.demo-error) a { color: var(--text); text-decoration: underline; }
+        .demo-campo-check .demo-error { flex-basis: 100%; }
 
         /* Error de envío (alta rechazada por el servidor: NIF inválido,
            duplicado, etc.) — distinto del error de validación por campo
@@ -337,10 +346,11 @@
 
                     <p class="demo-msg-servidor" id="demoMsgServidor"></p>
 
-                    <p class="demo-legal">
-                        Al enviar aceptas que te contactemos sobre la demo. Consulta la
-                        <a href="nize-privacy.html">política de privacidad</a>.
-                    </p>
+                    <label class="demo-campo demo-campo-check">
+                        <input type="checkbox" name="privacidad_aceptada" required />
+                        <span>He leído y acepto la <a href="nize-privacy.html" target="_blank" rel="noopener">política de privacidad</a>. Al enviar aceptas que te contactemos sobre la demo.</span>
+                        <span class="demo-error">Debes aceptar la política de privacidad para continuar.</span>
+                    </label>
 
                     <button type="submit" class="specular-btn">
                         <span>Solicitar demo y descargar</span>
@@ -490,6 +500,7 @@
                             email: datos.email,
                             nif: datos.nif,
                             website: datos.website,
+                            privacidad_aceptada: datos.privacidad_aceptada === 'on',
                         }),
                     });
                     const data = await res.json().catch(() => ({}));

@@ -349,6 +349,11 @@
         <textarea id="fNotas" placeholder="Cualquier cosa que nos quieras contar..."></textarea>
       </div>
 
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.5;">
+        <input type="checkbox" id="fPrivacidad" style="margin-top:3px;" />
+        <span>Los archivos y datos que subas se usarán para dar de alta tu agencia en Automanize, conforme a nuestra <a href="nize-privacy.html" target="_blank" rel="noopener">Política de Privacidad</a>. He leído y acepto la política de privacidad.</span>
+      </label>
+
       <button class="btn-send" id="btnSend">Enviar ficha</button>
     </div>
 
@@ -487,6 +492,11 @@
 
     if (!nombreAgencia || !persona || !fecha) {
       showFieldErr('Completa al menos el nombre de la agencia, la persona que rellena y la fecha.');
+      return;
+    }
+
+    if (!document.getElementById('fPrivacidad').checked) {
+      showFieldErr('Debes aceptar la política de privacidad para continuar.');
       return;
     }
 
