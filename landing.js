@@ -168,4 +168,67 @@
     entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('in-view'));
   }, { threshold: .14 });
   document.querySelectorAll('.reveal-on-scroll').forEach(element => observer.observe(element));
+
+  // ── Video de producto del hero ──────────────────────────────────────────
+  // Arranca solo al entrar en pantalla y se pausa al salir: un video grande
+  // reproduciendose fuera de vista gasta bateria y datos para nada.
+  //
+  // El autoplay solo lo permite el navegador si va en silencio, asi que el
+  // video arranca mudo y se ofrece un boton para activar el sonido. Si el
+  // fichero no trae pista de audio, el boton no llega a aparecer.
+  const videoHero = document.querySelector('[data-hero-video]');
+  if (videoHero) {
+    const botonSonido = document.querySelector('[data-video-sound]');
+    const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (sinMovimiento) {
+      // Con "reducir movimiento" activado no se reproduce nada solo: se deja el
+      // poster y los controles para que lo lance quien quiera.
+      videoHero.removeAttribute('autoplay');
+      videoHero.controls = true;
+    } else {
+      const visorVideo = new IntersectionObserver(entradas => {
+        entradas.forEach(entrada => {
+          if (entrada.isIntersecting) {
+            // play() devuelve una promesa que el navegador rechaza si decide
+            // bloquear el autoplay. Sin el catch queda un error suelto en
+            // consola; aqui se cae a mostrar los controles.
+            const intento = videoHero.play();
+            if (intento && intento.catch) intento.catch(() => { videoHero.controls = true; });
+          } else if (!videoHero.paused) {
+            videoHero.pause();
+          }
+        });
+      }, { threshold: .25 });
+      visorVideo.observe(videoHero);
+    }
+
+    // El boton de sonido solo tiene sentido si el video trae audio. No hay una
+    // forma estandar de saberlo, asi que se prueban las propiedades que exponen
+    // los distintos navegadores; si ninguna responde se asume que si lo tiene
+    // (mejor un boton de mas que un video mudo sin manera de activarlo).
+    const tieneAudio = video => {
+      if (typeof video.mozHasAudio === 'boolean') return video.mozHasAudio;
+      if (typeof video.webkitAudioDecodedByteCount === 'number') return video.webkitAudioDecodedByteCount > 0;
+      if (video.audioTracks) return video.audioTracks.length > 0;
+      return true;
+    };
+
+    if (botonSonido) {
+      videoHero.addEventListener('loadeddata', () => {
+        if (tieneAudio(videoHero)) botonSonido.hidden = false;
+      }, { once: true });
+
+      botonSonido.addEventListener('click', () => {
+        videoHero.muted = !videoHero.muted;
+        const icono = botonSonido.querySelector('.video-sound-icon');
+        const texto = botonSonido.querySelector('.video-sound-text');
+        if (icono) icono.textContent = videoHero.muted ? '\u{1F507}' : '\u{1F50A}';
+        if (texto) texto.textContent = videoHero.muted ? 'Activar sonido' : 'Silenciar';
+        botonSonido.setAttribute('aria-label', videoHero.muted ? 'Activar sonido' : 'Silenciar');
+        // Al quitar el silencio puede haber quedado pausado por el bloqueo.
+        if (!videoHero.muted && videoHero.paused) videoHero.play().catch(() => {});
+      });
+    }
+  }
 })();
