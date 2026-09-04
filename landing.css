@@ -11,11 +11,15 @@
    nada de arriba/abajo, para quedar lo mas fiel posible a como se grabo. */
 .video-shell{aspect-ratio:5/4}
 video.hero-video{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-/* A pantalla completa el hueco pasa a ser el viewport entero (cualquier
-   proporcion, vertical u horizontal segun el movil): se suelta la proporcion
-   fija de arriba para que el video ocupe TODO el espacio real disponible,
-   cover se sigue encargando de recortar sin deformar. */
-.video-shell:fullscreen,.video-shell:-webkit-full-screen{aspect-ratio:auto;width:100vw;height:100dvh}
+/* A pantalla completa: nada de recorte, el video integro tal cual se grabo
+   (franjas grises originales incluidas), centrado en el hueco — el hueco
+   pasa a ser el viewport entero (cualquier proporcion, vertical u horizontal
+   segun como se gire el movil), asi que se suelta la proporcion fija de
+   arriba y se cambia cover por contain: cover recorta para rellenar SIEMPRE,
+   contain nunca recorta, deja barras negras donde haga falta y respeta
+   object-position:center para que quede centrado en cualquier proporcion. */
+.video-shell:fullscreen,.video-shell:-webkit-full-screen{aspect-ratio:auto;width:100vw;height:100dvh;background:#000}
+.video-shell:fullscreen video.hero-video,.video-shell:-webkit-full-screen video.hero-video{object-fit:contain}
 .video-controls{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
 .video-controls-group{display:flex;align-items:center;gap:8px;pointer-events:none}
 .video-btn{pointer-events:auto;min-height:36px;min-width:36px;padding:0 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(255,255,255,.28);border-radius:99px;background:rgba(20,18,16,.62);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:600;line-height:1;cursor:pointer;transition:background .2s,transform .2s,opacity .2s}
