@@ -1060,6 +1060,10 @@
                             <span class="text-[12px] font-bold text-[#333] block mb-1">NIF / CIF / NIE</span>
                             <input type="text" name="nif" required maxlength="12" autocomplete="off" placeholder="B12345678" class="w-full border border-[#e0e0e0] rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-[#FFB300]" />
                         </label>
+                        <label class="flex items-start gap-2 text-[12px] text-[#666] leading-relaxed">
+                            <input type="checkbox" name="privacidad_aceptada" required class="mt-1" />
+                            <span>He leído y acepto la <a href="nize-privacy.html" target="_blank" rel="noopener" class="underline text-[#111]">política de privacidad</a>.</span>
+                        </label>
                         <div style="position:absolute;left:-9999px" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
                         <p id="pricingError" class="text-[13px] text-red-600"></p>
                         <button type="submit" class="w-full bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Empezar prueba gratis</button>
@@ -1210,6 +1214,6 @@
     </footer>
     <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
     <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
-    <script src="assets/js/crm-pricing.js?v=3" defer></script>
+    <script src="assets/js/crm-pricing.js?v=4" defer></script>
 </body>
 </html>

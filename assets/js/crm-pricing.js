@@ -116,6 +116,7 @@
           email: datos.email,
           nif: datos.nif,
           website: datos.website,
+          privacidad_aceptada: datos.privacidad_aceptada === 'on',
           event_source_url: window.location.href,
         }),
       });

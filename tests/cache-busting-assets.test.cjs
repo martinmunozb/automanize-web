@@ -30,5 +30,5 @@ test('todas las paginas versionan el javascript compartido de interfaz', () => {
 test('crm versiona el css de pantallas reales', () => {
   const page = fs.readFileSync(path.join(rootDir, 'crm.html'), 'utf8');
 
-  assert.match(page, /assets\/css\/crm-apple-cards-carousel\.css\?v=20260814/);
+  assert.match(page, /assets\/css\/crm-embla-carousel\.css\?v=20260818/);
 });
