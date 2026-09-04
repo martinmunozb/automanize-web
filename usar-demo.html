@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://edjugpekcntzvqaskbmc.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+    <title>Tu prueba de Nize — Automanize</title>
+
+    <!-- Pagina oculta: solo se llega por el enlace personal del correo que se
+         manda al agendar la llamada de Elite Gold (Edge Function
+         calcom-booking). No la enlaza ninguna pagina del sitio y no se indexa:
+         sin el token del correo no muestra formulario. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="assets/css/automanize-theme.css" />
+    <link rel="stylesheet" href="assets/css/automanize-dock.css" />
+    <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
+
+    <style>
+        .demo-wrap {
+            position: relative;
+            z-index: 4;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: clamp(2rem, 5vw, 3.5rem) 1.5rem 4rem;
+        }
+
+        .demo-head { text-align: center; max-width: 640px; margin: 0 auto 2.5rem; }
+        .demo-head h1 {
+            font-size: clamp(1.9rem, 4.4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.18;
+            color: var(--text);
+        }
+        .demo-head p {
+            margin-top: 1rem;
+            color: var(--muted);
+            font-size: clamp(.95rem, 1.4vw, 1.05rem);
+            line-height: 1.65;
+        }
+
+        .demo-cols {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            align-items: start;
+        }
+        @media (min-width: 900px) {
+            .demo-cols { grid-template-columns: 1fr 1.05fr; gap: 2.5rem; }
+        }
+
+        .demo-puntos { display: flex; flex-direction: column; gap: 1.15rem; }
+        .demo-punto { display: flex; gap: .85rem; align-items: flex-start; }
+        .demo-punto svg {
+            width: 22px; height: 22px; flex: none; color: var(--primary); margin-top: .15rem;
+        }
+        .demo-punto strong { display: block; font-size: .97rem; color: var(--text); font-weight: 700; }
+        .demo-punto span { font-size: .88rem; line-height: 1.55; color: var(--muted); }
+
+        .demo-card {
+            border-radius: 1.75rem;
+            border: 1px solid rgba(0, 0, 0, .08);
+            background: #fff;
+            box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .14);
+            padding: clamp(1.4rem, 3vw, 2.2rem);
+        }
+
+        .demo-form { display: flex; flex-direction: column; gap: .75rem; }
+        .demo-campo { display: flex; flex-direction: column; gap: .25rem; }
+        .demo-campo > span {
+            font-size: .74rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .demo-campo input {
+            width: 100%;
+            font: inherit;
+            font-size: .88rem;
+            color: var(--text);
+            padding: .52rem .7rem;
+            border-radius: .6rem;
+            border: 1px solid rgba(0, 0, 0, .14);
+            background: #fff;
+            transition: border-color .18s, box-shadow .18s;
+        }
+        .demo-campo input::placeholder { color: #a5a5b0; }
+        .demo-campo input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 171, 0, .18);
+        }
+
+        /* Campos que vienen del correo: se enseñan para que se vea que son
+           correctos, pero no se pueden tocar. El email además identifica la
+           invitación, así que cambiarlo aquí no tendría ningún efecto. */
+        .demo-campo input[readonly] {
+            background: #f6f6f7;
+            color: var(--muted);
+            cursor: default;
+        }
+        .demo-campo input[readonly]:focus { border-color: rgba(0, 0, 0, .14); box-shadow: none; }
+        .demo-campo-fijo > span::after {
+            content: ' · ya lo tenemos';
+            font-weight: 400;
+            text-transform: none;
+            opacity: .7;
+        }
+
+        .demo-error { font-size: .78rem; color: #c4321f; display: none; }
+        .demo-form.intentado .demo-campo input:invalid { border-color: #e0705f; }
+        .demo-form.intentado .demo-campo input:invalid ~ .demo-error { display: block; }
+
+        .demo-campo-check { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: .55rem; }
+        .demo-campo-check input[type="checkbox"] {
+            width: 1rem; height: 1rem; flex: 0 0 auto; margin-top: .15rem; padding: 0;
+            accent-color: var(--primary);
+        }
+        .demo-campo-check > span:not(.demo-error) {
+            flex: 1 1 auto; font-size: .82rem; font-weight: 400; line-height: 1.5; color: var(--muted);
+        }
+        .demo-campo-check > span:not(.demo-error) a { color: var(--text); text-decoration: underline; }
+        .demo-campo-check .demo-error { flex-basis: 100%; }
+
+        .demo-msg-servidor {
+            display: none;
+            font-size: .82rem;
+            color: #c4321f;
+            background: rgba(196, 50, 31, .08);
+            border: 1px solid rgba(196, 50, 31, .25);
+            border-radius: .6rem;
+            padding: .55rem .7rem;
+        }
+        .demo-msg-servidor.is-on { display: block; }
+
+        /* ===== SPECULAR BUTTON — mismo componente que solicitar-demo.html:
+           el tema trae una versión plana y aquí se recupera la completa, con
+           el brillo siguiendo al puntero. ===== */
+        .specular-btn {
+            --sb-radius: 14px;
+            --sb-base: #525252;
+            --sb-line: #ffffff;
+            --sb-text: #f5f5f5;
+            --sb-thickness: 1px;
+            --sb-intensity: 1;
+            --sb-shine-size: 42%;
+            --sb-shine-fade: 68%;
+            --sb-speed: .35s;
+            --sb-x: 50%;
+            --sb-y: 50%;
+
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            height: 2.9rem;
+            padding: 0 1.6rem;
+            border-radius: var(--sb-radius);
+            background: var(--sb-base);
+            color: var(--sb-text);
+            font-size: .89rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: var(--sb-thickness) solid rgba(255, 255, 255, .18);
+            overflow: hidden;
+            isolation: isolate;
+            cursor: pointer;
+            box-shadow: none;
+            transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), border-color var(--sb-speed) ease;
+        }
+        .specular-btn:hover { transform: translateY(-2px); box-shadow: none; }
+        .specular-btn:disabled { opacity: .6; cursor: progress; transform: none; }
+
+        .specular-btn::before {
+            content: '';
+            position: absolute;
+            inset: calc(var(--sb-thickness) * -1);
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(circle at var(--sb-x) var(--sb-y),
+                        var(--sb-line) 0%, transparent var(--sb-shine-size));
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0) * .55);
+            mix-blend-mode: overlay;
+            transition: opacity var(--sb-speed) ease;
+        }
+
+        .specular-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            padding: var(--sb-thickness);
+            background: radial-gradient(circle at var(--sb-x) var(--sb-y),
+                        var(--sb-line) 0%, transparent var(--sb-shine-fade));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0));
+            transition: opacity var(--sb-speed) ease;
+        }
+
+        .demo-descarga { --sb-base: var(--primary); --sb-text: #171717; }
+        .demo-form .specular-btn { width: 100%; margin-top: .35rem; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .specular-btn::before, .specular-btn::after { transition: none; }
+        }
+
+        /* Pantallas alternativas: cargando, enlace inválido, cuenta ya creada
+           y confirmación. Solo una visible a la vez. */
+        .demo-panel[hidden] { display: none; }
+        .demo-panel { text-align: center; }
+
+        .demo-ok-icono {
+            width: 62px; height: 62px;
+            margin: 0 auto 1.1rem;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 171, 0, .14);
+            border: 1.5px solid rgba(255, 171, 0, .4);
+            color: #8a5d00;
+        }
+        .demo-ok-icono.es-error {
+            background: rgba(196, 50, 31, .09);
+            border-color: rgba(196, 50, 31, .32);
+            color: #a53a26;
+        }
+        .demo-ok-icono svg { width: 30px; height: 30px; }
+        .demo-panel h2 { font-size: 1.35rem; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+        .demo-panel p { margin-top: .7rem; color: var(--muted); font-size: .93rem; line-height: 1.6; }
+        .demo-panel .demo-descarga { margin-top: 1.6rem; }
+        .demo-nota { margin-top: 1rem; font-size: .78rem; color: var(--muted); }
+
+        .demo-cargando { color: var(--muted); font-size: .9rem; padding: 2rem 0; }
+
+        .demo-legal {
+            position: relative;
+            z-index: 4;
+            text-align: center;
+            padding: 0 1.5rem 7rem;
+            font-size: .78rem;
+            color: var(--muted);
+        }
+        .demo-legal a { color: var(--muted); text-decoration: underline; margin: 0 .4rem; }
+    </style>
+</head>
+
+<body>
+
+    <section class="demo-wrap">
+        <div class="demo-head">
+            <h1 id="tituloPagina">Tu prueba del <span class="shiny-gold">CRM Nize</span></h1>
+            <p>
+                Ya tienes tu llamada agendada, así que esto va directo: confirmas tu
+                teléfono y te lo descargas. La prueba de 7 días se activa sola, no hay
+                nada que solicitar ni que aprobar.
+            </p>
+        </div>
+
+        <div class="demo-cols">
+            <div class="demo-puntos">
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    <div>
+                        <strong>Se activa sola</strong>
+                        <span>No esperas a que nadie te apruebe nada: al darle al botón tu cuenta ya está creada.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18" /><path d="M8 4v3M16 4v3" /></svg>
+                    <div>
+                        <strong>El CRM completo</strong>
+                        <span>Inmuebles, contratos, cobros, contabilidad y equipo. No es una versión recortada.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                    <div>
+                        <strong>7 días, y se acaba</strong>
+                        <span>Pasada la semana deja de funcionar. No hay cobro automático ni hay que cancelar nada.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6.5v5c0 4.6 3.2 8.4 8 9.5 4.8-1.1 8-4.9 8-9.5v-5z" /></svg>
+                    <div>
+                        <strong>Enlace personal</strong>
+                        <span>Esta página es solo tuya: se abre con el enlace de tu correo y no está publicada.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-card" id="demoCard">
+
+                <!-- 1. Mientras se comprueba el token del enlace. -->
+                <div class="demo-panel demo-cargando" id="panelCargando">
+                    Comprobando tu enlace…
+                </div>
+
+                <!-- 2. Sin token, token inventado o invitación que ya no existe. -->
+                <div class="demo-panel" id="panelInvalido" hidden>
+                    <div class="demo-ok-icono es-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5" /><path d="M12 16.5h.01" /><circle cx="12" cy="12" r="9" /></svg>
+                    </div>
+                    <h2>Este enlace no es válido</h2>
+                    <p>
+                        Esta página solo se abre desde el enlace que te mandamos por correo al
+                        agendar la llamada. Ábrelo desde ahí, o escríbenos y te lo reenviamos.
+                    </p>
+                    <p class="demo-nota">automanize@gmail.com · +34 617 15 32 52</p>
+                </div>
+
+                <!-- 3. Formulario: solo el teléfono, el resto ya lo sabemos. -->
+                <form id="demoForm" class="demo-form" novalidate hidden>
+                    <label class="demo-campo demo-campo-fijo">
+                        <span>Nombre</span>
+                        <input type="text" name="nombre" id="campoNombre" readonly tabindex="-1" />
+                    </label>
+
+                    <label class="demo-campo demo-campo-fijo">
+                        <span>Correo electrónico</span>
+                        <input type="email" name="email" id="campoEmail" readonly tabindex="-1" />
+                    </label>
+
+                    <label class="demo-campo">
+                        <span>Teléfono</span>
+                        <!-- Sin minlength: cuenta caracteres, no dígitos. Se valida
+                             en JS igual que en solicitar-demo.html. -->
+                        <input type="tel" name="telefono" required autocomplete="tel"
+                               inputmode="tel" placeholder="+34 600 00 00 00" />
+                        <span class="demo-error">Escribe un teléfono válido (mínimo 9 dígitos).</span>
+                    </label>
+
+                    <p class="demo-msg-servidor" id="demoMsgServidor"></p>
+
+                    <label class="demo-campo demo-campo-check">
+                        <input type="checkbox" name="privacidad_aceptada" required />
+                        <span>He leído y acepto la <a href="nize-privacy.html" target="_blank" rel="noopener">política de privacidad</a>.</span>
+                        <span class="demo-error">Debes aceptar la política de privacidad para continuar.</span>
+                    </label>
+
+                    <button type="submit" class="specular-btn">
+                        <span>Usar la demo y descargar</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+                    </button>
+                </form>
+
+                <!-- 4. Cuenta recién creada, o enlace ya usado en otro momento.
+                     Las dos acaban aquí: lo único que cambia es el texto. -->
+                <div class="demo-panel" id="panelOk" hidden>
+                    <div class="demo-ok-icono">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    </div>
+                    <h2 id="okTitulo">¡Listo!</h2>
+                    <p id="okTexto">
+                        Tu cuenta ya está creada. <strong>Revisa tu correo</strong>: te hemos enviado
+                        tu contraseña y el código de activación que se pide dentro de la app.
+                        Tienes <strong>7 días de prueba gratis</strong> con todo el CRM.
+                    </p>
+
+                    <!-- href por defecto a la página de releases: si el JS que busca
+                         el instalador exacto falla, el botón sigue sirviendo. -->
+                    <a class="specular-btn demo-descarga" id="demoDescarga"
+                       href="https://github.com/NitramX7/Nize-Releases/releases/latest"
+                       target="_blank" rel="noopener noreferrer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12" /><path d="m7 11 5 5 5-5" /><path d="M4 21h16" /></svg>
+                        <span>Descargar CRM Nize</span>
+                    </a>
+
+                    <p class="demo-nota">Para Windows. Si usas otro sistema, dínoslo en la llamada.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <div class="demo-legal">
+        <a href="aviso-legal.html">Aviso legal</a>
+        <a href="nize-privacy.html">Privacidad</a>
+        <a href="cookies.html">Cookies</a>
+    </div>
+
+    <script>
+        (function () {
+            const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
+
+            const panelCargando = document.getElementById('panelCargando');
+            const panelInvalido = document.getElementById('panelInvalido');
+            const panelOk       = document.getElementById('panelOk');
+            const form          = document.getElementById('demoForm');
+            const campoNombre   = document.getElementById('campoNombre');
+            const campoEmail    = document.getElementById('campoEmail');
+            const msgServidor   = document.getElementById('demoMsgServidor');
+            const okTitulo      = document.getElementById('okTitulo');
+            const okTexto       = document.getElementById('okTexto');
+            const titulo        = document.getElementById('tituloPagina');
+            const btnDescarga   = document.getElementById('demoDescarga');
+
+            function mostrar(panel) {
+                [panelCargando, panelInvalido, panelOk, form].forEach((el) => { el.hidden = el !== panel; });
+            }
+
+            const token = new URLSearchParams(window.location.search).get('t') || '';
+            // Se comprueba el formato antes de preguntar: el parámetro entra en
+            // un uuid en Postgres y cualquier basura devolvería un 400 en vez
+            // del "enlace no válido" que toca enseñar.
+            const ES_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+            if (!ES_UUID.test(token)) {
+                mostrar(panelInvalido);
+                return;
+            }
+
+            fetch(`${SUPABASE_URL}/rest/v1/rpc/invitacion_prueba_datos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+                body: JSON.stringify({ p_token: token }),
+            })
+                .then((res) => res.json())
+                .then((datos) => {
+                    if (!datos || !datos.ok) { mostrar(panelInvalido); return; }
+
+                    const primero = (datos.nombre || '').trim().split(/\s+/)[0];
+                    if (primero) titulo.innerHTML = `Todo listo, ${escaparHtml(primero)}.`;
+
+                    // Enlace ya usado: la cuenta existe, así que no se le vuelve
+                    // a pedir el alta — se le lleva directo a la descarga.
+                    if (datos.usado) {
+                        okTitulo.textContent = 'Tu cuenta ya está creada';
+                        okTexto.innerHTML = 'Este enlace ya se usó. Tus credenciales y el código de ' +
+                            'activación están en el correo que te mandamos al crear la cuenta. ' +
+                            'Si no lo encuentras, escríbenos a automanize@gmail.com.';
+                        mostrar(panelOk);
+                        return;
+                    }
+
+                    campoNombre.value = datos.nombre || '';
+                    campoEmail.value = datos.email || '';
+                    mostrar(form);
+                })
+                .catch(() => mostrar(panelInvalido));
+
+            // Un teléfono se mide en dígitos, no en caracteres: "()()()()()"
+            // tiene diez caracteres y ningún número.
+            const tel = form.elements.telefono;
+            function validarTelefono() {
+                const digitos = (tel.value.match(/\d/g) || []).length;
+                tel.setCustomValidity(
+                    !tel.value.trim() || digitos >= 9 ? '' : 'Teléfono demasiado corto'
+                );
+            }
+            tel.addEventListener('input', validarTelefono);
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                msgServidor.classList.remove('is-on');
+
+                form.classList.add('intentado');
+                validarTelefono();
+                if (!form.checkValidity()) {
+                    const primerFallo = form.querySelector('input:invalid:not([readonly])');
+                    if (primerFallo) primerFallo.focus();
+                    return;
+                }
+
+                const datos = Object.fromEntries(new FormData(form).entries());
+                const submitBtn = form.querySelector('.specular-btn');
+                submitBtn.disabled = true;
+
+                try {
+                    // Misma Edge Function que el resto de altas del sitio. El NIF
+                    // no va: con un invitacion_token válido el servidor no lo
+                    // exige, porque esta persona ya se identificó al reservar.
+                    const res = await fetch(`${SUPABASE_URL}/functions/v1/trial-signup`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+                        body: JSON.stringify({
+                            empresa: campoNombre.value,
+                            email: campoEmail.value,
+                            telefono: datos.telefono,
+                            invitacion_token: token,
+                            privacidad_aceptada: datos.privacidad_aceptada === 'on',
+                        }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+
+                    if (!res.ok || data.error) {
+                        throw new Error(data.error || 'No se pudo crear tu cuenta.');
+                    }
+
+                    const primero = (campoNombre.value || '').trim().split(/\s+/)[0];
+                    okTitulo.textContent = primero ? `¡Listo, ${primero}!` : '¡Listo!';
+                    mostrar(panelOk);
+                    panelOk.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (err) {
+                    msgServidor.textContent = err.message ||
+                        'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
+                    msgServidor.classList.add('is-on');
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+
+            function escaparHtml(valor) {
+                return String(valor).replace(/[&<>"]/g, (c) => (
+                    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
+                ));
+            }
+
+            // --- Brillo especular: sigue al puntero y se apaga al alejarse.
+            const PROXIMIDAD = 250;
+            function brillo(e) {
+                document.querySelectorAll('.specular-btn').forEach((btn) => {
+                    const r = btn.getBoundingClientRect();
+                    if (!r.width) return;
+                    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+                    const mitadDiagonal = Math.hypot(r.width, r.height) / 2;
+                    const dBorde = Math.max(0, Math.hypot(e.clientX - cx, e.clientY - cy) - mitadDiagonal);
+                    const prox = Math.max(0, 1 - dBorde / PROXIMIDAD);
+                    const px = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+                    const py = Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100));
+                    btn.style.setProperty('--sb-x', px + '%');
+                    btn.style.setProperty('--sb-y', py + '%');
+                    btn.style.setProperty('--sb-proximity', prox.toFixed(3));
+                });
+            }
+            if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                document.addEventListener('mousemove', brillo, { passive: true });
+            }
+
+            // Afina el botón para que baje el instalador directamente en vez de
+            // pasar por la página de releases. Si falla, el href por defecto ya sirve.
+            fetch('https://api.github.com/repos/NitramX7/Nize-Releases/releases/latest')
+                .then((res) => res.json())
+                .then((data) => {
+                    const asset = (data.assets || []).find((a) => /^Nize-Setup-[\d.]+\.exe$/.test(a.name));
+                    if (!asset) return;
+                    btnDescarga.href = asset.browser_download_url;
+                    btnDescarga.removeAttribute('target');
+                    btnDescarga.setAttribute('download', '');
+                    const txt = btnDescarga.querySelector('span');
+                    if (txt) txt.textContent = `Descargar CRM Nize ${data.tag_name || ''}`.trim();
+                })
+                .catch(() => {});
+        })();
+    </script>
+</body>
+
+</html>
