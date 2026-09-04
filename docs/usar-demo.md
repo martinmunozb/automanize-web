@@ -15,7 +15,7 @@ teléfono y NIF a cualquiera que llegue. Esta no.
 | | `solicitar-demo.html` | `usar-demo.html` |
 |---|---|---|
 | Quién entra | cualquiera, desde el sitio | solo quien ya agendó la llamada |
-| Campos | nombre, email, teléfono, NIF | **solo el teléfono** |
+| Campos | nombre, email, teléfono, NIF | **ninguno**: todo viene puesto |
 | NIF | obligatorio | no se pide (lo exime el token en el servidor) |
 | Botón | "Solicitar demo y descargar" | "Usar la demo y descargar" |
 | Indexable | sí | no |
@@ -27,11 +27,12 @@ aprobar, la prueba de 7 días se activa sola al pulsar el botón.
 
 ```
 1. Llega desde el correo con ?t=<token>
-2. RPC invitacion_prueba_datos(p_token) → { ok, nombre, email, usado }
+2. RPC invitacion_prueba_datos(p_token) → { ok, nombre, email, telefono, usado }
    - ok:false o token con formato raro → "Este enlace no es válido"
    - usado:true → pantalla de "tu cuenta ya está creada" + descarga
-   - si no → formulario con nombre y email puestos y bloqueados
-3. Confirma su teléfono y acepta la política de privacidad
+   - si no → formulario con todo puesto (nombre y email bloqueados)
+3. Acepta la política de privacidad (el teléfono viene puesto y es lo
+   único editable, por si lo escribió mal)
 4. POST a trial-signup con invitacion_token (sin NIF)
 5. Cuenta creada + 7 días de prueba → pantalla de descarga, y por correo le
    llegan contraseña y código de activación (lo manda trial-signup)
@@ -42,6 +43,10 @@ aprobar, la prueba de 7 días se activa sola al pulsar el botón.
 - **El formato del token se comprueba antes de preguntar**: el parámetro entra
   en un `uuid` de Postgres, y cualquier basura devolvería un 400 en vez del
   "enlace no válido" que toca enseñar.
+- **El teléfono viene de las notas de la reserva**: `nize.html` lo pide en el
+  paso 1 y `landing.js` lo mete en las notas de Cal.com para que vuelva en el
+  webhook. Si viene vacío (reserva vieja, notas editadas a mano), el campo sale
+  en blanco y se escribe.
 - **Nombre y email son `readonly`**: el email identifica la invitación, así que
   cambiarlo no tendría ningún efecto — `trial-signup` exige que coincida con el
   de la invitación para aplicar la exención de NIF.

@@ -145,7 +145,13 @@
     if (!event.target.checkValidity()) { event.target.reportValidity(); return; }
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(event.target).entries()) };
 
-    const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
+    // El telefono va dentro de las notas a proposito: Cal.com solo acepta
+    // prefill de campos que existan en el tipo de evento, y el nuestro no tiene
+    // campo de telefono. Metiendolo aqui viaja con la reserva (se ve al abrirla,
+    // que antes no pasaba) y vuelve en el webhook BOOKING_CREATED, que es de
+    // donde lo saca calcom-booking para no volver a pedirselo en usar-demo.html.
+    // Si se cambia el formato de esta linea, hay que cambiar la regex de alli.
+    const notas = `Teléfono: ${eliteData.telefono || '—'} · Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     document.getElementById('calcomFrame').src = `https://cal.com/automanize/elitegold?${params.toString()}`;
 

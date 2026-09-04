@@ -262,9 +262,9 @@
         <div class="demo-head">
             <h1 id="tituloPagina">Tu prueba del <span class="shiny-gold">CRM Nize</span></h1>
             <p>
-                Ya tienes tu llamada agendada, así que esto va directo: confirmas tu
-                teléfono y te lo descargas. La prueba de 7 días se activa sola, no hay
-                nada que solicitar ni que aprobar.
+                Ya tienes tu llamada agendada, así que esto va directo: tus datos ya
+                están puestos, le das al botón y lo descargas. La prueba de 7 días se
+                activa sola, no hay nada que solicitar ni que aprobar.
             </p>
         </div>
 
@@ -333,11 +333,14 @@
                     </label>
 
                     <label class="demo-campo">
+                        <!-- Viene puesto del formulario de nize.html, pero editable:
+                             es lo único que puede haber escrito mal y no identifica
+                             la invitación, así que corregirlo no rompe nada. -->
                         <span>Teléfono</span>
                         <!-- Sin minlength: cuenta caracteres, no dígitos. Se valida
                              en JS igual que en solicitar-demo.html. -->
-                        <input type="tel" name="telefono" required autocomplete="tel"
-                               inputmode="tel" placeholder="+34 600 00 00 00" />
+                        <input type="tel" name="telefono" id="campoTelefono" required
+                               autocomplete="tel" inputmode="tel" placeholder="+34 600 00 00 00" />
                         <span class="demo-error">Escribe un teléfono válido (mínimo 9 dígitos).</span>
                     </label>
 
@@ -401,6 +404,7 @@
             const form          = document.getElementById('demoForm');
             const campoNombre   = document.getElementById('campoNombre');
             const campoEmail    = document.getElementById('campoEmail');
+            const campoTelefono = document.getElementById('campoTelefono');
             const msgServidor   = document.getElementById('demoMsgServidor');
             const okTitulo      = document.getElementById('okTitulo');
             const okTexto       = document.getElementById('okTexto');
@@ -451,6 +455,10 @@
 
                     campoNombre.value = datos.nombre || '';
                     campoEmail.value = datos.email || '';
+                    // Puede venir vacío: la reserva es anterior a que el teléfono
+                    // viajara en las notas, o alguien las editó a mano. Entonces
+                    // el campo sale en blanco y lo escribe, como siempre.
+                    campoTelefono.value = datos.telefono || '';
                     mostrar(form);
                 })
                 .catch(() => mostrar(panelInvalido));
