@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="landing.css?v=8" />
+  <link rel="stylesheet" href="landing.css?v=9" />
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Nize Elite Gold","applicationCategory":"BusinessApplication","operatingSystem":"Windows","creator":{"@type":"Organization","name":"Automanize","url":"https://automanize.com/"}}
   </script>
@@ -98,15 +98,34 @@
                      alt="Panel profesional del CRM inmobiliario Nize" width="1920" height="1080" />
               </video>
 
-              <button class="video-sound" type="button" data-video-sound
-                      aria-label="Activar sonido" hidden>
-                <span class="video-sound-icon" aria-hidden="true">🔇</span>
-                <span class="video-sound-text">Activar sonido</span>
-              </button>
+              <div class="video-controls" data-video-controls>
+                <div class="video-controls-group">
+                  <button class="video-btn" type="button" data-video-play aria-label="Pausar el vídeo">
+                    <span data-video-play-icon aria-hidden="true">⏸</span>
+                  </button>
+                  <button class="video-btn video-btn-speed" type="button" data-video-speed
+                          aria-label="Cambiar la velocidad de reproducción">1×</button>
+                </div>
+                <div class="video-controls-group">
+                  <button class="video-btn" type="button" data-video-sound
+                          aria-label="Activar sonido" hidden>
+                    <span class="video-sound-icon" aria-hidden="true">🔇</span>
+                    <span class="video-sound-text">Activar sonido</span>
+                  </button>
+                  <button class="video-btn" type="button" data-video-fullscreen
+                          aria-label="Ver a pantalla completa">
+                    <span data-video-fullscreen-icon aria-hidden="true">⛶</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="hero-glow"></div>
         </div>
+
+        <button class="button button-primary button-lg mockup-cta js-open-cta" type="button">
+          Agenda tu llamada gratuita <span aria-hidden="true">→</span>
+        </button>
       </div>
     </section>
 
@@ -264,6 +283,6 @@
     </div>
   </div>
 
-  <script src="landing.js?v=7" defer></script>
+  <script src="landing.js?v=8" defer></script>
 </body>
 </html>
