@@ -51,8 +51,25 @@
     <link rel="stylesheet" href="assets/css/automanize-theme.css" />
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
     <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
-  <!-- Consentimiento de cookies + Google Analytics (Consent Mode v2) + Meta Pixel -->
-  <script src="/assets/js/cookie-consent.js?v=3" defer></script>
+  <!-- Google tag (gtag.js) — Modo de consentimiento v2. El banner y el Pixel de Meta
+       viven en assets/js/cookie-consent.js; aqui solo se declara el estado inicial. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function(){
+      var c = null;
+      try { c = JSON.parse(localStorage.getItem('automanize_cookie_consent')); } catch (e) {}
+      var s = c && c.marketing ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        ad_storage: s, ad_user_data: s, ad_personalization: s, analytics_storage: s,
+        functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500
+      });
+    })();
+    gtag('js', new Date());
+    gtag('config', 'G-SQ2QT5PJTL');
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
+  <script src="/assets/js/cookie-consent.js?v=4" defer></script>
 </head>
 
 <body

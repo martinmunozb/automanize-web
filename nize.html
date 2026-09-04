@@ -23,8 +23,26 @@
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Nize Elite Gold","applicationCategory":"BusinessApplication","operatingSystem":"Windows","creator":{"@type":"Organization","name":"Automanize","url":"https://automanize.com/"}}
   </script>
 
+  <!-- Google tag (gtag.js) — Modo de consentimiento v2. El banner y el Pixel de Meta
+       viven en assets/js/cookie-consent.js; aqui solo se declara el estado inicial. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function(){
+      var c = null;
+      try { c = JSON.parse(localStorage.getItem('automanize_cookie_consent')); } catch (e) {}
+      var s = c && c.marketing ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        ad_storage: s, ad_user_data: s, ad_personalization: s, analytics_storage: s,
+        functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500
+      });
+    })();
+    gtag('js', new Date());
+    gtag('config', 'G-SQ2QT5PJTL');
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
   <!-- Meta Pixel: carga condicionada al consentimiento de cookies, ver assets/js/cookie-consent.js -->
-  <script src="assets/js/cookie-consent.js?v=3" defer></script>
+  <script src="assets/js/cookie-consent.js?v=4" defer></script>
 </head>
 <body>
   <div class="layout-lines" aria-hidden="true"><i></i><i></i></div>

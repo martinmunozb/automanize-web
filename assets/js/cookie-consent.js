@@ -26,35 +26,14 @@
     fbq('track', 'PageView');
   }
 
-  // Modo de consentimiento v2 de Google: gtag.js se carga siempre, pero arranca con
-  // el consentimiento DENEGADO — no escribe cookies ni identificadores hasta que el
-  // usuario acepta. Es lo que permite que Google detecte la etiqueta sin saltarse el
-  // consentimiento. El Pixel de Meta no tiene equivalente, asi que sigue sin cargarse
-  // hasta que hay consentimiento explicito.
+  // La etiqueta de Google (gtag.js) y los defaults del Modo de consentimiento v2 van
+  // INLINE en el <head> de cada pagina, no aqui: el verificador de Google lee el HTML
+  // de forma estatica y no detecta una etiqueta inyectada por JavaScript. Este archivo
+  // solo se encarga del banner, de actualizar el consentimiento y del Pixel de Meta.
+  // Este shim es por si alguna pagina se quedara sin el bloque inline.
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { dataLayer.push(arguments); };
-
-  function initGoogleConsentMode() {
-    var stored = getConsent();
-    var initial = stored && stored.marketing ? 'granted' : 'denied';
-
-    gtag('consent', 'default', {
-      ad_storage: initial,
-      ad_user_data: initial,
-      ad_personalization: initial,
-      analytics_storage: initial,
-      functionality_storage: 'granted',
-      security_storage: 'granted',
-      wait_for_update: 500
-    });
-
-    gtag('js', new Date());
-    gtag('config', GA_ID);
-
-    var t = document.createElement('script');
-    t.async = true;
-    t.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-    document.head.appendChild(t);
+  if (typeof window.gtag !== 'function') {
+    window.gtag = function () { dataLayer.push(arguments); };
   }
 
   function updateGoogleConsent(marketing) {
@@ -133,10 +112,6 @@
       setConsent(document.getElementById('acb-marketing').checked);
     });
   }
-
-  // El modo de consentimiento se declara siempre, antes de nada: si ya hay decision
-  // guardada arranca con ese estado; si no, arranca denegado y espera al banner.
-  initGoogleConsentMode();
 
   var existing = getConsent();
   if (existing) {
