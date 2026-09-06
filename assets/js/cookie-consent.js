@@ -78,7 +78,8 @@
       '#automanize-cookie-banner .acb-accept{background:#ffca28;color:#181811;border-color:#ffca28;}',
       '#automanize-cookie-banner .acb-settings{margin-top:14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,.15);padding-top:14px;}',
       '#automanize-cookie-banner .acb-toggle{display:flex;align-items:center;gap:8px;font-size:13px;}',
-      '#automanize-cookie-banner .acb-save{align-self:flex-start;background:#ffca28;color:#181811;border-color:#ffca28;}'
+      '#automanize-cookie-banner .acb-settings-actions{display:flex;flex-wrap:wrap;gap:10px;}',
+      '#automanize-cookie-banner .acb-save{background:#ffca28;color:#181811;border-color:#ffca28;}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -92,22 +93,24 @@
       '<div class="acb-box">' +
         '<p class="acb-text">Utilizamos cookies propias y de terceros para garantizar el funcionamiento del sitio y, con tu consentimiento, para analizar el uso y/o mostrar contenido personalizado. Puedes aceptar, rechazar o configurar las cookies. Más información en nuestra <a href="/cookies.html">Política de Cookies</a>.</p>' +
         '<div class="acb-actions">' +
-          '<button type="button" class="acb-btn acb-reject" id="acb-reject">Rechazar</button>' +
-          '<button type="button" class="acb-btn acb-config" id="acb-config">Configurar</button>' +
+          '<button type="button" class="acb-btn acb-config" id="acb-config">Modificar</button>' +
           '<button type="button" class="acb-btn acb-accept" id="acb-accept">Aceptar todas</button>' +
         '</div>' +
         '<div class="acb-settings" id="acb-settings" hidden>' +
           '<label class="acb-toggle"><input type="checkbox" checked disabled /> Necesarias (siempre activas)</label>' +
-          '<label class="acb-toggle"><input type="checkbox" id="acb-marketing" /> Publicidad / medición (Google Analytics y Meta Pixel)</label>' +
-          '<button type="button" class="acb-btn acb-save" id="acb-save">Guardar preferencias</button>' +
+          '<label class="acb-toggle"><input type="checkbox" id="acb-marketing" checked /> Publicidad / medición (Google Analytics y Meta Pixel)</label>' +
+          '<div class="acb-settings-actions">' +
+            '<button type="button" class="acb-btn acb-reject" id="acb-reject">Rechazar</button>' +
+            '<button type="button" class="acb-btn acb-save" id="acb-save">Guardar preferencias</button>' +
+          '</div>' +
         '</div>' +
       '</div>';
     document.body.appendChild(wrap);
     document.getElementById('acb-accept').addEventListener('click', function () { setConsent(true); });
-    document.getElementById('acb-reject').addEventListener('click', function () { setConsent(false); });
     document.getElementById('acb-config').addEventListener('click', function () {
       document.getElementById('acb-settings').hidden = false;
     });
+    document.getElementById('acb-reject').addEventListener('click', function () { setConsent(false); });
     document.getElementById('acb-save').addEventListener('click', function () {
       setConsent(document.getElementById('acb-marketing').checked);
     });
