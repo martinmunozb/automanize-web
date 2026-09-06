@@ -78,6 +78,7 @@
       '#automanize-cookie-banner .acb-accept{background:#ffca28;color:#181811;border-color:#ffca28;}',
       '#automanize-cookie-banner .acb-settings{margin-top:14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,.15);padding-top:14px;}',
       '#automanize-cookie-banner .acb-toggle{display:flex;align-items:center;gap:8px;font-size:13px;}',
+      '#automanize-cookie-banner .acb-toggle input[type=checkbox]{accent-color:#6b6b62;}',
       '#automanize-cookie-banner .acb-settings-actions{display:flex;flex-wrap:wrap;gap:10px;}',
       '#automanize-cookie-banner .acb-save{background:#ffca28;color:#181811;border-color:#ffca28;}'
     ].join('');
