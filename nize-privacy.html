@@ -36,11 +36,30 @@
     <link rel="stylesheet" href="assets/css/automanize-theme.css" />
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
     <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
+  <!-- Google tag (gtag.js) — Modo de consentimiento v2. El banner y el Pixel de Meta
+       viven en assets/js/cookie-consent.js; aqui solo se declara el estado inicial. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function(){
+      var c = null;
+      try { c = JSON.parse(localStorage.getItem('automanize_cookie_consent')); } catch (e) {}
+      var s = c && c.marketing ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        ad_storage: s, ad_user_data: s, ad_personalization: s, analytics_storage: s,
+        functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500
+      });
+    })();
+    gtag('js', new Date());
+    gtag('config', 'G-SQ2QT5PJTL');
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
+  <script src="/assets/js/cookie-consent.js?v=6" defer></script>
 </head>
 <body class="bg-[#fcfcfb] text-[#181811]">
 <main class="mx-auto max-w-[900px] px-4 py-10 md:px-8 md:py-14">
     <h1 class="text-3xl font-black md:text-4xl">Politica de Privacidad</h1>
-    <p class="mt-3 text-sm text-[#6b6b5f]">Ultima actualizacion: 3 de septiembre de 2026</p>
+    <p class="mt-3 text-sm text-[#6b6b5f]">Ultima actualizacion: 4 de septiembre de 2026</p>
     <p class="mt-5 max-w-[70ch] text-base leading-7 text-[#4c4c43]">
       Esta politica regula el tratamiento de datos personales realizado por <strong>Automanize</strong>
       y por <strong>Nize</strong>, producto de Automanize. Se aplica al sitio web, a los formularios
@@ -145,39 +164,47 @@
         <li>Stripe, para el procesamiento de pagos de suscripcion; no almacenamos los datos de la tarjeta.</li>
         <li>DocuSeal, para la firma electronica de contratos cuando el usuario utiliza esta funcionalidad.</li>
         <li>Meta Pixel, unicamente si aceptas la categoria de publicidad/medicion en el banner de cookies.</li>
+        <li>Google Analytics 4 (Google Ireland Limited), unicamente si aceptas la categoria de publicidad/medicion en el banner de cookies.</li>
       </ul>
       <p>Con estos proveedores se formalizan los correspondientes contratos de encargo de tratamiento cuando resulten exigibles.</p>
     </section>
 
     <section class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">9. Transferencias internacionales</h2>
+      <h2 class="text-2xl font-bold">9. Google Analytics 4</h2>
+      <p>Utilizamos Google Analytics 4, servicio prestado por Google Ireland Limited, para obtener estadisticas sobre el uso del sitio web y mejorar nuestros servicios.</p>
+      <p>Cuando el usuario presta su consentimiento para las tecnologias de analitica o medicion, Google Analytics puede tratar informacion relacionada con la navegacion, como paginas visitadas, interacciones realizadas, informacion del dispositivo y navegador y direccion IP. Tambien puede registrar eventos derivados de funciones de medicion mejorada, como desplazamientos por la pagina y determinados clics.</p>
+      <p>La base juridica para este tratamiento es el consentimiento del usuario. Google Analytics no debe activarse antes de obtener dicho consentimiento y el usuario debe poder retirarlo posteriormente mediante la configuracion de cookies.</p>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-2xl font-bold">10. Transferencias internacionales</h2>
       <p>Algunos proveedores pueden tratar datos fuera del Espacio Economico Europeo. En esos casos aplicamos garantias adecuadas conforme a los arts. 44 y siguientes del RGPD, como clausulas contractuales tipo u otros mecanismos legalmente validos.</p>
     </section>
 
     <section class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">10. Seguridad</h2>
+      <h2 class="text-2xl font-bold">11. Seguridad</h2>
       <p>Aplicamos medidas tecnicas y organizativas razonables para proteger los datos personales frente a acceso no autorizado, perdida, alteracion o divulgacion indebida.</p>
       <p>La informacion del servicio puede almacenarse en proveedores de infraestructura y base de datos, incluyendo Supabase, con controles de autenticacion y acceso restringido a personal autorizado.</p>
     </section>
 
     <section class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">11. Derechos de las personas usuarias</h2>
+      <h2 class="text-2xl font-bold">12. Derechos de las personas usuarias</h2>
       <p>Puedes ejercer tus derechos de acceso, rectificacion, supresion, oposicion, limitacion y portabilidad escribiendo a <a class="underline" href="mailto:soporte@automanize.com">soporte@automanize.com</a>, indicando claramente tu solicitud y acreditando tu identidad cuando sea necesario.</p>
       <p>Si consideras que no hemos atendido correctamente tu solicitud, puedes presentar una reclamacion ante la Agencia Espanola de Proteccion de Datos (AEPD): <a class="underline" href="https://www.aepd.es" target="_blank" rel="noopener noreferrer">https://www.aepd.es</a>.</p>
     </section>
 
     <section class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">12. Menores de edad</h2>
+      <h2 class="text-2xl font-bold">13. Menores de edad</h2>
       <p>Este sitio, Nize y los servicios de Automanize no estan dirigidos a menores de 14 anos. Si detectamos tratamiento de datos de menores sin base legal suficiente, los suprimiremos.</p>
     </section>
 
     <section class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">13. Cambios en esta politica</h2>
+      <h2 class="text-2xl font-bold">14. Cambios en esta politica</h2>
       <p>Podemos actualizar esta politica para adaptarla a cambios legales, tecnicos o de negocio. Publicaremos siempre la version vigente en esta misma pagina.</p>
     </section>
 
     <section class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">14. Normativa de referencia</h2>
+      <h2 class="text-2xl font-bold">15. Normativa de referencia</h2>
       <ul class="list-disc space-y-1 pl-6">
         <li>Reglamento (UE) 2016/679, Reglamento General de Proteccion de Datos (RGPD).</li>
         <li>Ley Organica 3/2018, de Proteccion de Datos Personales y garantia de los derechos digitales (LOPDGDD).</li>
@@ -186,7 +213,7 @@
     </section>
 
     <section id="captacion-leads" class="mt-8 space-y-4">
-      <h2 class="text-2xl font-bold">15. Formulario publico de solicitud de alquiler (clientes de las inmobiliarias que usan Nize)</h2>
+      <h2 class="text-2xl font-bold">16. Formulario publico de solicitud de alquiler (clientes de las inmobiliarias que usan Nize)</h2>
       <p>
         Esta seccion aplica cuando rellenas un formulario publico de solicitud de alquiler
         (por ejemplo, tras contactar a traves de un anuncio en Idealista u otro portal, o a
@@ -267,9 +294,9 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
                     automanize@gmail.com
                 </a>
-                <a href="tel:+34617153252">
+                <a href="tel:+34644544823">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.8 2.1z" /></svg>
-                    +34 617 15 32 52
+                    +34 644 54 48 23
                 </a>
             </div>
         </div>

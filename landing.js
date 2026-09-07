@@ -145,7 +145,13 @@
     if (!event.target.checkValidity()) { event.target.reportValidity(); return; }
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(event.target).entries()) };
 
-    const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
+    // El telefono va dentro de las notas a proposito: Cal.com solo acepta
+    // prefill de campos que existan en el tipo de evento, y el nuestro no tiene
+    // campo de telefono. Metiendolo aqui viaja con la reserva (se ve al abrirla,
+    // que antes no pasaba) y vuelve en el webhook BOOKING_CREATED, que es de
+    // donde lo saca calcom-booking para no volver a pedirselo en usar-demo.html.
+    // Si se cambia el formato de esta linea, hay que cambiar la regex de alli.
+    const notas = `Teléfono: ${eliteData.telefono || '—'} · Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     document.getElementById('calcomFrame').src = `https://cal.com/automanize/elitegold?${params.toString()}`;
 
@@ -181,26 +187,87 @@
     const botonSonido = document.querySelector('[data-video-sound]');
     const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // En cuanto la persona toca play/pausa a mano, el video deja de
+    // arrancarse/pararse solo al entrar o salir de pantalla: forzarlo tras un
+    // clic explicito deshacia la eleccion nada mas hacer scroll un pelo.
+    let pausadoPorUsuario = false;
+
     if (sinMovimiento) {
-      // Con "reducir movimiento" activado no se reproduce nada solo: se deja el
-      // poster y los controles para que lo lance quien quiera.
+      // Con "reducir movimiento" activado no se reproduce nada solo: se deja
+      // el poster quieto y el boton de play (de abajo) para quien quiera
+      // lanzarlo.
       videoHero.removeAttribute('autoplay');
-      videoHero.controls = true;
     } else {
       const visorVideo = new IntersectionObserver(entradas => {
         entradas.forEach(entrada => {
+          if (pausadoPorUsuario) return;
           if (entrada.isIntersecting) {
             // play() devuelve una promesa que el navegador rechaza si decide
             // bloquear el autoplay. Sin el catch queda un error suelto en
-            // consola; aqui se cae a mostrar los controles.
-            const intento = videoHero.play();
-            if (intento && intento.catch) intento.catch(() => { videoHero.controls = true; });
+            // consola; el boton de play sigue ahi para arrancarlo a mano.
+            videoHero.play().catch(() => {});
           } else if (!videoHero.paused) {
             videoHero.pause();
           }
         });
       }, { threshold: .25 });
       visorVideo.observe(videoHero);
+    }
+
+    // ── Play/pausa ──────────────────────────────────────────────────────
+    const botonPlay = document.querySelector('[data-video-play]');
+    if (botonPlay) {
+      const iconoPlay = botonPlay.querySelector('[data-video-play-icon]');
+      const sincronizarIcono = () => {
+        const enPausa = videoHero.paused;
+        if (iconoPlay) iconoPlay.textContent = enPausa ? '▶' : '⏸';
+        botonPlay.setAttribute('aria-label', enPausa ? 'Reproducir el vídeo' : 'Pausar el vídeo');
+      };
+      // Vinculado a los eventos reales del video, no solo al clic: asi
+      // tambien se actualiza cuando el IntersectionObserver de arriba lo
+      // arranca o para solo, o si el autoplay inicial falla.
+      videoHero.addEventListener('play', sincronizarIcono);
+      videoHero.addEventListener('pause', sincronizarIcono);
+      sincronizarIcono();
+
+      botonPlay.addEventListener('click', () => {
+        pausadoPorUsuario = true;
+        if (videoHero.paused) videoHero.play().catch(() => {});
+        else videoHero.pause();
+      });
+    }
+
+    // ── Velocidad ───────────────────────────────────────────────────────
+    const botonVelocidad = document.querySelector('[data-video-speed]');
+    if (botonVelocidad) {
+      const VELOCIDADES = [1, 1.5, 2];
+      let indiceVelocidad = 0;
+
+      botonVelocidad.addEventListener('click', () => {
+        indiceVelocidad = (indiceVelocidad + 1) % VELOCIDADES.length;
+        videoHero.playbackRate = VELOCIDADES[indiceVelocidad];
+        botonVelocidad.textContent = `${VELOCIDADES[indiceVelocidad]}×`;
+      });
+    }
+
+    // ── Pantalla completa ───────────────────────────────────────────────
+    // Sobre video-shell (el contenedor), no sobre el <video> suelto: asi la
+    // barra de controles sigue encima y visible tambien a pantalla completa.
+    const botonPantallaCompleta = document.querySelector('[data-video-fullscreen]');
+    const contenedorVideo = document.querySelector('[data-video-shell]');
+    if (botonPantallaCompleta && contenedorVideo) {
+      const iconoPantallaCompleta = botonPantallaCompleta.querySelector('[data-video-fullscreen-icon]');
+      const sincronizarPantallaCompleta = () => {
+        const activa = document.fullscreenElement === contenedorVideo;
+        if (iconoPantallaCompleta) iconoPantallaCompleta.textContent = activa ? '⤡' : '⛶';
+        botonPantallaCompleta.setAttribute('aria-label', activa ? 'Salir de pantalla completa' : 'Ver a pantalla completa');
+      };
+      document.addEventListener('fullscreenchange', sincronizarPantallaCompleta);
+
+      botonPantallaCompleta.addEventListener('click', () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else contenedorVideo.requestFullscreen?.().catch(() => {});
+      });
     }
 
     // El boton de sonido solo tiene sentido si el video trae audio. No hay una

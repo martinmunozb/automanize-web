@@ -217,6 +217,25 @@
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
     <link rel="stylesheet" href="assets/css/crm-embla-carousel.css?v=20260818" />
     <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
+  <!-- Google tag (gtag.js) — Modo de consentimiento v2. El banner y el Pixel de Meta
+       viven en assets/js/cookie-consent.js; aqui solo se declara el estado inicial. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function(){
+      var c = null;
+      try { c = JSON.parse(localStorage.getItem('automanize_cookie_consent')); } catch (e) {}
+      var s = c && c.marketing ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        ad_storage: s, ad_user_data: s, ad_personalization: s, analytics_storage: s,
+        functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500
+      });
+    })();
+    gtag('js', new Date());
+    gtag('config', 'G-SQ2QT5PJTL');
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
+  <script src="/assets/js/cookie-consent.js?v=6" defer></script>
 </head>
 <body class="bg-white text-[#111] overflow-x-hidden">
 
@@ -1041,6 +1060,10 @@
                             <span class="text-[12px] font-bold text-[#333] block mb-1">NIF / CIF / NIE</span>
                             <input type="text" name="nif" required maxlength="12" autocomplete="off" placeholder="B12345678" class="w-full border border-[#e0e0e0] rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-[#FFB300]" />
                         </label>
+                        <label class="flex items-start gap-2 text-[12px] text-[#666] leading-relaxed">
+                            <input type="checkbox" name="privacidad_aceptada" required class="mt-1" />
+                            <span>He leído y acepto la <a href="nize-privacy.html" target="_blank" rel="noopener" class="underline text-[#111]">política de privacidad</a>.</span>
+                        </label>
                         <div style="position:absolute;left:-9999px" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
                         <p id="pricingError" class="text-[13px] text-red-600"></p>
                         <button type="submit" class="w-full bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Empezar prueba gratis</button>
@@ -1135,7 +1158,7 @@
                             <a href="solicitar-demo.html" class="inline-flex items-center justify-center gap-2 bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-6 py-3 rounded-full transition-colors">
                                 Solicitar demo gratuita <span class="material-symbols-outlined text-[17px]">arrow_forward</span>
                             </a>
-                            <a href="tel:+34617153252" class="inline-flex items-center justify-center gap-2 border border-[#333] hover:border-[#555] text-white font-medium text-[14px] px-6 py-3 rounded-full transition-colors">
+                            <a href="tel:+34644544823" class="inline-flex items-center justify-center gap-2 border border-[#333] hover:border-[#555] text-white font-medium text-[14px] px-6 py-3 rounded-full transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">call</span>
                                 Hablar con un experto
                             </a>
@@ -1173,9 +1196,9 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
                     automanize@gmail.com
                 </a>
-                <a href="tel:+34617153252">
+                <a href="tel:+34644544823">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.8 2.1z" /></svg>
-                    +34 617 15 32 52
+                    +34 644 54 48 23
                 </a>
             </div>
         </div>
@@ -1191,6 +1214,6 @@
     </footer>
     <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
     <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
-    <script src="assets/js/crm-pricing.js?v=3" defer></script>
+    <script src="assets/js/crm-pricing.js?v=4" defer></script>
 </body>
 </html>

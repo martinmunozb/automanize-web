@@ -17,11 +17,11 @@ function cssBlock(css, selector) {
 
 test('crm muestra todas las pantallas reales con acordeon estilo React Bits', () => {
   const page = read('crm.html');
-  const css = read('assets/css/crm-apple-cards-carousel.css');
-  const js = read('assets/js/crm-apple-cards-carousel.js');
-  const trackBlock = cssBlock(css, '.crm-stories__track');
+  const css = read('assets/css/crm-embla-carousel.css');
+  const js = read('assets/js/crm-embla-carousel.js');
+  const containerBlock = cssBlock(css, '.crm-embla__container');
 
-  const screenCards = [...page.matchAll(/class="[^"]*\bcrm-story\b[^"]*"[\s\S]*?data-story="([^"]+)"/g)].map((match) => match[1]);
+  const screenCards = [...page.matchAll(/class="[^"]*\bcrm-embla__figure\b[^"]*"[\s\S]*?data-story="([^"]+)"/g)].map((match) => match[1]);
 
   assert.deepEqual(screenCards, [
     'control',
@@ -36,22 +36,23 @@ test('crm muestra todas las pantallas reales con acordeon estilo React Bits', ()
     'gastos',
   ]);
 
-  assert.match(page, /cdn\.jsdelivr\.net\/npm\/gsap@3\.12\.5\/dist\/gsap\.min\.js/);
-  assert.match(page, /class="crm-stories__track accordion-gallery"/);
-  assert.match(page, /class="crm-story ag-panel"/);
-  assert.match(page, /assets\/css\/crm-apple-cards-carousel\.css\?v=2026081403/);
-  assert.match(page, /assets\/js\/crm-apple-cards-carousel\.js\?v=2026081403/);
+  assert.match(page, /assets\/js\/embla-carousel\.umd\.js\?v=8\.6\.0/);
+  assert.match(page, /class="crm-embla" data-crm-embla/);
+  assert.match(page, /class="crm-embla__viewport" data-embla-main/);
+  assert.match(page, /class="crm-embla-thumbs__viewport" data-embla-thumbs/);
+  assert.match(page, /assets\/css\/crm-embla-carousel\.css\?v=20260818/);
+  assert.match(page, /assets\/js\/crm-embla-carousel\.js\?v=20260818/);
 
-  assert.match(css, /\.accordion-gallery\s*{[\s\S]*display:\s*flex;/);
-  assert.match(css, /\.accordion-gallery\s*{[\s\S]*perspective:\s*1400px;/);
-  assert.match(css, /\.ag-panel\s*{[\s\S]*will-change:\s*flex-grow,\s*transform;/);
-  assert.match(css, /\.crm-story::after\s*{/);
-  assert.match(css, /\.crm-stories__controls\s*{[\s\S]*display:\s*none;/);
-  assert.doesNotMatch(trackBlock, /display:\s*grid;/);
+  assert.match(css, /\.crm-embla__container\s*{[\s\S]*display:\s*flex;/);
+  assert.match(css, /\.crm-embla__viewport\s*{[\s\S]*overflow:\s*hidden;/);
+  assert.match(css, /\.crm-embla-thumbs__container\s*{[\s\S]*display:\s*flex;/);
+  assert.match(css, /\.crm-embla__figure::after\s*{/);
+  assert.match(css, /\.crm-embla__progress-bar\s*{[\s\S]*transform:\s*scaleX\(0\.1\);/);
+  assert.doesNotMatch(containerBlock, /display:\s*grid;/);
 
-  assert.match(js, /window\.gsap/);
-  assert.match(js, /flexGrow/);
-  assert.match(js, /rotateY/);
-  assert.match(js, /function setActive/);
-  assert.match(js, /ResizeObserver/);
+  assert.match(js, /window\.EmblaCarousel/);
+  assert.match(js, /mainApi\.scrollTo/);
+  assert.match(js, /thumbsApi\.scrollTo/);
+  assert.match(js, /function onSelect/);
+  assert.match(js, /function preventClickAfterDrag/);
 });
