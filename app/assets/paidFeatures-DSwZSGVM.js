@@ -1,0 +1,1 @@
+function e(e){return e?.pagado===!0}var t={agente_ia:`El asistente Nize IA`,drive:`La sincronizacion con Google Drive`,verifacti:`La emision de factura verificada (Verifacti)`,gmail:`La conexion con Gmail`};export{e as n,t};
