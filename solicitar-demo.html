@@ -418,6 +418,31 @@
 
                     <p class="demo-nota">Para Windows, descarga la app. Desde cualquier otro sistema, entra directamente por el navegador con el mismo email y contraseña.</p>
                 </div>
+
+                <!-- Conflicto de exclusividad plan gratis: este email ya es
+                     gestor con acceso real en otro tenant, así que no puede
+                     tener también su propia prueba gratis. Se ofrece cancelar
+                     el otro lado, pero nunca con un clic: se manda un enlace
+                     de confirmación a ese mismo email (ver
+                     resolve-conflicto-plan-gratis) para que nadie pueda
+                     escribir el correo de otra persona aquí y desactivarle
+                     su acceso de gestor real. -->
+                <div class="demo-ok" id="demoConflicto">
+                    <div class="demo-ok-icono">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v5" /><path d="M12 16h.01" /></svg>
+                    </div>
+                    <h2>Este email ya está en uso</h2>
+                    <p id="demoConflictoTexto">
+                        Este email ya es gestor de otra cuenta en Nize. Un mismo email no puede
+                        tener a la vez su propia prueba gratis y acceso de gestor en otro sitio.
+                    </p>
+                    <button type="button" class="specular-btn demo-web" id="demoConflictoBtn">
+                        <span>Cancelar esa cuenta y continuar</span>
+                    </button>
+                    <p class="demo-nota" id="demoConflictoNota">
+                        Te mandaremos un enlace de confirmación a ese email — nada se cancela sin que lo confirmes tú mismo desde tu correo.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
@@ -472,6 +497,10 @@
             const okTit = document.getElementById('demoOkTitulo');
             const btnDescarga = document.getElementById('demoDescarga');
             const msgServidor = document.getElementById('demoMsgServidor');
+            const conflicto = document.getElementById('demoConflicto');
+            const conflictoTexto = document.getElementById('demoConflictoTexto');
+            const conflictoBtn = document.getElementById('demoConflictoBtn');
+            const conflictoNota = document.getElementById('demoConflictoNota');
             if (!form) return;
 
             // Alta real del tenant (7 días de prueba gratis) vía la misma
@@ -482,6 +511,7 @@
             const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
             const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
+            const RESOLVE_CONFLICTO_URL = `${SUPABASE_URL}/functions/v1/resolve-conflicto-plan-gratis`;
 
             function mostrarConfirmacion(nombre) {
                 const primero = (nombre || '').trim().split(/\s+/)[0];
@@ -494,6 +524,39 @@
             function mostrarErrorServidor(texto) {
                 msgServidor.textContent = texto;
                 msgServidor.classList.add('is-on');
+            }
+
+            // Exclusividad plan gratis: este email ya es gestor con acceso
+            // real en otro tenant. En vez del error genérico, se ofrece
+            // cancelar esa cuenta (con confirmación por email, nunca de un
+            // clic) para poder seguir con esta prueba gratis.
+            function mostrarConflicto(email, tipo, tenantNombre) {
+                conflictoTexto.textContent = tenantNombre
+                    ? `Este email ya es gestor de «${tenantNombre}» en Nize. Un mismo email no puede tener a la vez su propia prueba gratis y acceso de gestor en otro sitio.`
+                    : 'Este email ya tiene acceso de gestor en otra cuenta de Nize. Un mismo email no puede tener a la vez su propia prueba gratis y acceso de gestor en otro sitio.';
+                conflictoNota.textContent = 'Te mandaremos un enlace de confirmación a ese email — nada se cancela sin que lo confirmes tú mismo desde tu correo.';
+                conflictoBtn.disabled = false;
+                conflictoBtn.querySelector('span').textContent = 'Cancelar esa cuenta y continuar';
+                conflictoBtn.onclick = async () => {
+                    conflictoBtn.disabled = true;
+                    try {
+                        const res = await fetch(RESOLVE_CONFLICTO_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+                            body: JSON.stringify({ action: 'solicitar', email, tipo }),
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok || data.error) throw new Error(data.error || 'No se pudo enviar el correo.');
+                        conflictoNota.textContent = 'Listo — revisa tu correo y pulsa el enlace de confirmación. En cuanto confirmes, vuelve aquí y rellena el formulario de nuevo.';
+                        conflictoBtn.querySelector('span').textContent = 'Correo enviado';
+                    } catch (err) {
+                        conflictoBtn.disabled = false;
+                        conflictoNota.textContent = err.message || 'No se pudo enviar el correo. Inténtalo de nuevo.';
+                    }
+                };
+                card.classList.add('is-enviado');
+                conflicto.classList.add('is-on');
+                conflicto.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             // Un teléfono se mide en dígitos, no en caracteres: "()()()()()"
@@ -541,6 +604,11 @@
                         }),
                     });
                     const data = await res.json().catch(() => ({}));
+
+                    if (res.status === 409 && data.conflicto) {
+                        mostrarConflicto(datos.email, data.tipo, data.tenant_nombre);
+                        return;
+                    }
 
                     if (!res.ok || data.error) {
                         throw new Error(data.error || 'No se pudo procesar tu solicitud.');
