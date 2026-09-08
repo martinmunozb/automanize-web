@@ -113,16 +113,27 @@
         .demo-form.intentado .demo-campo input:invalid { border-color: #e0705f; }
         .demo-form.intentado .demo-campo input:invalid ~ .demo-error { display: block; }
 
-        .demo-campo-check { flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: .55rem; }
+        /* Grid en vez de flex: con flex-wrap, en algunos navegadores móviles
+           el checkbox (aunque tenga flex:0 0 auto) acababa cayendo en su
+           propia línea encima del texto en vez de al lado. Con grid de dos
+           columnas (auto + 1fr) el checkbox siempre ocupa la columna
+           izquierda y el texto la derecha, sin ambigüedad de wrap. */
+        .demo-campo-check {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: start;
+            column-gap: .55rem;
+            row-gap: .3rem;
+        }
         .demo-campo-check input[type="checkbox"] {
-            width: 1rem; height: 1rem; flex: 0 0 auto; margin-top: .15rem; padding: 0;
+            width: 1rem; height: 1rem; margin: .15rem 0 0; padding: 0;
             accent-color: var(--primary);
         }
         .demo-campo-check > span:not(.demo-error) {
-            flex: 1 1 auto; font-size: .82rem; font-weight: 400; line-height: 1.5; color: var(--muted);
+            font-size: .82rem; font-weight: 400; line-height: 1.5; color: var(--muted);
         }
         .demo-campo-check > span:not(.demo-error) a { color: var(--text); text-decoration: underline; }
-        .demo-campo-check .demo-error { flex-basis: 100%; }
+        .demo-campo-check .demo-error { grid-column: 1 / -1; }
 
         /* Error de envío (alta rechazada por el servidor: NIF inválido,
            duplicado, etc.) — distinto del error de validación por campo
