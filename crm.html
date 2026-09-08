@@ -217,6 +217,58 @@
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
     <link rel="stylesheet" href="assets/css/crm-embla-carousel.css?v=20260818" />
     <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
+    <!-- Brillo especular del botón "Usar el CRM en el navegador": misma técnica
+         que solicitar-demo.html (el brillo sigue al puntero), pero con colores
+         propios porque este botón vive sobre fondo claro, no oscuro. Va después
+         del <link> del tema para ganarle a .specular-btn si algún día coincide. -->
+    <style>
+        .crm-specular-btn {
+            --sb-radius: 999px;
+            --sb-base: #ffffff;
+            --sb-line: #8a5d00;
+            --sb-text: #333333;
+            --sb-thickness: 1px;
+            --sb-intensity: 1;
+            --sb-shine-size: 42%;
+            --sb-shine-fade: 68%;
+            --sb-speed: .35s;
+            --sb-x: 50%;
+            --sb-y: 50%;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            border-color: #e0e0e0;
+            transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), border-color var(--sb-speed) ease;
+        }
+        .crm-specular-btn:hover { transform: translateY(-2px); border-color: #ccc; }
+        .crm-specular-btn::before {
+            content: '';
+            position: absolute;
+            inset: calc(var(--sb-thickness) * -1);
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(circle at var(--sb-x) var(--sb-y), var(--sb-line) 0%, transparent var(--sb-shine-size));
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0) * .35);
+            transition: opacity var(--sb-speed) ease;
+        }
+        .crm-specular-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            padding: var(--sb-thickness);
+            background: radial-gradient(circle at var(--sb-x) var(--sb-y), var(--sb-line) 0%, transparent var(--sb-shine-fade));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: calc(var(--sb-intensity) * var(--sb-proximity, 0));
+            transition: opacity var(--sb-speed) ease;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .crm-specular-btn::before, .crm-specular-btn::after { transition: none; }
+        }
+    </style>
   <!-- Google tag (gtag.js) — Modo de consentimiento v2. El banner y el Pixel de Meta
        viven en assets/js/cookie-consent.js; aqui solo se declara el estado inicial. -->
   <script>
@@ -260,7 +312,7 @@
                             <a href="solicitar-demo.html" class="inline-flex items-center gap-2 bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-6 py-3 rounded-full transition-colors">
                                 Solicitar demo <span class="material-symbols-outlined text-[17px]">arrow_forward</span>
                             </a>
-                            <a href="https://automanize.com/app/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-[#e0e0e0] hover:border-[#ccc] text-[#333] font-medium text-[14px] px-6 py-3 rounded-full transition-colors">
+                            <a href="https://automanize.com/app/" target="_blank" rel="noopener noreferrer" class="crm-specular-btn inline-flex items-center gap-2 border rounded-full text-[#333] font-medium text-[14px] px-6 py-3">
                                 Usar el CRM en el navegador <span class="material-symbols-outlined text-[17px]">open_in_new</span>
                             </a>
                         </div>
@@ -1215,5 +1267,30 @@
     <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
     <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
     <script src="assets/js/crm-pricing.js?v=4" defer></script>
+    <script>
+        // Brillo especular del botón "Usar el CRM en el navegador": sigue al
+        // puntero y se apaga al alejarse. Mismo mecanismo que solicitar-demo.html.
+        (function () {
+            const PROXIMIDAD = 250; // px de radio de influencia
+            function brillo(e) {
+                document.querySelectorAll('.crm-specular-btn').forEach((btn) => {
+                    const r = btn.getBoundingClientRect();
+                    if (!r.width) return;
+                    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+                    const mitadDiagonal = Math.hypot(r.width, r.height) / 2;
+                    const dBorde = Math.max(0, Math.hypot(e.clientX - cx, e.clientY - cy) - mitadDiagonal);
+                    const prox = Math.max(0, 1 - dBorde / PROXIMIDAD);
+                    const px = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+                    const py = Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100));
+                    btn.style.setProperty('--sb-x', px + '%');
+                    btn.style.setProperty('--sb-y', py + '%');
+                    btn.style.setProperty('--sb-proximity', prox.toFixed(3));
+                });
+            }
+            if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                document.addEventListener('mousemove', brillo, { passive: true });
+            }
+        })();
+    </script>
 </body>
 </html>
