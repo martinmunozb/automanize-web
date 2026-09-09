@@ -17,10 +17,10 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 | Backend / DB | Supabase — proyecto `edjugpekcntzvqaskbmc` (región eu-central-1) |
 | Funciones serverless | Netlify Functions (Node.js) — ⚠️ pendiente de confirmar si siguen desplegadas en Netlify real o hay que migrarlas |
 | Pagos | Stripe |
-| Automatización | n8n (`n8n.automanize.com`, mismo Caddy) |
+| Automatización | `automanize-backend` (Node.js) — n8n (`n8n.automanize.com`) se apagó del todo el 18 ago 2026 |
 | Fuentes | Inter (Google Fonts) |
 
-**Importante**: `netlify.toml`, `_headers` y `_redirects` están en el repo pero **no los lee nada en producción** — el sitio no lo sirve Netlify, lo sirve el Caddy del VPS. Cualquier redirect, rewrite o header nuevo tiene que ir en `/root/caddy-main/Caddyfile` (ese Caddy también sirve `n8n.automanize.com`, `controldeplagastmm.com` y `captador.automanize.com` — reiniciarlo afecta a los cuatro).
+**Importante**: `netlify.toml`, `_headers` y `_redirects` están en el repo pero **no los lee nada en producción** — el sitio no lo sirve Netlify, lo sirve el Caddy del VPS. Cualquier redirect, rewrite o header nuevo tiene que ir en `/root/caddy-main/Caddyfile` (ese Caddy también sirve `controldeplagastmm.com` y `captador.automanize.com`; `n8n.automanize.com` estaba en el mismo Caddy pero n8n se apagó del todo el 18 ago 2026 — si el Caddyfile todavía tiene esa entrada, ya no sirve nada).
 
 ---
 
@@ -30,7 +30,7 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 /
 ├── index.html              — Landing principal Automanize
 ├── solicitar-demo.html     — Landing trial gratuito Nize (7 días), enlazada desde el sitio
-├── formulario.html         — Formulario dinámico de leads por token (WhatsApp / n8n)
+├── formulario.html         — Formulario dinámico de leads por token (WhatsApp)
 ├── alta-agencia.html       — Ficha de alta para agencias ya contratadas, por token
 ├── alta-agencia-admin.html — Panel interno: ver fichas recibidas y generar tokens
 ├── pago-nize.html          — Página de pago/confirmación Nize
@@ -47,7 +47,6 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 ├── netlify/functions/      — Funciones serverless (Stripe, descarga)
 ├── incidencias/fotos/      — Subida de fotos de incidencias por token
 ├── seleccionar/            — Selección de inmuebles por lead
-├── subir/                  — Subida de archivos (gastos "Sin IA", workflow n8n antiguo)
 └── gastos-revision.html    — Revisión/confirmación de gastos clasificados por IA (automanize-backend)
 ```
 
