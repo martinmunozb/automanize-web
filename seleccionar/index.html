@@ -585,6 +585,7 @@
       <h2 id="messageTitle"></h2>
       <p id="messageText"></p>
       <button id="retryButton" class="retry-button hidden" type="button">Reintentar</button>
+      <a id="whatsappCta" class="retry-button hidden" style="display:inline-block;text-decoration:none" href="https://wa.me/34644544823?text=Hola%2C%20mi%20enlace%20de%20selecci%C3%B3n%20de%20vivienda%20no%20funciona%2C%20%C2%BFme%20env%C3%ADas%20uno%20nuevo%3F" target="_blank" rel="noopener noreferrer">Solicitar enlace nuevo por WhatsApp</a>
     </div>
   </div>
 
@@ -666,6 +667,7 @@
     const messageTitle = document.getElementById('messageTitle');
     const messageText = document.getElementById('messageText');
     const retryButton = document.getElementById('retryButton');
+    const whatsappCta = document.getElementById('whatsappCta');
     const app = document.getElementById('app');
     const clientName = document.getElementById('clientName');
     const recommendedGrid = document.getElementById('recommendedGrid');
@@ -734,6 +736,7 @@
       messageTitle.textContent = title;
       messageText.textContent = text;
       retryButton.classList.toggle('hidden', !allowRetry);
+      whatsappCta.classList.toggle('hidden', isSuccess);
     }
 
     function showApp() {
