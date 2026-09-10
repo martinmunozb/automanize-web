@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://edjugpekcntzvqaskbmc.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+    <title>Firmar contrato — Nize</title>
+    <!-- Enlace personal de un solo uso: no debe indexarse nunca. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        * { box-sizing: border-box; font-family: "Spline Sans", system-ui, sans-serif; }
+        body { margin: 0; background: #f6f6f4; color: #14171C; }
+
+        .fc-wrap { max-width: 720px; margin: 0 auto; padding: 16px 14px calc(24px + env(safe-area-inset-bottom)); }
+
+        .fc-head { display: flex; align-items: center; gap: 10px; padding: 6px 2px 14px; }
+        .fc-head h1 { font-size: 1.05rem; font-weight: 800; margin: 0; letter-spacing: -.01em; }
+        .fc-head p { margin: 2px 0 0; font-size: .78rem; color: #6b6b62; }
+
+        .fc-card { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+
+        /* El contrato: alto acotado y scroll propio. En un movil no se puede
+           obligar a recorrer 8 páginas antes de llegar al botón de firmar, pero
+           tampoco se debe firmar algo que no se ha podido leer: por eso queda
+           visible y desplazable, no escondido tras un enlace. */
+        .fc-doc { max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; border: 1px solid rgba(0,0,0,.1); border-radius: 10px; padding: 14px; background: #fff; font-size: .82rem; line-height: 1.5; }
+        .fc-doc table { width: 100% !important; border-collapse: collapse; }
+        .fc-doc img { max-width: 100%; height: auto; }
+        .fc-doc h1 { font-size: 1rem; }
+
+        .fc-label { display: block; font-size: .74rem; font-weight: 700; color: #55554e; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .04em; }
+        /* 16px reales: por debajo, iOS hace zoom al enfocar el campo. */
+        .fc-input { width: 100%; font-size: 16px; padding: 11px 12px; border: 1px solid rgba(0,0,0,.16); border-radius: 10px; background: #fff; }
+        .fc-input:focus { outline: none; border-color: #FFAB00; box-shadow: 0 0 0 3px rgba(255,171,0,.18); }
+        .fc-field { margin-bottom: 12px; }
+
+        .fc-pad-box { position: relative; border: 1.5px dashed rgba(0,0,0,.22); border-radius: 12px; background: #fffdf7; touch-action: none; }
+        .fc-pad { display: block; width: 100%; height: 190px; border-radius: 12px; touch-action: none; }
+        .fc-pad-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #b3b3a8; font-size: .84rem; }
+        .fc-pad-hint.is-hidden { display: none; }
+        .fc-pad-line { position: absolute; left: 18px; right: 18px; bottom: 42px; border-bottom: 1px solid rgba(0,0,0,.14); pointer-events: none; }
+
+        .fc-row { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; }
+        .fc-link { background: none; border: 0; color: #8a5d00; font-size: .82rem; font-weight: 600; text-decoration: underline; padding: 8px 4px; min-height: 40px; }
+
+        .fc-check { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; margin: 14px 0 4px; font-size: .84rem; line-height: 1.45; color: #45453f; }
+        .fc-check input { width: 20px; height: 20px; margin-top: 1px; accent-color: #FFAB00; }
+
+        .fc-btn { width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: #FFAB00; color: #171717; font-size: .95rem; font-weight: 800; cursor: pointer; }
+        .fc-btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+        .fc-msg { margin-top: 10px; font-size: .82rem; padding: 10px 12px; border-radius: 10px; display: none; }
+        .fc-msg.is-on { display: block; }
+        .fc-msg.is-error { background: rgba(196,50,31,.08); color: #a52a18; }
+
+        .fc-estado { text-align: center; padding: 32px 18px; }
+        .fc-estado .fc-icono { width: 62px; height: 62px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; background: rgba(255,171,0,.14); border: 1.5px solid rgba(255,171,0,.4); color: #8a5d00; }
+        .fc-estado.is-error .fc-icono { background: rgba(196,50,31,.1); border-color: rgba(196,50,31,.35); color: #c4321f; }
+        .fc-estado h2 { font-size: 1.15rem; font-weight: 800; margin: 0 0 8px; }
+        .fc-estado p { font-size: .88rem; color: #6b6b62; margin: 0; line-height: 1.55; }
+        .fc-oculto { display: none !important; }
+    </style>
+</head>
+
+<body>
+    <div class="fc-wrap">
+        <div class="fc-head">
+            <div>
+                <h1 id="fcTitulo">Firma de contrato</h1>
+                <p id="fcSubtitulo">Cargando…</p>
+            </div>
+        </div>
+
+        <!-- Estado: cargando / error / ya firmado -->
+        <div class="fc-card fc-estado" id="fcEstado">
+            <div class="fc-icono" id="fcEstadoIcono">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+            </div>
+            <h2 id="fcEstadoTitulo">Comprobando el enlace…</h2>
+            <p id="fcEstadoTexto">Un momento.</p>
+        </div>
+
+        <!-- Formulario de firma -->
+        <div id="fcFirma" class="fc-oculto">
+            <div class="fc-card">
+                <span class="fc-label">Contrato</span>
+                <div class="fc-doc" id="fcDoc"></div>
+            </div>
+
+            <div class="fc-card">
+                <div class="fc-field">
+                    <label class="fc-label" for="fcNombre">Nombre y apellidos</label>
+                    <input class="fc-input" id="fcNombre" type="text" autocomplete="name" maxlength="120" />
+                </div>
+                <div class="fc-field">
+                    <label class="fc-label" for="fcDoc2">DNI / NIE <span style="font-weight:500;text-transform:none">(opcional)</span></label>
+                    <input class="fc-input" id="fcDoc2" type="text" autocomplete="off" maxlength="20" />
+                </div>
+
+                <span class="fc-label">Tu firma</span>
+                <div class="fc-pad-box">
+                    <canvas class="fc-pad" id="fcPad"></canvas>
+                    <div class="fc-pad-line"></div>
+                    <div class="fc-pad-hint" id="fcPadHint">Firma aquí con el dedo</div>
+                </div>
+                <div class="fc-row">
+                    <button type="button" class="fc-link" id="fcBorrar">Borrar y repetir</button>
+                </div>
+
+                <label class="fc-check">
+                    <input type="checkbox" id="fcAcepto" />
+                    <span>He leído el contrato y acepto su contenido. Entiendo que esta firma electrónica tiene la misma validez que una firma manuscrita.</span>
+                </label>
+
+                <div style="margin-top:14px">
+                    <button type="button" class="fc-btn" id="fcEnviar" disabled>Firmar contrato</button>
+                </div>
+                <div class="fc-msg is-error" id="fcError"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
+            var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
+            var API = SUPABASE_URL + '/functions/v1/firmar-contrato';
+
+            var token = new URLSearchParams(location.search).get('t');
+            var el = function (id) { return document.getElementById(id); };
+            var estado = el('fcEstado');
+            var bloqueFirma = el('fcFirma');
+
+            function mostrarEstado(titulo, texto, esError) {
+                estado.classList.remove('fc-oculto');
+                estado.classList.toggle('is-error', !!esError);
+                el('fcEstadoTitulo').textContent = titulo;
+                el('fcEstadoTexto').textContent = texto;
+                el('fcEstadoIcono').innerHTML = esError
+                    ? '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>'
+                    : '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+                bloqueFirma.classList.add('fc-oculto');
+            }
+
+            function pedir(body) {
+                return fetch(API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', apikey: ANON },
+                    body: JSON.stringify(body)
+                }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, data: d }; }); });
+            }
+
+            if (!token) {
+                mostrarEstado('Enlace incompleto', 'Abre el enlace tal y como te lo enviaron, sin recortarlo.', true);
+                return;
+            }
+
+            // ── Lienzo de firma ────────────────────────────────────────────────
+            var canvas = el('fcPad');
+            var ctx = canvas.getContext('2d');
+            var dibujando = false;
+            var haFirmado = false;
+            var ultimo = null;
+
+            function ajustarLienzo() {
+                // Se redimensiona por densidad de pantalla: sin esto, la firma se
+                // ve pixelada en un movil retina.
+                var ratio = window.devicePixelRatio || 1;
+                var rect = canvas.getBoundingClientRect();
+                var previo = haFirmado ? canvas.toDataURL('image/png') : null;
+                canvas.width = Math.round(rect.width * ratio);
+                canvas.height = Math.round(rect.height * ratio);
+                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+                ctx.lineWidth = 2.4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#14171C';
+                if (previo) {
+                    var img = new Image();
+                    img.onload = function () { ctx.drawImage(img, 0, 0, rect.width, rect.height); };
+                    img.src = previo;
+                }
+            }
+
+            function posicion(e) {
+                var rect = canvas.getBoundingClientRect();
+                var p = e.touches ? e.touches[0] : e;
+                return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+            }
+
+            function empezar(e) {
+                e.preventDefault();
+                dibujando = true;
+                ultimo = posicion(e);
+                haFirmado = true;
+                el('fcPadHint').classList.add('is-hidden');
+                revisar();
+            }
+
+            function mover(e) {
+                if (!dibujando) return;
+                e.preventDefault();
+                var p = posicion(e);
+                ctx.beginPath();
+                ctx.moveTo(ultimo.x, ultimo.y);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+                ultimo = p;
+            }
+
+            function soltar() { dibujando = false; }
+
+            canvas.addEventListener('pointerdown', empezar);
+            canvas.addEventListener('pointermove', mover);
+            window.addEventListener('pointerup', soltar);
+            canvas.addEventListener('touchstart', empezar, { passive: false });
+            canvas.addEventListener('touchmove', mover, { passive: false });
+            window.addEventListener('touchend', soltar);
+
+            el('fcBorrar').addEventListener('click', function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                haFirmado = false;
+                el('fcPadHint').classList.remove('is-hidden');
+                revisar();
+            });
+
+            window.addEventListener('resize', ajustarLienzo);
+
+            function revisar() {
+                el('fcEnviar').disabled = !(haFirmado && el('fcAcepto').checked && el('fcNombre').value.trim().length >= 3);
+            }
+            el('fcAcepto').addEventListener('change', revisar);
+            el('fcNombre').addEventListener('input', revisar);
+
+            // ── Carga del contrato ─────────────────────────────────────────────
+            pedir({ action: 'datos', token: token }).then(function (res) {
+                if (!res.ok || res.data.error) {
+                    if (res.data.yaFirmado) {
+                        mostrarEstado('Este contrato ya está firmado', 'No hace falta que hagas nada más. Guarda el correo de confirmación.', false);
+                    } else {
+                        mostrarEstado('No se pudo abrir el contrato', res.data.error || 'El enlace no es válido.', true);
+                    }
+                    return;
+                }
+                var d = res.data;
+                el('fcTitulo').textContent = 'Contrato ' + (d.numeroContrato || '');
+                el('fcSubtitulo').textContent = [d.empresa, d.inmueble].filter(Boolean).join(' · ') || 'Revisa y firma';
+                el('fcDoc').innerHTML = d.html;
+                if (d.firmanteSugerido) el('fcNombre').value = d.firmanteSugerido;
+                estado.classList.add('fc-oculto');
+                bloqueFirma.classList.remove('fc-oculto');
+                ajustarLienzo();
+                revisar();
+            }).catch(function () {
+                mostrarEstado('No se pudo conectar', 'Comprueba tu conexión e inténtalo de nuevo.', true);
+            });
+
+            // ── Envío ──────────────────────────────────────────────────────────
+            el('fcEnviar').addEventListener('click', function () {
+                var btn = el('fcEnviar');
+                var err = el('fcError');
+                btn.disabled = true;
+                btn.textContent = 'Firmando…';
+                err.classList.remove('is-on');
+
+                pedir({
+                    action: 'firmar',
+                    token: token,
+                    firma: canvas.toDataURL('image/png'),
+                    nombre: el('fcNombre').value.trim(),
+                    documento: el('fcDoc2').value.trim()
+                }).then(function (res) {
+                    if (!res.ok || res.data.error) {
+                        if (res.data.yaFirmado) {
+                            mostrarEstado('Este contrato ya está firmado', 'No hace falta que hagas nada más.', false);
+                            return;
+                        }
+                        err.textContent = res.data.error || 'No se pudo firmar. Inténtalo de nuevo.';
+                        err.classList.add('is-on');
+                        btn.disabled = false;
+                        btn.textContent = 'Firmar contrato';
+                        return;
+                    }
+                    mostrarEstado('¡Contrato firmado!', 'Ya está. La firma ha quedado registrada y la inmobiliaria recibirá el contrato completo.', false);
+                }).catch(function () {
+                    err.textContent = 'No se pudo conectar. Comprueba tu conexión.';
+                    err.classList.add('is-on');
+                    btn.disabled = false;
+                    btn.textContent = 'Firmar contrato';
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
