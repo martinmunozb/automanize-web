@@ -216,6 +216,13 @@
     .contact-block .contact-sub {
       font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.5;
     }
+    .contact-block .contact-phone-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 18px; margin-bottom: 4px;
+      background: #EAB308; color: #111; border-radius: 10px;
+      font-size: 14px; font-weight: 700; text-decoration: none;
+    }
+    .contact-block .contact-phone-link svg { width: 16px; height: 16px; fill: currentColor; }
 
     /* ── RESERVA ── */
     .reservation-inset {
@@ -423,6 +430,12 @@
         <div class="contact-sub" id="contactSub">
           No hay huecos libres en este momento.<br>Déjanos tus datos y te buscamos una cita.
         </div>
+
+        <!-- Teléfono del gestor: solo si la agencia lo ha habilitado para esta web -->
+        <a id="contactPhoneLink" class="contact-phone-link" href="#" style="display:none">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+          <span id="contactPhoneText"></span>
+        </a>
 
         <div id="noAvailForm" style="margin-top:16px;text-align:left">
           <div style="margin-bottom:8px">
@@ -638,11 +651,19 @@
   async function init() {
     if (!tenantId || !UUID_REGEX.test(tenantId)) return;
 
-    // Solo cargamos fecha+zona para el calendario (evita el límite de 1000 filas)
-    const datesRes = await db.from('slots_disponibilidad')
-      .select('fecha, zona')
-      .eq('tenant_id', tenantId).eq('reservado', false)
-      .range(0, 49999);
+    // Solo cargamos fecha+zona para el calendario (evita el límite de 1000 filas).
+    // En paralelo, el teléfono de contacto con el gestor: la RPC devuelve null
+    // si la agencia no lo ha habilitado para esta web, y entonces el bloque de
+    // "sin disponibilidad" se queda solo con el formulario, como hasta ahora.
+    const [datesRes, gestorRes] = await Promise.all([
+      db.from('slots_disponibilidad')
+        .select('fecha, zona')
+        .eq('tenant_id', tenantId).eq('reservado', false)
+        .range(0, 49999),
+      db.rpc('get_contacto_gestor', { p_tenant_id: tenantId, p_canal: 'disponibilidad' }),
+    ]);
+
+    renderContactoGestor(gestorRes?.data || null);
 
     if (datesRes.error) {
       document.getElementById('zonasWrap').innerHTML = '';
@@ -652,6 +673,18 @@
 
     freeSlots = datesRes.data || [];
     renderZonas();
+  }
+
+  // El número se enseña tal cual lo escribió la agencia en el CRM; para el
+  // enlace tel: se deja solo el prefijo y los dígitos.
+  function renderContactoGestor(telefono) {
+    const link = document.getElementById('contactPhoneLink');
+    if (!link) return;
+    const valor = String(telefono || '').trim();
+    if (!valor) { link.style.display = 'none'; return; }
+    link.href = 'tel:' + valor.replace(/[^\d+]/g, '');
+    document.getElementById('contactPhoneText').textContent = valor;
+    link.style.display = '';
   }
 
 
