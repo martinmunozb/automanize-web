@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Conectando Google Drive…</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f6f7f9; color: #333; }
+    .box { text-align: center; max-width: 380px; padding: 24px; }
+    .err { color: #b3261e; }
+  </style>
+</head>
+<body>
+  <div class="box" id="msg">Conectando con Google Drive…</div>
+  <script>
+    // Página de retorno del OAuth de Drive para automanize.com/app.
+    // Solo reenvía el código a la ventana que la abrió (mismo origen) y se
+    // cierra: quien canjea el código es la Edge Function drive-connect.
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var payload = {
+        source: 'nize-drive-oauth',
+        state: params.get('state') || '',
+        code: params.get('code') || '',
+        error: params.get('error_description') || params.get('error') || '',
+      };
+
+      if (!window.opener) {
+        document.getElementById('msg').innerHTML = '<p class="err">Abre esta página desde Nize.</p>';
+        return;
+      }
+
+      window.opener.postMessage(payload, window.location.origin);
+      document.getElementById('msg').textContent = payload.error
+        ? 'No se pudo conectar. Puedes cerrar esta ventana.'
+        : 'Listo. Puedes cerrar esta ventana.';
+      setTimeout(function () { window.close(); }, 800);
+    })();
+  </script>
+</body>
+</html>
