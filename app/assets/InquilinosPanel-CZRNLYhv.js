@@ -1,1 +1,0 @@
-import{n as e,t}from"./PropietariosPanel-C3pyd8Ps.js";export{t as InquilinosPanel,e as diasAlquiladosEnAnio};
