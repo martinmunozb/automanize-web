@@ -1,0 +1,1 @@
+import{n as e,t}from"./PropietariosPanel-BkwBi_Ss.js";export{t as InquilinosPanel,e as diasAlquiladosEnAnio};
