@@ -92,9 +92,9 @@
     wrap.id = 'automanize-cookie-banner';
     wrap.innerHTML =
       '<div class="acb-box">' +
-        '<p class="acb-text">Utilizamos cookies propias y de terceros para garantizar el funcionamiento del sitio y, con tu consentimiento, para analizar el uso y/o mostrar contenido personalizado. Puedes aceptar, rechazar o configurar las cookies. Más información en nuestra <a href="/cookies.html">Política de Cookies</a>.</p>' +
+        '<p class="acb-text">Usamos cookies propias y de terceros para que el sitio funcione y, si lo permites, para medir su uso y mejorar nuestra publicidad. Más información en nuestra <a href="/cookies.html">Política de Cookies</a>.</p>' +
         '<div class="acb-actions">' +
-          '<button type="button" class="acb-btn acb-config" id="acb-config">Modificar</button>' +
+          '<button type="button" class="acb-btn acb-config" id="acb-config">Personalizar cookies</button>' +
           '<button type="button" class="acb-btn acb-accept" id="acb-accept">Aceptar todas</button>' +
         '</div>' +
         '<div class="acb-settings" id="acb-settings" hidden>' +
