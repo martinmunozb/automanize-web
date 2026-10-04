@@ -17,10 +17,20 @@
   // Funnel propio en Supabase (landing_eventos): un id de sesion por visitante,
   // guardado en localStorage, para poder ver despues por SQL cuantos abren el popup,
   // a que pantalla llegan y donde abandonan. Solo inserta, nunca lee.
-  let sessionId = localStorage.getItem('nize-landing-session');
+  // crypto.randomUUID no existe en iOS < 15.4 ni en algunos navegadores internos
+  // (Instagram/Facebook), y localStorage puede lanzar error: sin este fallback el
+  // script entero se rompia y esa visita ni se registraba ni podia abrir el popup.
+  const newId = () => (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 3) | 8).toString(16);
+      });
+  let sessionId = null;
+  try { sessionId = localStorage.getItem('nize-landing-session'); } catch (e) {}
   if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem('nize-landing-session', sessionId);
+    sessionId = newId();
+    try { localStorage.setItem('nize-landing-session', sessionId); } catch (e) {}
   }
   const logEvento = (evento, pantalla, meta) => {
     fetch(`${SUPABASE_URL}/rest/v1/landing_eventos`, {
@@ -35,7 +45,15 @@
       body: JSON.stringify({ session_id: sessionId, evento, pantalla, meta }),
     }).catch(() => {});
   };
-  logEvento('page_view');
+  // De donde viene la visita: sin esto no se distingue el trafico de anuncios del resto.
+  const qs = new URLSearchParams(window.location.search);
+  logEvento('page_view', undefined, {
+    referrer: document.referrer || null,
+    utm_source: qs.get('utm_source'),
+    utm_campaign: qs.get('utm_campaign'),
+    utm_content: qs.get('utm_content'),
+    fbclid: qs.has('fbclid'),
+  });
 
   // El paso de WhatsApp es obligatorio: sin X, sin atras, sin cerrar por fuera/Esc.
   const BLOCKING_SCREENS = new Set(['whatsapp']);
@@ -155,14 +173,14 @@
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     document.getElementById('calcomFrame').src = `https://cal.com/automanize/elitegold?${params.toString()}`;
 
-    const eventId = crypto.randomUUID();
+    const eventId = newId();
     trackPixel('Schedule', { content_name: 'Nize Elite Gold' }, eventId);
     sendCapiEvent('Schedule', { eventId, email: eliteData.email, phone: eliteData.telefono, contentName: 'Nize Elite Gold' });
     goToScreen('elite-calcom');
   });
 
   document.getElementById('joinWhatsapp')?.addEventListener('click', () => {
-    const eventId = crypto.randomUUID();
+    const eventId = newId();
     trackPixel('Contact', { content_name: 'Comunidad de WhatsApp' }, eventId);
     sendCapiEvent('Contact', { eventId, email: eliteData.email, phone: eliteData.telefono, contentName: 'Comunidad de WhatsApp' });
     // Abre WhatsApp en pestaña nueva (ahi se queda el usuario) y deja que el enlace
