@@ -106,6 +106,9 @@
     submitButton.disabled = true;
     submitButton.textContent = 'Creando tu cuenta...';
 
+    const meta = window.AutomanizeMeta;
+    const eventId = meta ? meta.newEventId() : undefined;
+
     try {
       const resSignup = await fetch(TRIAL_SIGNUP_URL, {
         method: 'POST',
@@ -118,11 +121,14 @@
           website: datos.website,
           privacidad_aceptada: datos.privacidad_aceptada === 'on',
           event_source_url: window.location.href,
+          event_id: eventId,
+          ...(meta ? meta.ids() : {}),
         }),
       });
       const dataSignup = await resSignup.json().catch(() => ({}));
       if (!resSignup.ok || dataSignup.error) throw new Error(dataSignup.error || 'No se pudo crear tu cuenta.');
 
+      if (meta) meta.track('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
       tenantIdCreado = dataSignup.tenant_id || null;
       const primero = String(datos.nombre || '').trim().split(/\s+/)[0];
       successTitulo.textContent = primero ? `¡Gracias, ${primero}!` : '¡Listo!';
@@ -217,6 +223,13 @@
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(eliteForm2).entries()) };
     const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
+    // Igual que en landing.js: el Schedule lo manda calcom-booking al confirmarse
+    // la reserva, y con esta metadata puede atribuirlo al anuncio de Meta.
+    const ids = window.AutomanizeMeta ? window.AutomanizeMeta.ids() : {};
+    if (ids.fbp) params.set('metadata[fbp]', ids.fbp);
+    if (ids.fbc) params.set('metadata[fbc]', ids.fbc);
+    params.set('metadata[ua]', navigator.userAgent.slice(0, 400));
+    params.set('metadata[url]', window.location.href.slice(0, 400));
     const frame = document.getElementById('eliteCalcomFrame');
     if (frame) frame.src = `https://cal.com/automanize/elitegold?${params.toString()}`;
     showEliteScreen('elite-calcom');

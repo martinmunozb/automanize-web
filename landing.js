@@ -126,6 +126,7 @@
         email,
         phone,
         content_name: contentName,
+        ...(window.AutomanizeMeta ? window.AutomanizeMeta.ids() : {}),
       }),
     }).catch(() => {});
   };
@@ -171,11 +172,16 @@
     // Si se cambia el formato de esta linea, hay que cambiar la regex de alli.
     const notas = `Teléfono: ${eliteData.telefono || '—'} · Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
+    // El evento Schedule ya no sale de aqui (esto es solo abrir el calendario, no
+    // reservar): lo manda calcom-booking cuando Cal.com confirma la reserva de
+    // verdad. Para que Meta pueda atribuirlo al anuncio, viajan con la reserva
+    // como metadata (vuelven en el webhook) el navegador y el clic del anuncio.
+    const ids = window.AutomanizeMeta ? window.AutomanizeMeta.ids() : {};
+    if (ids.fbp) params.set('metadata[fbp]', ids.fbp);
+    if (ids.fbc) params.set('metadata[fbc]', ids.fbc);
+    params.set('metadata[ua]', navigator.userAgent.slice(0, 400));
+    params.set('metadata[url]', window.location.href.slice(0, 400));
     document.getElementById('calcomFrame').src = `https://cal.com/automanize/elitegold?${params.toString()}`;
-
-    const eventId = newId();
-    trackPixel('Schedule', { content_name: 'Nize Elite Gold' }, eventId);
-    sendCapiEvent('Schedule', { eventId, email: eliteData.email, phone: eliteData.telefono, contentName: 'Nize Elite Gold' });
     goToScreen('elite-calcom');
   });
 

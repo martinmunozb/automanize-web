@@ -507,6 +507,8 @@
                     // Misma Edge Function que el resto de altas del sitio. El NIF
                     // no va: con un invitacion_token válido el servidor no lo
                     // exige, porque esta persona ya se identificó al reservar.
+                    const meta = window.AutomanizeMeta;
+                    const eventId = meta ? meta.newEventId() : undefined;
                     const res = await fetch(`${SUPABASE_URL}/functions/v1/trial-signup`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
@@ -516,6 +518,9 @@
                             telefono: datos.telefono,
                             invitacion_token: token,
                             privacidad_aceptada: datos.privacidad_aceptada === 'on',
+                            event_id: eventId,
+                            event_source_url: window.location.href,
+                            ...(meta ? meta.ids() : {}),
                         }),
                     });
                     const data = await res.json().catch(() => ({}));
@@ -524,6 +529,7 @@
                         throw new Error(data.error || 'No se pudo crear tu cuenta.');
                     }
 
+                    if (meta) meta.track('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
                     const primero = (campoNombre.value || '').trim().split(/\s+/)[0];
                     okTitulo.textContent = primero ? `¡Listo, ${primero}!` : '¡Listo!';
                     mostrar(panelOk);
