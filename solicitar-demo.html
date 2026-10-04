@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.github.com https://edjugpekcntzvqaskbmc.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" />
+        content="default-src 'self'; frame-src 'self' https://www.facebook.com; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://api.github.com https://edjugpekcntzvqaskbmc.supabase.co https://www.facebook.com https://connect.facebook.net https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self' https://www.facebook.com; frame-ancestors 'none'" />
     <title>Solicitar demo — Automanize</title>
     <meta name="description" content="Solicita la demo del CRM Nize: rellena tus datos, descárgalo al momento y nos pondremos en contacto contigo." />
     <meta name="author" content="Automanize" />
@@ -281,7 +281,7 @@
     gtag('config', 'G-SQ2QT5PJTL');
   </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
-  <script src="/assets/js/cookie-consent.js?v=7" defer></script>
+  <script src="/assets/js/cookie-consent.js?v=8" defer></script>
 </head>
 
 <body>
@@ -594,6 +594,11 @@
                 const submitBtn = form.querySelector('.specular-btn');
                 submitBtn.disabled = true;
 
+                // Mismo event_id en el Pixel y en la Conversions API (trial-signup)
+                // para que Meta deduplique el alta en vez de contarla doble.
+                const meta = window.AutomanizeMeta;
+                const eventId = meta ? meta.newEventId() : undefined;
+
                 try {
                     const res = await fetch(TRIAL_SIGNUP_URL, {
                         method: 'POST',
@@ -605,6 +610,9 @@
                             nif: datos.nif,
                             website: datos.website,
                             privacidad_aceptada: datos.privacidad_aceptada === 'on',
+                            event_id: eventId,
+                            event_source_url: window.location.href,
+                            ...(meta ? meta.ids() : {}),
                         }),
                     });
                     const data = await res.json().catch(() => ({}));
@@ -618,6 +626,7 @@
                         throw new Error(data.error || 'No se pudo procesar tu solicitud.');
                     }
 
+                    if (meta) meta.track('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
                     mostrarConfirmacion(datos.nombre);
                 } catch (err) {
                     mostrarErrorServidor(err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.');
