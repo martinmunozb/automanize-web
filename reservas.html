@@ -648,18 +648,34 @@
     document.querySelector('.card-sub').textContent = '';
   }
 
+  // fecha+zona de los huecos libres desde hoy. Supabase corta cada respuesta en
+  // 1000 filas aunque se pida un range mayor, así que se pagina: sin esto, los
+  // huecos viejos sin reservar llenaban el cupo y las zonas nuevas no salían.
+  async function cargarFechasLibres() {
+    const d = new Date();
+    const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const filas = [];
+    for (let desde = 0; ; desde += 1000) {
+      const { data, error } = await db.from('slots_disponibilidad')
+        .select('fecha, zona')
+        .eq('tenant_id', tenantId).eq('reservado', false).gte('fecha', hoy)
+        .order('id')
+        .range(desde, desde + 999);
+      if (error) return { data: null, error };
+      filas.push(...data);
+      if (data.length < 1000) return { data: filas, error: null };
+    }
+  }
+
   async function init() {
     if (!tenantId || !UUID_REGEX.test(tenantId)) return;
 
-    // Solo cargamos fecha+zona para el calendario (evita el límite de 1000 filas).
+    // Solo cargamos fecha+zona para el calendario.
     // En paralelo, el teléfono de contacto con el gestor: la RPC devuelve null
     // si la agencia no lo ha habilitado para esta web, y entonces el bloque de
     // "sin disponibilidad" se queda solo con el formulario, como hasta ahora.
     const [datesRes, gestorRes] = await Promise.all([
-      db.from('slots_disponibilidad')
-        .select('fecha, zona')
-        .eq('tenant_id', tenantId).eq('reservado', false)
-        .range(0, 49999),
+      cargarFechasLibres(),
       db.rpc('get_contacto_gestor', { p_tenant_id: tenantId, p_canal: 'disponibilidad' }),
     ]);
 
@@ -1044,10 +1060,7 @@
       // Recargar fechas disponibles en segundo plano
       const z = selectedZona;
       const d = selectedDay;
-      const { data } = await db.from('slots_disponibilidad')
-        .select('fecha, zona')
-        .eq('tenant_id', tenantId).eq('reservado', false)
-        .range(0, 49999);
+      const { data } = await cargarFechasLibres();
       freeSlots = data || [];
       renderZonas();
       if (z) {
