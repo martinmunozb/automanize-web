@@ -514,7 +514,12 @@
   const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
   const { createClient } = window.supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Página pública: siempre como anon. Si el navegador tiene sesión de la app
+  // (/app, mismo dominio), supabase-js la reutilizaría y el RLS limitaría los
+  // huecos al tenant de ese usuario, no al de la URL.
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
   const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const params = new URLSearchParams(window.location.search);
