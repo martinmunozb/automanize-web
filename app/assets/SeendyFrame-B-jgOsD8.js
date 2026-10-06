@@ -1,1 +1,0 @@
-import{t as e}from"./vendor-react-ChgKuVV6.js";var t=e();function n({view:e=`inbox`}){return(0,t.jsx)(`iframe`,{title:`Seendy`,src:`./seendy.html#/workspace?view=${e}`,className:`h-[calc(100vh-140px)] w-full rounded-lg border bg-card shadow-sm`},e)}export{n as SeendyFrame};
