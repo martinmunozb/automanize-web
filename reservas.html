@@ -1053,6 +1053,14 @@
         if (!rx?.ok) throw new Error(rx?.error || `El hueco ${i + 2} ya no estaba disponible. Los anteriores se reservaron correctamente.`);
       }
 
+      // Avisa a lead y gestor (WhatsApp + email). Sin await: un fallo aquí no
+      // debe estropear una reserva que ya está hecha.
+      fetch('https://backend.automanize.com/webhook/visita-reservada', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot_ids: [selectedSlot.id, ...selectedSlotExtras.map(s => s.id)] }),
+      }).catch(() => {});
+
       // Mostrar overlay de éxito
       const slot = selectedSlot;
       let detail = `📅 <strong>${slot.zona}</strong><br>${fmtDate(slot.fecha)} · ${slot.hi.slice(0,5)} – ${slot.hf.slice(0,5)}<br>`;
