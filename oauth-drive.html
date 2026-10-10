@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Conectando Google Drive…</title>
+  <title>Conectando con Google…</title>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f6f7f9; color: #333; }
     .box { text-align: center; max-width: 380px; padding: 24px; }
@@ -12,11 +12,11 @@
   </style>
 </head>
 <body>
-  <div class="box" id="msg">Conectando con Google Drive…</div>
+  <div class="box" id="msg">Conectando con Google…</div>
   <script>
-    // Página de retorno del OAuth de Drive para automanize.com/app.
+    // Página de retorno del OAuth de Google (Drive y Calendar) para automanize.com/app.
     // Solo reenvía el código a la ventana que la abrió (mismo origen) y se
-    // cierra: quien canjea el código es la Edge Function drive-connect.
+    // cierra: quien canjea el código es la Edge Function drive-connect o calendar-token.
     (function () {
       var params = new URLSearchParams(window.location.search);
       var payload = {
