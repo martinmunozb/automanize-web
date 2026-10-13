@@ -494,6 +494,7 @@ h1 {
 
 .client-list {
   display:flex;
+  flex-wrap:wrap;
   align-items:center;
   justify-content:space-around;
   flex:1;
@@ -519,6 +520,10 @@ h1 {
 .client-list a:hover img {
   filter:none;
   opacity:1;
+}
+
+.client-list .goroom-logo {
+  border-radius:50%;
 }
 
 .client-list .vortex-logo {

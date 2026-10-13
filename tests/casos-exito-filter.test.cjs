@@ -19,10 +19,11 @@ test('casos de exito mantiene los casos restantes', () => {
   assert.match(page, /Invicta Rent/);
   assert.match(page, /Vortex Rooms/);
   assert.match(page, /Manuel Conesa/);
+  assert.match(page, /GoRoom/);
 });
 
-test('casos de exito distribuye los tres casos en una fila de escritorio', () => {
+test('casos de exito distribuye los cuatro casos en una fila de escritorio', () => {
   const page = fs.readFileSync(path.join(rootDir, 'casos-exito.html'), 'utf8');
 
-  assert.match(page, /grid-cols-1 md:grid-cols-3/);
+  assert.match(page, /grid-cols-1 md:grid-cols-2 lg:grid-cols-4/);
 });

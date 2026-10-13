@@ -19,4 +19,5 @@ test('home mantiene los logos restantes de empresas que confian', () => {
   assert.match(page, /Manuel Conesa/);
   assert.match(page, /Invicta Rent/);
   assert.match(page, /Vortex Rooms/);
+  assert.match(page, /GoRoom/);
 });
