@@ -1,1 +1,0 @@
-import{n as e,t}from"./PropietariosPanel-7qg-fDS_.js";export{t as InquilinosPanel,e as diasAlquiladosEnAnio};
