@@ -1,1 +1,0 @@
-import{n as e,t}from"./PropietariosPanel-C1aWStkF.js";export{t as InquilinosPanel,e as diasAlquiladosEnAnio};
