@@ -918,7 +918,7 @@
 
       // Preguntas activas del tenant
       const tp = await sbGet('tenant_preguntas', {
-        select: 'pregunta_id,pregunta_texto_custom,orden',
+        select: 'pregunta_id,pregunta_texto_custom,opciones_custom,orden',
         tenant_id: `eq.${tenantId}`,
         activa: 'eq.true',
         order: 'orden.asc',
@@ -944,7 +944,7 @@
           campo_clientes: cat.campo_clientes,
           textoMostrar:   row.pregunta_texto_custom || cat.pregunta_texto,
           tipo_input:     cat.tipo_input,
-          opciones:       cat.opciones ?? [],
+          opciones:       row.opciones_custom ?? cat.opciones ?? [], // lista propia del cliente, si la tiene
         };
       }).filter(Boolean);
 
