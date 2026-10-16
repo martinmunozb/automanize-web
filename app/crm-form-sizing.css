@@ -1,0 +1,25 @@
+/* Restore each form's original Tailwind width instead of a viewport-wide cap.
+   Keep this scoped to forms: document viewers and property workspaces retain theirs. */
+:root .crm-form-overlay > [data-crm-window].max-w-sm { max-width: min(24rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window].max-w-md { max-width: min(28rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window].max-w-lg { max-width: min(32rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window].max-w-xl { max-width: min(36rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window].max-w-2xl { max-width: min(42rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window].max-w-3xl { max-width: min(48rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window].max-w-4xl { max-width: min(56rem, calc(100vw - 32px)) !important; }
+:root .crm-form-overlay > [data-crm-window] > [data-crm-window-header] { padding: 16px 20px !important; }
+:root .crm-form-overlay > [data-crm-window] > [data-crm-window-header] :is(h2,h3) { font-size: 16px !important; }
+:root .crm-form-overlay > [data-crm-window]:not([data-crm-window='columns']) > [data-crm-window-body] { padding: 20px !important; }
+:root .crm-form-overlay > [data-crm-window] > [data-crm-window-footer] { padding: 16px 20px !important; }
+:root .crm-form-overlay > [data-crm-window] > [data-crm-window-footer] [data-slot='button'] { min-height: 32px; padding-inline: 12px; }
+:root .crm-form-overlay :is(input, [data-crm-select]):not(.crm-native-select):not([type='checkbox']):not([type='radio']) { min-height: 32px !important; }
+:root .crm-form-overlay textarea { min-height: 64px !important; }
+:root .crm-form-overlay .crm-form-section { margin: 16px 0 12px !important; padding-top: 12px; }
+:root .crm-form-overlay .crm-form-section:first-child { margin-top: 0 !important; padding-top: 0; }
+@media (max-width: 640px) {
+  :root .crm-form-overlay > [data-crm-window] > [data-crm-window-header],
+  :root .crm-form-overlay > [data-crm-window] > [data-crm-window-footer] { padding: 14px 16px !important; }
+  :root .crm-form-overlay > [data-crm-window]:not([data-crm-window='columns']) > [data-crm-window-body] { padding: 16px !important; }
+  :root .crm-form-overlay :is(input, [data-crm-select]):not(.crm-native-select):not([type='checkbox']):not([type='radio']),
+  :root .crm-form-overlay > [data-crm-window] > [data-crm-window-footer] [data-slot='button'] { min-height: 40px !important; }
+}
