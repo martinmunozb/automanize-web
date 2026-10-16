@@ -2,10 +2,33 @@
 <html lang="es" class="light">
 
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function(){
+      var c = null;
+      try { c = JSON.parse(localStorage.getItem('automanize_cookie_consent')); } catch (e) {}
+      var s = c && c.marketing ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        ad_storage: s, ad_user_data: s, ad_personalization: s, analytics_storage: s,
+        functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500
+      });
+    })();
+    gtag('js', new Date());
+    gtag('config', 'G-SQ2QT5PJTL');
+  </script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5DJNV3QB');</script>
+<!-- End Google Tag Manager -->
+
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; frame-src 'self' https://www.facebook.com; form-action 'self' https://www.facebook.com; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://www.facebook.com https://connect.facebook.net https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://edjugpekcntzvqaskbmc.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" />
+        content="default-src 'self'; frame-src 'self' https://www.facebook.com https://www.googletagmanager.com; form-action 'self' https://www.facebook.com; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com https://www.googletagmanager.com; connect-src 'self' https://www.facebook.com https://connect.facebook.net https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://edjugpekcntzvqaskbmc.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" />
     <title>Sobre Nosotros — Automanize</title>
     <meta name="description" content="Conoce al equipo detrás de Automanize: Martín Muñoz, Gabriel Gutiérrez y Antonio Arenas, construyendo Nize y el resto de sistemas de automatización inteligente." />
     <meta name="author" content="Automanize" />
@@ -240,28 +263,16 @@
 
     </style>
     <link rel="stylesheet" href="assets/css/automanize-dock.css" />
-  <!-- Google tag (gtag.js) — Modo de consentimiento v2. El banner y el Pixel de Meta
-       viven en assets/js/cookie-consent.js; aqui solo se declara el estado inicial. -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    (function(){
-      var c = null;
-      try { c = JSON.parse(localStorage.getItem('automanize_cookie_consent')); } catch (e) {}
-      var s = c && c.marketing ? 'granted' : 'denied';
-      gtag('consent', 'default', {
-        ad_storage: s, ad_user_data: s, ad_personalization: s, analytics_storage: s,
-        functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500
-      });
-    })();
-    gtag('js', new Date());
-    gtag('config', 'G-SQ2QT5PJTL');
-  </script>
+
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
   <script src="/assets/js/cookie-consent.js?v=8" defer></script>
 </head>
 
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DJNV3QB"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
     <!-- ===== Sobre nosotros ===== -->
     <section class="team-hero">
