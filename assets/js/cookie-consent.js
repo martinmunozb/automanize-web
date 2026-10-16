@@ -1,6 +1,5 @@
 (function () {
   var STORAGE_KEY = 'automanize_cookie_consent';
-  var PIXEL_ID = '878301471795466';
   var GA_ID = 'G-SQ2QT5PJTL';
 
   function getConsent() {
@@ -11,8 +10,6 @@
     }
   }
 
-  var CAPI_URL = 'https://edjugpekcntzvqaskbmc.supabase.co/functions/v1/meta-capi';
-  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
 
   function newEventId() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -58,41 +55,16 @@
     return { fbp: getCookie('_fbp') || undefined, fbc: getCookie('_fbc') || undefined };
   }
 
-  // Mismo evento por el Pixel (navegador) y por la Conversions API (servidor) con
-  // el mismo event_id: Meta los deduplica y cuenta uno, pero si el Pixel esta
-  // bloqueado sigue llegando el del servidor.
-  function sendCapi(eventName, eventId) {
-    var ids = metaIds();
-    try {
-      fetch(CAPI_URL, {
-        method: 'POST',
-        keepalive: true,
-        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
-        body: JSON.stringify({ event_name: eventName, event_id: eventId, event_source_url: location.href, fbp: ids.fbp, fbc: ids.fbc })
-      }).catch(function () {});
-    } catch (e) {}
-  }
-
-  function loadMetaPixel() {
+  // El Pixel de Meta lo carga Google Tag Manager (GTM-5DJNV3QB), no este archivo.
+  // Aqui solo se marca el consentimiento y se crean _fbp/_fbc para que las
+  // conversiones que se envian por Conversions API lleven siempre el clic del anuncio.
+  function grantMarketing() {
     marketingGranted = true;
-    if (window.fbq) return;
     ensureMetaCookies();
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return; n = f.fbq = function () {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-      };
-      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-      n.queue = []; t = b.createElement(e); t.async = !0;
-      t.src = v; s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s)
-    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', PIXEL_ID);
-    var pageViewId = newEventId();
-    fbq('track', 'PageView', {}, { eventID: pageViewId });
-    sendCapi('PageView', pageViewId);
   }
 
-  // Para los formularios (altas, contacto): mismo event_id en Pixel y servidor.
+  // Para los formularios (altas, contacto): mismo event_id en Pixel (el de GTM, si
+  // esta cargado) y servidor.
   function trackMeta(eventName, params, eventId) {
     if (hasMarketingConsent() && typeof window.fbq === 'function') {
       fbq('track', eventName, params || {}, { eventID: eventId });
@@ -102,7 +74,7 @@
   // La etiqueta de Google (gtag.js) y los defaults del Modo de consentimiento v2 van
   // INLINE en el <head> de cada pagina, no aqui: el verificador de Google lee el HTML
   // de forma estatica y no detecta una etiqueta inyectada por JavaScript. Este archivo
-  // solo se encarga del banner, de actualizar el consentimiento y del Pixel de Meta.
+  // solo se encarga del banner y de actualizar el consentimiento.
   // Este shim es por si alguna pagina se quedara sin el bloque inline.
   window.dataLayer = window.dataLayer || [];
   if (typeof window.gtag !== 'function') {
@@ -122,7 +94,7 @@
   function applyConsent(consent) {
     var marketing = !!(consent && consent.marketing);
     updateGoogleConsent(marketing);
-    if (marketing) loadMetaPixel();
+    if (marketing) grantMarketing();
   }
 
   function setConsent(marketing) {
@@ -192,7 +164,7 @@
 
   var existing = getConsent();
   if (existing) {
-    if (existing.marketing) loadMetaPixel();
+    if (existing.marketing) grantMarketing();
   } else {
     showBanner();
   }
