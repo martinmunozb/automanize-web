@@ -1,6 +1,6 @@
 {
   "id": "seendy-inbox-20261017",
-  "createdAt": "2026-10-17T16:47:21.648Z",
+  "createdAt": "2026-10-17T16:48:05.494Z",
   "sourceCommit": "0150adb",
   "entry": "assets/renderer-web-BJFD25UD.js",
   "documents": [
@@ -381,11 +381,11 @@
     },
     {
       "path": "seendy/seendy-nize.css",
-      "sha256": "687d93843dcc1c4ccc82c67e6630e8ad7081a19069f57e7afa1029d8d59ac87c"
+      "sha256": "51414257726606dcd4c689ab75b945cf439f5feb4912ec1a04c3ab13551d4055"
     },
     {
       "path": "seendy/seendy.css",
-      "sha256": "933251c1a05cb22ce7f80b691e3793c1bb75986c0c2aae345719829f307ff360"
+      "sha256": "497a2c356beda2f0c606c45d0f737b11b93a8da46f73f5259d6ecd51b05819a2"
     },
     {
       "path": "index.html",
