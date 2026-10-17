@@ -1,0 +1,13 @@
+name: CRM release integrity
+on:
+  push:
+    branches: [main]
+    paths: ['app/**', 'scripts/check-crm-release.mjs', '.gitattributes', '.github/workflows/crm-release.yml']
+  pull_request:
+    paths: ['app/**', 'scripts/check-crm-release.mjs', '.gitattributes', '.github/workflows/crm-release.yml']
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/check-crm-release.mjs
