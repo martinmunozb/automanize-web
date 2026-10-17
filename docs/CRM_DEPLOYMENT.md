@@ -25,6 +25,13 @@ Seendy assets. `documents` lists the secondary HTML entry points checked for
 complete dependencies. Seendy's current design CSS and local font are hashed
 build assets, so the new interface does not reuse the previous CSS cache key.
 
+The Nginx container does not apply Netlify's `_headers` file. Caddy must send
+`Cache-Control: no-cache, max-age=0, must-revalidate` for CRM documents and the
+release manifest. The matcher is in `ops/caddy/crm-cache.caddy`. The installer
+`scripts/install-crm-cache-policy.py` validates and backs up the active VPS config
+before adding it to the Automanize host block and gracefully reloading Caddy.
+The iframe also has a versioned URL to bypass previously cached HTML.
+
 On 2026-10-17, release `crm-restored-20261017` restores the tested renderer from
 2026-10-16: compact forms, property workspace, contract attachments, visits,
 responsive diagram connections, and room-expense proration rules. The previous

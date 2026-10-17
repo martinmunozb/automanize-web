@@ -1,0 +1,3 @@
+    # CRM document cache policy: HTML must revalidate on every navigation.
+    @crm_documents path /app /app/ /app/index.html /app/renderer-web.html /app/seendy.html /app/release.json
+    header @crm_documents Cache-Control "no-cache, max-age=0, must-revalidate"
