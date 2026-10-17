@@ -1,0 +1,1 @@
+import{n as e,t}from"./PropietariosPanel-BTjStrA8.js";export{t as InquilinosPanel,e as diasAlquiladosEnAnio};

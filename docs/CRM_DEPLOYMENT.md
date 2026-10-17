@@ -20,6 +20,11 @@ checkout to `origin/main` preserves the CRM only when the deployed release has
 already been committed and pushed. A manual copy on the server is not a durable
 release. Do not use a reset to discard unpublished changes.
 
+The manifest also includes `seendy.html`, its static base CSS and all generated
+Seendy assets. `documents` lists the secondary HTML entry points checked for
+complete dependencies. Seendy's current design CSS and local font are hashed
+build assets, so the new interface does not reuse the previous CSS cache key.
+
 On 2026-10-17, release `crm-restored-20261017` restores the tested renderer from
 2026-10-16: compact forms, property workspace, contract attachments, visits,
 responsive diagram connections, and room-expense proration rules. The previous

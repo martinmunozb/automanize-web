@@ -14,7 +14,11 @@ for (const file of release.files) {
 const index = await readFile(path.join(app, 'index.html'), 'utf8');
 if (!index.includes(`src="./${release.entry}"`)) throw new Error('The CRM index points to a different release');
 const files = new Set(release.files.map(file => file.path));
-for (const match of index.matchAll(/(?:src|href)="\.\/(assets\/[^"]+)"/g)) {
-  if (!files.has(match[1])) throw new Error(`Unversioned CRM dependency: ${match[1]}`);
+for (const document of ['index.html', ...(release.documents || [])]) {
+  if (!files.has(document)) throw new Error(`Unversioned CRM document: ${document}`);
+  const html = await readFile(path.join(app, document), 'utf8');
+  for (const match of html.matchAll(/(?:src|href)="\.\/([^"?#]+)(?:[?#][^"]*)?"/g)) {
+    if (!files.has(match[1])) throw new Error(`Unversioned dependency in ${document}: ${match[1]}`);
+  }
 }
 console.log(`CRM ${release.id}: ${release.files.length} versioned files verified.`);
