@@ -83,16 +83,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .demo-cols {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "form" "benefits";
             gap: 1.75rem;
             align-items: start;
         }
         @media (min-width: 900px) {
-            .demo-cols { grid-template-columns: 1fr 1.05fr; gap: 2.5rem; }
+            .demo-cols {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+                grid-template-areas: "benefits form";
+                gap: 2.5rem;
+            }
         }
 
         /* Columna de "qué incluye" */
-        .demo-puntos { display: flex; flex-direction: column; gap: 1.15rem; }
+        .demo-puntos { grid-area: benefits; min-width: 0; display: flex; flex-direction: column; gap: 1.15rem; }
         .demo-punto { display: flex; gap: .85rem; align-items: flex-start; }
         .demo-punto svg {
             width: 22px; height: 22px; flex: none; color: var(--primary); margin-top: .15rem;
@@ -102,6 +107,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         /* Tarjeta del formulario */
         .demo-card {
+            grid-area: form;
+            min-width: 0;
             border-radius: 1.75rem;
             border: 1px solid rgba(0, 0, 0, .08);
             background: #fff;
@@ -117,6 +124,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             color: var(--muted);
         }
         .demo-campo input {
+            box-sizing: border-box;
             width: 100%;
             font: inherit;
             font-size: .88rem;
@@ -257,6 +265,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .demo-form .specular-btn { width: 100%; margin-top: .35rem; }
 
+        @media (max-width: 899px) {
+            .demo-head { margin-bottom: 1.5rem; }
+            .demo-campo input:not([type="checkbox"]) {
+                min-height: 44px;
+                font-size: 16px;
+            }
+            .demo-form .specular-btn {
+                height: auto;
+                min-height: 46px;
+                padding: .75rem 1rem;
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .specular-btn::before, .specular-btn::after { transition: none; }
         }
@@ -307,37 +328,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <div class="demo-cols">
-            <div class="demo-puntos">
-                <div class="demo-punto">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                    <div>
-                        <strong>Descarga inmediata</strong>
-                        <span>En cuanto envías el formulario tienes el instalador disponible, sin esperas.</span>
-                    </div>
-                </div>
-                <div class="demo-punto">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18" /><path d="M8 4v3M16 4v3" /></svg>
-                    <div>
-                        <strong>Propiedades, contratos y cobros</strong>
-                        <span>El panel completo con el que se gestiona el día a día, no una versión recortada.</span>
-                    </div>
-                </div>
-                <div class="demo-punto">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-                    <div>
-                        <strong>Te acompañamos después</strong>
-                        <span>Te llamamos para resolver dudas y ver cómo encaja con lo que ya usas.</span>
-                    </div>
-                </div>
-                <div class="demo-punto">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6.5v5c0 4.5 3.2 8.4 8 9.5 4.8-1.1 8-5 8-9.5v-5z" /></svg>
-                    <div>
-                        <strong>Sin compromiso</strong>
-                        <span>Probarlo no te obliga a nada, y tus datos no se comparten con terceros.</span>
-                    </div>
-                </div>
-            </div>
-
             <div class="demo-card" id="demoCard">
                 <!-- novalidate: la validación la lanzamos nosotros para poder
                      marcar el formulario como "intentado" antes de que el
@@ -459,6 +449,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </p>
                 </div>
             </div>
+
+            <div class="demo-puntos">
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    <div>
+                        <strong>Descarga inmediata</strong>
+                        <span>En cuanto envías el formulario tienes el instalador disponible, sin esperas.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18" /><path d="M8 4v3M16 4v3" /></svg>
+                    <div>
+                        <strong>Propiedades, contratos y cobros</strong>
+                        <span>El panel completo con el que se gestiona el día a día, no una versión recortada.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                    <div>
+                        <strong>Te acompañamos después</strong>
+                        <span>Te llamamos para resolver dudas y ver cómo encaja con lo que ya usas.</span>
+                    </div>
+                </div>
+                <div class="demo-punto">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6.5v5c0 4.5 3.2 8.4 8 9.5 4.8-1.1 8-5 8-9.5v-5z" /></svg>
+                    <div>
+                        <strong>Sin compromiso</strong>
+                        <span>Probarlo no te obliga a nada, y tus datos no se comparten con terceros.</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -517,6 +538,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const conflictoBtn = document.getElementById('demoConflictoBtn');
             const conflictoNota = document.getElementById('demoConflictoNota');
             if (!form) return;
+
+            // Captura la campa?a al entrar y la conserva durante esta pesta?a.
+            const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+            const campaignParams = new URLSearchParams(window.location.search);
+            let attribution = {};
+            try {
+                const saved = JSON.parse(sessionStorage.getItem('nize_demo_attribution') || 'null');
+                if (saved && Date.now() - saved.saved_at < 86400000) attribution = saved.data;
+            } catch (_) {}
+            if (utmKeys.some((key) => campaignParams.has(key))) {
+                attribution = Object.fromEntries(utmKeys.map((key) => [key, (campaignParams.get(key) || '').slice(0, 500)]));
+                attribution.landing_url = window.location.href.slice(0, 2048);
+                try {
+                    sessionStorage.setItem('nize_demo_attribution', JSON.stringify({ saved_at: Date.now(), data: attribution }));
+                } catch (_) {}
+            }
 
             // Alta real del tenant (7 días de prueba gratis) vía la misma
             // Edge Function que usa prueba-nize.html — no un simple envío de
@@ -615,6 +652,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
                         body: JSON.stringify({
+                            attribution,
                             empresa: datos.nombre,
                             telefono: datos.telefono,
                             email: datos.email,
