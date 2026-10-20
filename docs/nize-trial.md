@@ -23,7 +23,7 @@ gratis** del software — no es un simple envío de lead por correo.
 
 ```
 1. Usuario llega desde una de las páginas que enlazan aquí
-2. Rellena el formulario: nombre/empresa, correo, teléfono, NIF/DNI
+2. Rellena el formulario: nombre/empresa, correo y teléfono
 3. POST a Supabase Edge Function: /functions/v1/trial-signup
 4. La función crea usuario (Supabase Auth), tenant, perfil admin,
    token de activación, envía email de bienvenida (instalador +
@@ -46,12 +46,10 @@ vez.
   pisos que para una inmobiliaria formal)
 - **Correo electrónico**: email, obligatorio (con esto se crea el usuario
   de Supabase Auth)
-- **Teléfono**: campo de texto libre único, sin selector de prefijo de país
-  (a diferencia de `formulario.html`, ver `docs/telefono.md`) — el backend
-  no valida su formato, solo que no esté vacío
-- **NIF / DNI**: obligatorio, validado por checksum en el backend (DNI/NIE
-  reales, CIF solo por formato) — evita altas duplicadas con NIF distinto
-  usando emails distintos
+- **Teléfono**: obligatorio, normalizado en el servidor. No se admite un
+  teléfono ya asociado a otra cuenta; los números españoles sin prefijo
+  equivalen a +34. El correo tampoco se puede repetir.
+- **DNI/NIF**: eliminado del alta; los datos fiscales se configuran aparte.
 - **Honeypot**: campo oculto `website` anti-spam, invisible para una
   persona real
 
@@ -61,7 +59,7 @@ vez.
 fetch(`${SUPABASE_URL}/functions/v1/trial-signup`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
-  body: JSON.stringify({ empresa, telefono, email, nif, website }),
+  body: JSON.stringify({ empresa, telefono, email, website }),
 });
 ```
 
@@ -74,19 +72,20 @@ Ya desplegada en Supabase, proyecto `edjugpekcntzvqaskbmc` (repo
 
 Hace, en orden:
 1. Descarta el envío en silencio si `website` (honeypot) viene relleno
-2. Valida NIF/DNI/CIF (checksum real para DNI/NIE, formato para CIF)
+2. Valida y normaliza el telefono; bloquea contactos repetidos
 3. Crea el usuario en Supabase Auth (contraseña temporal generada)
 4. Crea el tenant (`plan: 'basico'`, `pagado: false`,
-   `trial_ends_at: ahora + 7 días`, `nif`)
+   `trial_ends_at: ahora + 7 días`)
 5. Crea el perfil admin (`perfiles_app`) para ese usuario
 6. Crea el token de activación XXXX-XXXX (`tenant_activaciones`)
 7. Manda el email de bienvenida (instalador + credenciales + token) vía
    Gmail SMTP
 8. Crea la carpeta de Drive del tenant (no bloqueante)
 
-Si el NIF ya existe (`tenants_nif_unique_idx`) o es inválido, o si falta
-cualquier campo obligatorio, responde 400 con un mensaje claro y no crea
-nada.
+Si el correo o telefono ya existe, o falta un campo obligatorio, responde
+400 con un mensaje claro. Un rechazo del tenant elimina el nuevo usuario Auth.
+La migracion `sql_trial_unique_contact.sql` debe aplicarse antes de desplegar
+la funcion; publicar el formulario sin DNI solo despues de esa actualizacion.
 
 ### Secretos necesarios en Supabase (Edge Functions → Secrets)
 

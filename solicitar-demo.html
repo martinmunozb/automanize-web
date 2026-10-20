@@ -170,7 +170,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .demo-campo-check > span:not(.demo-error) a { color: var(--text); text-decoration: underline; }
         .demo-campo-check .demo-error { grid-column: 1 / -1; }
 
-        /* Error de envío (alta rechazada por el servidor: NIF inválido,
+        /* Error de envío (alta rechazada por el servidor: contacto repetido,
            duplicado, etc.) — distinto del error de validación por campo
            (.demo-error), que ya existe arriba. */
         .demo-msg-servidor {
@@ -361,13 +361,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                autocomplete="tel" inputmode="tel"
                                placeholder="+34 600 00 00 00" />
                         <span class="demo-error">Escribe un teléfono válido (mínimo 9 dígitos).</span>
-                    </label>
-
-                    <label class="demo-campo">
-                        <span>NIF / DNI</span>
-                        <input type="text" name="nif" required maxlength="12"
-                               autocomplete="off" placeholder="12345678A" />
-                        <span class="demo-error">Escribe un NIF/DNI válido.</span>
                     </label>
 
                     <!-- Honeypot anti-spam: invisible para una persona, los
@@ -656,7 +649,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             empresa: datos.nombre,
                             telefono: datos.telefono,
                             email: datos.email,
-                            nif: datos.nif,
                             website: datos.website,
                             privacidad_aceptada: datos.privacidad_aceptada === 'on',
                             event_id: eventId,

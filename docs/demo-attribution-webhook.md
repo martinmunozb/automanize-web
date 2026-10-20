@@ -25,7 +25,6 @@ Ejemplo de cuerpo:
   "nombre": "Contacto de ejemplo",
   "email": "contacto@example.com",
   "telefono": "+34600000000",
-  "nif": "<nif>",
   "attribution": {
     "utm_source": "fbads",
     "utm_medium": "ad1",
