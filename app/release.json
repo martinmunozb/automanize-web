@@ -377,11 +377,11 @@
     },
     {
       "path": "index.html",
-      "sha256": "8ab321d31251cb11e60aaee63362093cb40dd3a0b8775233a583922f52c01ac5"
+      "sha256": "9941c1c05c2446b0786c5469768cdc4e3b2c90ca4536fd9268041a9ed62049d5"
     },
     {
       "path": "seendy.html",
-      "sha256": "ab4808dc8f0389b0c84139e50e9f8170030b28d5fcc5baf44d4637fea778042c"
+      "sha256": "4cdf80d26caa37a4781c86cc7b02b5829ae29264024430ce5c59e52b25924014"
     },
     {
       "path": "seendy/chat-doodles.svg",
