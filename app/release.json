@@ -1,7 +1,7 @@
 {
-  "id": "alertas-errores-20261022",
-  "createdAt": "2026-10-22T14:16:29.508Z",
-  "sourceCommit": "6875bd0+8388f45+a400cfa+9fb7b01",
+  "id": "seendy-conectar-whatsapp-20261026",
+  "createdAt": "2026-10-26T16:19:10.757Z",
+  "sourceCommit": "6875bd0+8388f45+a400cfa+9fb7b01+fix/seendy-conectar-whatsapp",
   "entry": "assets/renderer-web-CE6ihkUr.js",
   "documents": [
     "seendy.html"
@@ -324,8 +324,8 @@
       "sha256": "331db130c1c54b79ad4324db862a0cf9958dabe950b864fe581da93a5e251e61"
     },
     {
-      "path": "assets/seendy-CuwDXHBN.js",
-      "sha256": "9c4643576b0e7a62e7fa34edb92b10ddcc38987c31bc3b3fc9d98a022cdb7c9d"
+      "path": "assets/seendy-BYGvehdo.js",
+      "sha256": "8944fd0c5398bedc4b227889f5cf301e1676bfe89e8121fd9a9c2e452a9037ae"
     },
     {
       "path": "assets/supabase-Dkv4F1VD.js",
@@ -381,7 +381,7 @@
     },
     {
       "path": "seendy.html",
-      "sha256": "96a31b8d50c72749382197c3f5bedc7f4b8dc2540546a16ec732373986986f6d"
+      "sha256": "72342eb299affd5546bd25369379b28869478cf64669886ef9126fd8008961c4"
     },
     {
       "path": "seendy/chat-doodles.svg",
