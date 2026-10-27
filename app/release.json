@@ -1,6 +1,6 @@
 {
   "id": "superadmin-dashboard-20261027",
-  "createdAt": "2026-10-27T17:46:46.721Z",
+  "createdAt": "2026-10-27T17:47:52.921Z",
   "sourceCommit": "f2f8717",
   "entry": "assets/renderer-web-B9r112yi.js",
   "documents": [
@@ -381,11 +381,11 @@
     },
     {
       "path": "index.html",
-      "sha256": "366421a7b79a31a3f6f36b74922ffc1cd22b31a268341c42d3c1bee93d6e42fb"
+      "sha256": "784e9d1dac27d5735de3ba18cdcdbdf74bbdc2d779e0e32fb1a47d32ed655e43"
     },
     {
       "path": "seendy.html",
-      "sha256": "7fc7600a0dbdbf1ec7db5cf67533b3d073d46818915682b238d7b69f669a309d"
+      "sha256": "3e88816620e38bebe0b41fd3c91d78f1f2ad69fcc95729e496a53a340be6a712"
     },
     {
       "path": "seendy/chat-doodles.svg",
