@@ -6,3 +6,4 @@ app/seendy/*.svg text eol=lf
 app/assets/*.js text eol=lf
 app/assets/*.css text eol=lf
 app/assets/*.svg text eol=lf
+app/third-party/** text eol=lf
