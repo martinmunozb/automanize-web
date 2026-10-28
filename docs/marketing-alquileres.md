@@ -2,8 +2,11 @@
 
 ## Rediseño del 28/10/2026
 
-Estado: código preparado en la rama `web/alquileres-visual`. No desplegado ni
-activo en producción por este cambio. Publicación sujeta a revisión del PR.
+Estado: desplegado y activo en `https://automanize.com/` el 28/10/2026,
+tras autorización del usuario. PR #51 integrado en main, commit `de4a87c`.
+Actualización fast-forward de `/var/www/automanize`, con copia previa de las
+páginas sustituidas en `/tmp/automanize-marketing-before-20261028.tar.gz`.
+No se reiniciaron contenedores ni se modificó Caddy.
 
 - `index.html`: portada centrada en propietarios, gestores para terceros y
   rent to rent. Capturas reales del CRM; detalle de funciones, casos de uso y
@@ -68,6 +71,15 @@ release CRM y sus hashes deben seguir pasando `check-crm-release.mjs`.
   Se recupera el enlace del hero a `crm.html#como-funciona`, que esperaba una
   prueba existente y faltaba en HEAD.
 - Validación de recursos y anclajes locales en las páginas modificadas.
+- Verificación pública después del despliegue: portada, clientes, CRM y los
+  dos CSS nuevos devuelven 200 y contienen el contenido nuevo. CRM, trial,
+  formulario, pago y OAuth devuelven 200. Los archivos internos de documentación
+  y Git devuelven 404; GPTBot recibe 403 en `/app/`.
+- El validador en el VPS comprueba los 101 archivos de la release CRM. Los hashes
+  de `app/index.html` y `app/release.json` en disco se conservaron. El manifiesto
+  público conserva su hash; el HTML público coincide con Git al descontar la
+  inyección de challenge de Cloudflare. No se considera esa inyección una
+  modificación de la release.
 - Pendiente revisión visual real en móvil y escritorio: en esta sesión el
   navegador de Computer Use no está disponible. Las reglas responsive están
   preparadas, pero eso no equivale a una inspección visual del resultado.
