@@ -1,11 +1,12 @@
+@import url("brand-mark.css?v=20261028-2");
 :root {
-  --paper: #faf9f6;
-  --ink: #20251e;
-  --muted: #656b61;
-  --line: #dedfd7;
-  --gold: #ffc146;
-  --green: #edf0e7;
-  --font: "Spline Sans", system-ui, sans-serif;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #606060;
+  --line: #e5e5e5;
+  --gold: #ffb300;
+  --surface: #fff7df;
+  --font: "Inter", system-ui, sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -48,7 +49,11 @@ h3 {
 }
 em {
   font-style: normal;
-  color: #687a49;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-decoration-thickness: .1em;
+  text-underline-offset: .1em;
 }
 a {
   color: inherit;
@@ -71,7 +76,7 @@ summary {
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #8e691d;
+  outline: 3px solid #9b6900;
   outline-offset: 5px;
 }
 ::selection {
@@ -98,7 +103,7 @@ summary:focus-visible {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #73864f;
+  background: #ffb300;
 }
 .brand {
   display: inline-flex;
@@ -109,14 +114,14 @@ summary:focus-visible {
   font-weight: 600;
 }
 .brand span {
-  color: #b27a00;
+  color: #ffb300;
   margin-left: -7px;
 }
 .header {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: #faf9f6f5;
+  background: #fffffff5;
   border-bottom: 1px solid var(--line);
 }
 .nav-wrap {
@@ -134,7 +139,7 @@ summary:focus-visible {
 }
 .main-nav a:hover,
 .text-link:hover {
-  color: #8c6500;
+  color: #8a5d00;
 }
 .main-nav .button {
   padding: 10px 19px;
@@ -164,7 +169,7 @@ summary:focus-visible {
   color: white;
 }
 .button-dark:hover {
-  background: #3b4733;
+  background: #333333;
   color: white;
   transform: translateY(-2px);
 }
@@ -174,7 +179,7 @@ summary:focus-visible {
   gap: 12px;
   font-size: 13px;
   font-weight: 500;
-  border-bottom: 1px solid #abb0a4;
+  border-bottom: 1px solid #b8b8b8;
   padding-block: 6px;
 }
 .menu-toggle {
@@ -223,12 +228,12 @@ summary:focus-visible {
 .audience-tags span {
   font-size: 10px;
   padding: 5px 11px;
-  border: 1px solid #d4d8ca;
+  border: 1px solid #dedede;
   border-radius: 30px;
-  color: #556048;
+  color: #444444;
 }
 .hero-visual {
-  background: #e9eddf;
+  background: #fff5d6;
   border-radius: 16px;
   padding: 20px 22px 14px;
   position: relative;
@@ -255,7 +260,7 @@ summary:focus-visible {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(transparent 25%, #152018a8);
+  background: linear-gradient(transparent 25%, #000000a8);
 }
 .property-label {
   position: absolute;
@@ -286,7 +291,7 @@ summary:focus-visible {
   background: white;
   border: 5px solid #fff;
   border-radius: 9px;
-  box-shadow: 0 15px 45px #27312424;
+  box-shadow: 0 15px 45px #00000024;
   overflow: hidden;
 }
 .screen-bar {
@@ -303,7 +308,7 @@ summary:focus-visible {
   letter-spacing: -1px;
 }
 .screen-bar strong span {
-  color: #ae7700;
+  color: #ffb300;
 }
 .screen-bar > span {
   font-size: 9px;
@@ -318,11 +323,11 @@ summary:focus-visible {
   gap: 16px;
   margin-top: 20px;
   font-size: 9px;
-  color: #526044;
+  color: #555555;
 }
 .visual-foot i {
   font-style: normal;
-  color: #8b957d;
+  color: #777777;
 }
 .trust {
   display: flex;
@@ -395,7 +400,7 @@ summary:focus-visible {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--surface);
   font-size: 23px;
   margin-bottom: 32px;
 }
@@ -403,7 +408,7 @@ summary:focus-visible {
   background: #fff0c9;
 }
 .audience-grid article:nth-child(3) .audience-icon {
-  background: #e3e9f0;
+  background: #fff7df;
 }
 .audience-grid article > p {
   font-size: 13px;
@@ -445,17 +450,17 @@ details p a {
   border-top: 1px solid var(--line);
 }
 .product-section {
-  background: var(--green);
+  background: var(--surface);
 }
 .product-showcase {
   display: block;
   max-width: 1080px;
   margin: auto;
-  border: 1px solid #cdd3c1;
+  border: 1px solid #dedede;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 14px 45px #2931210c;
+  box-shadow: 0 14px 45px #0000000c;
 }
 .product-showcase .screen-bar {
   padding: 14px 25px;
@@ -468,7 +473,7 @@ details p a {
   justify-content: space-between;
   gap: 20px;
   font-size: 11px;
-  color: #536044;
+  color: #444444;
   margin-top: 25px;
 }
 .feature-grid {
@@ -486,7 +491,7 @@ details p a {
 }
 .feature-num {
   font-size: 11px;
-  color: #7c8373;
+  color: #777777;
   margin-right: 8px;
 }
 .feature-name {
@@ -555,7 +560,7 @@ details p a {
   justify-content: flex-end;
 }
 .stories-section {
-  background: #eeeae2;
+  background: #f5f5f5;
 }
 .messages-grid {
   display: grid;
@@ -565,7 +570,7 @@ details p a {
 }
 .message-card {
   background: var(--paper);
-  border: 1px solid #dddacf;
+  border: 1px solid #dedede;
   border-radius: 12px;
   padding: 23px;
   min-height: 285px;
@@ -578,7 +583,7 @@ details p a {
   gap: 7px;
   font-size: 8px;
   letter-spacing: 0.07em;
-  color: #6c7560;
+  color: #666666;
 }
 .message-top > span:last-child {
   margin-left: auto;
@@ -587,7 +592,7 @@ details p a {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #dfe9d5;
+  background: #fff0c2;
   border-radius: 50%;
   width: 25px;
   height: 25px;
@@ -601,7 +606,7 @@ details p a {
   font-weight: 400;
 }
 .message-source {
-  color: #73776c;
+  color: #666666;
   font-size: 9px;
   margin-top: auto;
 }
@@ -617,7 +622,7 @@ details p a {
 }
 .source-note {
   font-size: 10px;
-  color: #6d7167;
+  color: #666666;
   margin-top: 23px;
   max-width: 720px;
 }
@@ -676,7 +681,7 @@ details p a {
   padding: 0 30px 23px 0;
 }
 .contact-panel {
-  background: var(--green);
+  background: var(--surface);
   border-radius: 14px;
   padding: 52px;
 }
@@ -748,12 +753,12 @@ details p a {
 .goroom-feature {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
-  background: var(--green);
+  background: var(--surface);
   border-radius: 14px;
   overflow: hidden;
 }
 .goroom-brand {
-  background: #e0f5ec;
+  background: #fff7df;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -887,7 +892,7 @@ details p a {
     background: var(--paper);
     padding: 20px;
     border-bottom: 1px solid var(--line);
-    box-shadow: 0 20px 30px #20251e0a;
+    box-shadow: 0 20px 30px #1111110a;
     gap: 5px;
     font-size: 14px;
   }
@@ -1327,4 +1332,13 @@ details p a {
     gap: 12px;
     margin-top: 22px;
   }
+}
+.message-proof {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  margin: 12px auto 4px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
 }
