@@ -24,3 +24,4 @@ jobs:
         env:
           CADDY_BIN: ${{ runner.temp }}/caddy
       - run: node scripts/check-crm-release.mjs
+      - run: node --test tests/nize-download-channel.test.cjs

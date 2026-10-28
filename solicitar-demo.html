@@ -402,7 +402,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                          busca el instalador exacto falla, el botón sigue
                          llevando a un sitio donde descargarlo. -->
                     <a class="specular-btn demo-descarga" id="demoDescarga"
-                       href="https://github.com/NitramX7/Nize-Releases/releases/latest"
+                       href="https://github.com/martinmunozb/Nize-Releases/releases/latest"
                        target="_blank" rel="noopener noreferrer">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12" /><path d="m7 11 5 5 5-5" /><path d="M4 21h16" /></svg>
                         <span>Descargar CRM Nize</span>
@@ -718,7 +718,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             // Afina el botón para que baje el instalador directamente en vez
             // de pasar por la página de releases. Mismo mecanismo que en
             // descarga-nize.html. Si falla, el href por defecto ya sirve.
-            fetch('https://api.github.com/repos/NitramX7/Nize-Releases/releases/latest')
+            fetch('https://api.github.com/repos/martinmunozb/Nize-Releases/releases/latest')
                 .then((res) => res.json())
                 .then((data) => {
                     const asset = (data.assets || []).find((a) => /^Nize-Setup-[\d.]+\.exe$/.test(a.name));

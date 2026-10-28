@@ -5,6 +5,11 @@ limpias sin `.html` y aplica las cabeceras privadas al final de la respuesta par
 que no las sobrescriba la política general del host. Se conservó un backup del
 Caddyfile y se validó antes de recargar Caddy sin reiniciar otros dominios.
 
+Los enlaces y búsquedas de descarga de `solicitar-demo.html` y `usar-demo.html`
+utilizan el canal público `martinmunozb/Nize-Releases`, igual que la página de
+descarga y el auto-updater. La comprobación `tests/nize-download-channel.test.cjs`
+evita volver a ofrecer una versión antigua desde el canal histórico.
+
 La web vive en Caddy → Nginx, no en Netlify. `_headers`, `netlify.toml` y
 `vercel.json` no activan esta política en el VPS.
 
