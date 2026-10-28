@@ -1,0 +1,26 @@
+name: Security regression checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Caddy for local HTTP policy tests
+        run: |
+          curl --fail --silent --show-error --location 'https://caddyserver.com/api/download?os=linux&arch=amd64' --output "$RUNNER_TEMP/caddy"
+          chmod +x "$RUNNER_TEMP/caddy"
+      - run: node --test tests/security-policy.test.cjs
+        env:
+          CADDY_BIN: ${{ runner.temp }}/caddy
+      - run: node scripts/check-crm-release.mjs

@@ -1,0 +1,16 @@
+# Insert inside the automanize.com host block, before its reverse_proxy.
+# No CSP/frame restrictions here: the CRM has same-origin embedded screens,
+# OAuth, PDFs and external integrations which require their own CSP audit.
+@client_internal path_regexp client_internal (?i)(^|/)(\.(git|env|github|claude|agents|superpowers)(/|\.|$)|docs(/|$)|src(/|$)|scripts(/|$)|tests(/|$)|ops(/|$)|node_modules(/|$)|netlify(/|$)|supabase(/|$)|package(-lock)?\.json$|(?:AGENTS|CLAUDE|README)\.md$)|\.(map|sql|bak|backup|log|pem|key)$
+respond @client_internal "Not found" 404
+
+# This only stops crawlers declaring these identities; it is not bot detection.
+@client_ai header_regexp client_ai User-Agent (?i)(GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-SearchBot|Claude-User|anthropic-ai|CCBot|Google-Extended|Bytespider|PerplexityBot|Perplexity-User|Amazonbot|cohere-ai|Applebot-Extended|meta-externalagent)
+respond @client_ai "Forbidden" 403
+
+header X-Content-Type-Options "nosniff"
+@client_private path /app /app/* /usar-demo /usar-demo.html /solicitar-demo /solicitar-demo.html /panel-interno /panel-interno.html /onboarding-cliente /onboarding-cliente.html /oauth-drive /oauth-drive.html
+header @client_private {
+    >X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+    >Referrer-Policy "no-referrer"
+}
