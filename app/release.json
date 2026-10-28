@@ -1,6 +1,6 @@
 {
   "id": "cobros-desmarcar-20261028",
-  "createdAt": "2026-10-28T21:00:20.192Z",
+  "createdAt": "2026-10-28T21:01:58.051Z",
   "sourceCommit": "e3494ff",
   "entry": "assets/renderer-web-UiZL--0r.js",
   "documents": [
@@ -381,11 +381,11 @@
     },
     {
       "path": "index.html",
-      "sha256": "c1caec7aa7e32c2b12053aa061cac9db7f3595faf2e69842f881a0e3cc5d3825"
+      "sha256": "3e79b5d8b8e6edd9cd83b8b47aee645de44df55ce2155ac4c52ea091f2471d71"
     },
     {
       "path": "seendy.html",
-      "sha256": "7fc7600a0dbdbf1ec7db5cf67533b3d073d46818915682b238d7b69f669a309d"
+      "sha256": "3e88816620e38bebe0b41fd3c91d78f1f2ad69fcc95729e496a53a340be6a712"
     },
     {
       "path": "seendy/chat-doodles.svg",
