@@ -63,6 +63,9 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 
 ## Fuentes relacionadas
 
+- `docs/marketing-alquileres.md` — rediseño comercial de alquileres, navegación,
+  precios y testimonios anónimos (código preparado; consultar estado en ese documento)
+
 - `docs/supabase.md` — tablas, RLS y funciones RPC
 - `docs/formulario.md` — formulario dinámico de leads
 - `docs/alta-agencia.md` — ficha de alta de agencias ya contratadas + panel admin
