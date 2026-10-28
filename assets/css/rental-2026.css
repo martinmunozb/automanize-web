@@ -1342,3 +1342,161 @@ details p a {
   border-radius: 14px;
   border: 1px solid var(--line);
 }
+/* Mobile: less vertical scroll — carousels for side-by-side content, compact tiles for features. */
+@media (max-width: 580px) {
+  .section {
+    padding-block: 40px;
+  }
+  .section-heading {
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+  .section-heading > p {
+    display: none;
+  }
+  .section-heading h2,
+  .faq-intro h2,
+  .pricing-callout h2 {
+    font-size: 32px;
+  }
+  .eyebrow {
+    margin-bottom: 10px;
+  }
+  .hero {
+    padding-block: 26px 10px;
+    gap: 20px;
+  }
+  .hero h1 {
+    font-size: 40px;
+  }
+  .hero-description {
+    margin-top: 14px;
+  }
+  .audience-tags {
+    display: none;
+  }
+  .hero-visual {
+    padding: 12px;
+  }
+  .visual-top,
+  .property-photo,
+  .visual-foot {
+    display: none;
+  }
+  .hero-screen {
+    width: 100%;
+    margin-top: 0;
+  }
+  .trust {
+    gap: 12px;
+    padding-block: 14px 18px;
+  }
+  .trust .client-list,
+  .audience-grid,
+  .messages-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-inline: -20px;
+    padding: 0 20px 6px;
+    scroll-padding-inline: 20px;
+    scrollbar-width: none;
+  }
+  .trust .client-list::-webkit-scrollbar,
+  .audience-grid::-webkit-scrollbar,
+  .messages-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .trust .client-list {
+    grid-auto-columns: max-content;
+    gap: 22px;
+    align-items: center;
+  }
+  .audience-grid,
+  .messages-grid {
+    grid-auto-columns: 82%;
+    gap: 12px;
+  }
+  .audience-grid > *,
+  .messages-grid > * {
+    scroll-snap-align: start;
+  }
+  .message-card blockquote {
+    font-size: 19px;
+    margin-block: 14px;
+  }
+  .product-strip {
+    display: none;
+  }
+  .feature-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .feature-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding-inline: 12px;
+  }
+  .feature-card[open] {
+    grid-column: 1 / -1;
+  }
+  .feature-card summary {
+    padding-block: 12px;
+    align-items: flex-start;
+  }
+  .feature-num {
+    display: none;
+  }
+  .feature-name {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  .feature-name small {
+    display: none;
+  }
+  .feature-card[open] .feature-name small {
+    display: block;
+  }
+  .expand {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    line-height: 18px;
+  }
+  .integration-note {
+    margin-top: 16px;
+  }
+  .pricing-callout {
+    gap: 16px;
+  }
+  .pricing-callout > div > p:last-child {
+    display: none;
+  }
+  .pricing-link {
+    padding: 20px;
+    gap: 14px;
+  }
+  .pricing-link > strong {
+    font-size: 26px;
+  }
+  .faq-section {
+    gap: 14px;
+  }
+  .faq-list summary {
+    padding-block: 13px;
+    font-size: 13px;
+  }
+  .contact-panel {
+    padding: 22px;
+  }
+  .contact-panel h2 {
+    font-size: 32px;
+  }
+}
+@media (max-width: 580px) {
+  .faq-intro h2 br {
+    display: inline;
+  }
+}
