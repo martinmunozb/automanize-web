@@ -1,0 +1,19 @@
+# Import inside the automanize.com host block, before the static reverse_proxy.
+# The web CRM uses the same API paths as the Electron local server.
+handle /api/contracts/email/send {
+    rewrite * /webhook/contrato-email-enviar
+    header Cache-Control "no-store"
+    reverse_proxy automanize-backend:3000
+}
+
+handle /api/contracts/signature/send {
+    rewrite * /webhook/contrato-firma-enviar
+    header Cache-Control "no-store"
+    reverse_proxy automanize-backend:3000
+}
+
+handle /api/contracts/signature/sync {
+    rewrite * /webhook/contrato-firma-sync
+    header Cache-Control "no-store"
+    reverse_proxy automanize-backend:3000
+}
