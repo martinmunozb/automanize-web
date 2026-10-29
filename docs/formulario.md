@@ -26,7 +26,21 @@ Formulario wizard paso a paso que recibe un lead (persona interesada en alquilar
    select '<tenant_id>', id, activa_por_defecto, orden_defecto
    from preguntas_catalogo;
    ```
-   Esto copia el set de preguntas por defecto (`activa_por_defecto`/`orden_defecto` de `preguntas_catalogo`); luego se pueden desactivar/reordenar individualmente por tenant como con InvictaRent.
+   Esto copia el set de preguntas por defecto (`activa_por_defecto`/`orden_defecto` de `preguntas_catalogo`); luego el propio tenant las ajusta desde Nize (ver abajo).
+
+---
+
+## Preguntas personalizables por el tenant (desde el 29 de octubre de 2026)
+
+Cada tenant edita su formulario desde Nize → **Interesados → Preguntas del formulario** (`FormularioPreguntasModal.jsx` en `automanize-app`). Puede:
+
+- Cambiar el texto, el orden y la visibilidad (`activa`) de las preguntas del catálogo. Su tipo **no** se cambia porque cada una rellena una columna tipada de `clientes`. Solo `tipo_habitacion`, `tiempo_estancia` y `tipo_contrato` (columnas de texto) admiten opciones propias (`opciones_custom`).
+- Crear **preguntas propias**: filas de `tenant_preguntas` con `pregunta_id = null` y su propio `tipo_input` (`text`, `number`, `single_select`, `multi_select`, `boolean`, `dynamic_zone_multi_select`, `dynamic_street_multi_select`). Como no tienen columna en `clientes`, la respuesta se guarda en `clientes.respuestas_formulario` (`{ "<tenant_preguntas.id>": { "pregunta", "respuesta" } }`) — con el texto de la pregunta tal como estaba al responder, para que la ficha siga siendo legible si luego se cambia o borra. La ficha del interesado las muestra en "Otras respuestas del formulario" y el matching de IA del backend las recibe en el prompt.
+- Las del catálogo solo se desactivan (RLS no deja borrarlas); las propias sí se borran.
+
+Nombre, teléfono y email del modo público no son configurables: van siempre primero.
+
+El envío reemplaza `respuestas_formulario` entero con lo respondido en ese envío (es "lo último que contestó"). Al reiniciar un interesado (trigger 009) se conserva, igual que el resto de datos de cualificación.
 
 La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyfile del servidor** (`/root/caddy-main/Caddyfile`, bloque `automanize.com`), no en `_redirects` (ese archivo es de Netlify y no lo lee nada en producción — el hosting real es Caddy + nginx sobre un VPS, no Netlify, pese a lo que sugiera `netlify.toml`). Dado que Caddy reescribe la petición solo de cara al servidor, el navegador nunca ve el `?t=<slug>` resultante — por eso el JS lee el slug directamente de `location.pathname` (`/f/<slug>`), no del query string.
 
@@ -74,7 +88,9 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 4. `RPC get_tenant_public_info(tenant_id)` → nombre del tenant para la cabecera
 5. `GET tenant_preguntas WHERE tenant_id AND activa = true ORDER BY orden` → preguntas del tenant
 6. `GET preguntas_catalogo WHERE id IN (pregunta_ids)` → detalles de cada pregunta
-7. Para `dynamic_zone_multi_select`: `GET inmuebles_disponibles WHERE tenant_id AND estado = 'disponible'` → zonas distintas
+7. Para `dynamic_zone_multi_select`: `RPC get_zonas_disponibles(tenant_id)` → zonas distintas de `inmuebles_disponibles`
+   Para `dynamic_street_multi_select`: `RPC get_calles_disponibles(tenant_id)` → calles distintas de `inmuebles_disponibles.direccion_completa`, solo el nombre de la calle (sin número, piso ni CP; limpia los prefijos `R2R `, `169) ` y `C/`)
+   Las filas con `pregunta_id = null` (preguntas propias) no van al catálogo: su `id` de fila hace de `pregunta_id` en el payload.
 8. Renderiza el wizard
 
 ---
@@ -90,6 +106,7 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 | `multi_select` | Botones checkbox-style, valor guardado como CSV |
 | `boolean` | Dos tarjetas grandes (fácil de tocar en móvil) |
 | `dynamic_zone_multi_select` | Como multi_select pero opciones vienen de `inmuebles_disponibles.zona` |
+| `dynamic_street_multi_select` | Como multi_select pero opciones son las calles de `inmuebles_disponibles` (`get_calles_disponibles`) |
 
 ---
 
