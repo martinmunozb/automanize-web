@@ -422,6 +422,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     single_select: ICONS.list,
     multi_select: ICONS.check,
     dynamic_zone_multi_select: ICONS.pin,
+    dynamic_street_multi_select: ICONS.pin,
     boolean: ICONS.question,
     phone_prefix: ICONS.phone,
   };
@@ -662,7 +663,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </button>`).join('');
 
       case 'multi_select':
-      case 'dynamic_zone_multi_select': {
+      case 'dynamic_zone_multi_select':
+      case 'dynamic_street_multi_select': {
         if (!step.opciones.length) return `<p class="no-opts">No hay opciones disponibles.</p>`;
         const sel = val ? val.split(',').map(s => s.trim()) : [];
         return step.opciones.map((o, i) => `
@@ -720,7 +722,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       });
     }
 
-    if (tipo_input === 'multi_select' || tipo_input === 'dynamic_zone_multi_select') {
+    if (tipo_input === 'multi_select' || tipo_input === 'dynamic_zone_multi_select' || tipo_input === 'dynamic_street_multi_select') {
       document.querySelectorAll('.chk').forEach(btn => {
         btn.addEventListener('click', () => {
           const cur = S.answers[campo_clientes] ? S.answers[campo_clientes].split(',').map(s => s.trim()) : [];
@@ -796,7 +798,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     try {
       // Payload keyed by pregunta_id — valores siempre como string.
       // Las RPCs castean tipos internamente y solo aceptan preguntas
-      // activas para el tenant correspondiente. Los pasos sintéticos
+      // activas para el tenant correspondiente. Las preguntas propias del
+      // tenant van con el id de su fila de tenant_preguntas y se guardan en
+      // clientes.respuestas_formulario. Los pasos sintéticos
       // (nombre/teléfono del modo público) no tienen pregunta_id y se excluyen.
       const respuestas = {};
       visibleSteps().forEach(s => {
@@ -932,7 +936,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // Preguntas activas del tenant
       const tp = await sbGet('tenant_preguntas', {
-        select: 'pregunta_id,pregunta_texto_custom,opciones_custom,orden',
+        select: 'id,pregunta_id,tipo_input,pregunta_texto_custom,opciones_custom,orden',
         tenant_id: `eq.${tenantId}`,
         activa: 'eq.true',
         order: 'orden.asc',
@@ -941,15 +945,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (!tp.length) { S.screen = 'error'; S.errorKey = 'generic'; render(); return; }
 
       // Catálogo de preguntas para esos IDs
-      const ids      = tp.map(r => r.pregunta_id);
-      const catalogo = await sbGet('preguntas_catalogo', {
+      const ids      = tp.map(r => r.pregunta_id).filter(Boolean);
+      const catalogo = ids.length ? await sbGet('preguntas_catalogo', {
         select: 'id,clave,campo_clientes,pregunta_texto,tipo_input,opciones',
         id: `in.(${ids.join(',')})`,
-      });
+      }) : [];
       const catMap = Object.fromEntries(catalogo.map(p => [p.id, p]));
 
       // Construir pasos
       S.steps = tp.map(row => {
+        // Pregunta propia del tenant (sin catálogo): su id de fila hace de pregunta_id.
+        if (!row.pregunta_id) {
+          return {
+            pregunta_id:    row.id,
+            clave:          row.id,
+            campo_clientes: `__p_${row.id}`,
+            textoMostrar:   row.pregunta_texto_custom,
+            tipo_input:     row.tipo_input,
+            opciones:       row.opciones_custom ?? [],
+          };
+        }
         const cat = catMap[row.pregunta_id];
         if (!cat) return null;
         return {
@@ -979,6 +994,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           const zonas = await sbRpc('get_zonas_disponibles', { p_tenant_id: tenantId });
           const opts = (Array.isArray(zonas) ? zonas : []).map(z => ({ value: z, label: z }));
           dynamicos.forEach(s => { s.opciones = opts; });
+        } catch { /* si falla, se queda con opciones vacías */ }
+      }
+
+      // Calles de los inmuebles disponibles para dynamic_street_multi_select
+      const calles = S.steps.filter(s => s.tipo_input === 'dynamic_street_multi_select');
+      if (calles.length) {
+        try {
+          const lista = await sbRpc('get_calles_disponibles', { p_tenant_id: tenantId });
+          const opts = (Array.isArray(lista) ? lista : []).map(c => ({ value: c, label: c }));
+          calles.forEach(s => { s.opciones = opts; });
         } catch { /* si falla, se queda con opciones vacías */ }
       }
 

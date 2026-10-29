@@ -26,8 +26,12 @@ Catálogo maestro de preguntas del formulario dinámico.
 - RLS SELECT para `anon`: permitido (`anon_select_preguntas_catalogo`).
 
 ### `tenant_preguntas`
-Qué preguntas tiene activas cada tenant, en qué orden y con texto personalizado.
-- RLS SELECT para `anon`: permitido solo `activa = true` (`anon_select_tenant_preguntas`).
+Qué preguntas tiene activas cada tenant, en qué orden y con texto personalizado. Filas con `pregunta_id = null` son preguntas propias del tenant (`tipo_input` propio; respuestas en `clientes.respuestas_formulario`).
+- RLS SELECT para `anon`: permitido solo `activa = true` (`anon_select_tenant_preguntas`). Sin privilegios de escritura para `anon`.
+- `authenticated`: lee/crea/edita las de su tenant (`get_tenant_id()`); solo puede borrar las propias.
+
+### `get_calles_disponibles(p_tenant_id uuid)` → `text[]`
+Calles distintas de `inmuebles_disponibles.direccion_completa` del tenant (solo nombre de calle). `SECURITY DEFINER`, otorgada a `anon` y `authenticated`. Alimenta `dynamic_street_multi_select`.
 
 ### `inmuebles_disponibles`
 Vista (VIEW) que combina `pisos` y `habitaciones` con estado disponible. Columnas: `zona`, `tenant_id`, `tipo_unidad`, `estado`, entre otras.
