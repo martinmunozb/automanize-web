@@ -393,27 +393,27 @@
     },
     {
       "path": "seendy/chat-doodles.svg",
-      "sha256": "3500f266f8526709c346c685dcb8620655c093555a2c9deb729406266c5bf811"
+      "sha256": "d67dda2ce9ee8653a6323d5df0a1c0120de94cc5379246a4686db540d2631a87"
     },
     {
       "path": "seendy/seendy-nize.css",
-      "sha256": "687d93843dcc1c4ccc82c67e6630e8ad7081a19069f57e7afa1029d8d59ac87c"
+      "sha256": "51414257726606dcd4c689ab75b945cf439f5feb4912ec1a04c3ab13551d4055"
     },
     {
       "path": "seendy/seendy.css",
-      "sha256": "933251c1a05cb22ce7f80b691e3793c1bb75986c0c2aae345719829f307ff360"
+      "sha256": "497a2c356beda2f0c606c45d0f737b11b93a8da46f73f5259d6ecd51b05819a2"
     },
     {
       "path": "third-party/big-calendar/LICENSE",
-      "sha256": "8845460f7d019151dc144207eb6a74aab88966e51c9d0b9684c499cc8255ec1b"
+      "sha256": "4fec5bf0b29beefaee1876b69b48f5d7e6ee666a874d222d29c15753585fc822"
     },
     {
       "path": "third-party/tremor/LICENSE",
-      "sha256": "aab2f679fc7fb32112b338cfcce98276958ffc52c007a0e03153a9c50db44f8f"
+      "sha256": "6e43333ff4b171baacff233a3672365923eb688bf7ce8724eac42868bc4a08eb"
     },
     {
       "path": "third-party/tremor/NOTICE.txt",
-      "sha256": "69d58716fd460387213631c8cb5adbda7e90b46f5d18603e4634ebc43fe75190"
+      "sha256": "8eff340492fa702991929f45998e23b4fddb29d5925aff3400ffde176185cf60"
     }
   ]
 }
