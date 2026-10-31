@@ -375,6 +375,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <button class="pill-btn" data-section="altas" onclick="switchSection('altas')">Altas de agencia</button>
     <button class="pill-btn" data-section="crm" onclick="switchSection('crm')">Seguimiento de clientes</button>
     <button class="pill-btn" data-section="recordatorios" onclick="switchSection('recordatorios')">Recordatorios</button>
+    <button class="pill-btn" data-section="leads" onclick="switchSection('leads')">Automatización de leads</button>
   </nav>
 
   <main class="content">
@@ -526,6 +527,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     </div>
 
+    <div class="section" id="section-leads">
+      <div id="internalLeadsRoot" aria-live="polite"></div>
+    </div>
   </main>
 </div>
 
@@ -829,6 +833,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
+<script src="/assets/js/internal-leads.js?v=20261031"></script>
 <script>
   const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
@@ -899,6 +904,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.querySelectorAll('.section-pills .pill-btn').forEach(b => b.classList.toggle('active', b.dataset.section === section));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById('section-' + section).classList.add('active');
+    if (section === 'leads') window.internalLeads.open(db);
   }
 
   // ══════════════════════════════ CAMPANA DE RECORDATORIOS ══════════════════════════════
