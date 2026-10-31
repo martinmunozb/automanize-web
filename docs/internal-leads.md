@@ -1,14 +1,14 @@
 # Automatización de leads del panel interno
 
 Interfaz publicada el 31/10/2026 tras integrar PR #66 (commit a6b1f639).
-Backend y sincronización todavía no desplegados; envíos desactivados.
+Backend y sincronización publicados posteriormente el 31/10/2026; envíos desactivados.
 Nueva pestaña en `panel-interno.html`,
 sin reconstruir Finanzas, Altas, Seguimiento ni Recordatorios. Código del módulo
 en `assets/js/internal-leads.js`, estilos acotados en `assets/css/internal-leads.css`.
 
 Reutiliza sesión Supabase del panel. Toda lectura/mutación pasa por
 `https://backend.automanize.com/webhook/internal-leads` con Bearer; la autorización
-real exige superadmin de Automanize en servidor. Sin claves de Airtable/Meta ni
+real exige administrador del panel interno o superadmin de Automanize en servidor. Sin claves de Airtable/Meta ni
 service role en navegador. Render de datos con textContent; cierre de sesión
 limpia datos y rechaza respuestas en vuelo de la sesión anterior.
 
@@ -16,7 +16,7 @@ Cuatro subvistas: Leads (50 por página, filtros, búsqueda, selección y pausa)
 Secuencias (edición visual por paso, vista previa, versiones), Conversaciones
 (ledger comercial, mensajes manuales por texto/plantilla y pausa) y Configuración
 (mapeo Airtable, horario, límites, gates, plantillas Meta y errores). No muestra
-datos simulados cuando backend no está desplegado: informa conexión pendiente.
+datos simulados cuando backend no está disponible: informa conexión pendiente.
 
 Los leads se importan sin activar envíos. Solo puede activarse un contacto con
 consentimiento acreditado. La aceptación en formulario de Meta indicada por el
@@ -25,6 +25,7 @@ de conversaciones de la página actual; usar búsqueda/paginación en Leads para
 otros contactos. La bandeja tiene hasta 200 eventos y no promete histórico Meta
 completo. Estadísticas de estados corresponden a la página y están etiquetadas.
 
+Importación inicial real: 38 leads, 1 registro con teléfono inválido y 0 trabajos.
 Los envíos siguen apagados en servidor. Modo de prueba por defecto; no se han
 enviado mensajes. El número comercial aún no aparece vinculado en Supabase.
 Backend, esquema, variables, límites y pasos de producción en
