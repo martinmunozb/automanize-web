@@ -1,6 +1,6 @@
 {
   "id": "crm-revision-justificantes-1.0.114-20261031",
-  "createdAt": "2026-10-31T09:39:46.497Z",
+  "createdAt": "2026-10-31T09:42:08.215Z",
   "sourceCommit": "c1ac811",
   "entry": "assets/renderer-web-BNPYoROI.js",
   "documents": [
@@ -385,11 +385,11 @@
     },
     {
       "path": "index.html",
-      "sha256": "e49a830aca0b9d5a67e356320a90cff162f063beae326a78be72de551d45be09"
+      "sha256": "8653782b641d850393bfe6adf23c4caa7a997188dc6be98ad6f4700c82587ffe"
     },
     {
       "path": "seendy.html",
-      "sha256": "7fc7600a0dbdbf1ec7db5cf67533b3d073d46818915682b238d7b69f669a309d"
+      "sha256": "3e88816620e38bebe0b41fd3c91d78f1f2ad69fcc95729e496a53a340be6a712"
     },
     {
       "path": "seendy/chat-doodles.svg",
