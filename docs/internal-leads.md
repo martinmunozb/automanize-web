@@ -1,6 +1,8 @@
 # Automatización de leads del panel interno
 
-Preparado el 31/10/2026, no desplegado. Nueva pestaña en `panel-interno.html`,
+Interfaz publicada el 31/10/2026 tras integrar PR #66 (commit a6b1f639).
+Backend y sincronización todavía no desplegados; envíos desactivados.
+Nueva pestaña en `panel-interno.html`,
 sin reconstruir Finanzas, Altas, Seguimiento ni Recordatorios. Código del módulo
 en `assets/js/internal-leads.js`, estilos acotados en `assets/css/internal-leads.css`.
 
@@ -27,6 +29,16 @@ Los envíos siguen apagados en servidor. Modo de prueba por defecto; no se han
 enviado mensajes. El número comercial aún no aparece vinculado en Supabase.
 Backend, esquema, variables, límites y pasos de producción en
 `../../automanize-backend/docs/internal-leads.md` (solo documentación interna).
+
+Despliegue de interfaz: únicamente `panel-interno.html` y los dos recursos del
+módulo, recursos antes del HTML. El checkout del VPS contenía cambios propios
+del CRM, que se conservaron. Fingerprint de todo `app/` idéntico antes/después.
+Backup fuera de la raíz pública en
+`/var/backups/automanize/internal-leads-20261031T103834Z`.
+JS/CSS públicos verificados por SHA-256 contra los archivos desplegados; HTML
+verificado completo antes del script de seguridad que Cloudflare añade al final.
+Recursos 200, rutas de .env/docs/sourcemap 404, cabeceras privadas conservadas.
+Sin reiniciar backend, Nginx ni Caddy, sin migrar SQL ni modificar Meta.
 
 Rutas REST/RPC pertenecen a familias del monitor, pero la nueva API HTTP del
 backend **tiene cobertura pendiente**. No se amplían permisos, publicación de
