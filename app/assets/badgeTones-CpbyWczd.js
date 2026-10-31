@@ -1,0 +1,1 @@
+var e={success:`app-badge-success`,info:`app-badge-info`,warning:`app-badge-warning`,neutral:`app-badge-neutral`,danger:`app-badge-danger`,purple:`app-badge-purple`,orange:`app-badge-orange`};export{e as t};
