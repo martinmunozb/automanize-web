@@ -1,7 +1,7 @@
 # Automatización de leads del panel interno
 
 Módulo inicial publicado el 31/10/2026 (PR #66). Mejoras de ayuda y edición
-preparadas el 01/11/2026, pendientes de despliegue. Pestaña en `panel-interno.html`,
+publicadas el 01/11/2026 (PR #69, commit `23b3288`). Pestaña en `panel-interno.html`,
 sin reconstruir Finanzas, Altas, Seguimiento ni Recordatorios. Código del módulo
 en `assets/js/internal-leads.js`, estilos acotados en `assets/css/internal-leads.css`.
 
@@ -76,3 +76,19 @@ de la release CRM conservan sus hashes. Batería web completa: 31/32 pasan;
 el fallo de metadatos sociales ya documentado afecta a app/seendy.html,
 eliminar-datos.html, firmar-contrato.html y oauth-drive.html, sin cambios aquí.
 No equivale a una prueba de entrega de WhatsApp ni a una nueva auditoría RLS.
+
+Despliegue de esta mejora autorizado por el usuario y realizado con `pull
+--ff-only` en `/var/www/automanize`, conservando recursos no versionados y sin
+reconstruir/reiniciar el backend. Copia previa de los tres archivos de interfaz
+en `/var/backups/automanize/leads-ui-20261101-*`. Comprobación HTTP pública:
+panel 200 y referencia JS `v=20261101`; JS/CSS coinciden byte a byte con Git.
+Cloudflare añade su script al HTML, por lo que el hash HTML público no coincide
+con el del origen. Release CRM comprobada en el VPS: 103 archivos correctos.
+Documentación, `.env` y sourcemaps siguen 404; GPTBot recibe 403 en el panel.
+
+La conexión oficial disponible en Seendy guarda el canal en el tenant de la
+sesión. Antes del alta comercial, verificar una cuenta exclusiva de Automanize;
+no usar la sesión de una inmobiliaria. No se ha completado el alta, activado
+envíos ni ejecutado la prueba real. El acceso automatizado al navegador no
+estaba disponible en esta sesión; la autorización de Meta/verificación móvil
+requiere intervención del usuario. La cobertura HTTP del monitor sigue pendiente.
