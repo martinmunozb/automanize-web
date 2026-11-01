@@ -104,6 +104,63 @@ test(
     assert.equal(await page.locator("tbody tr").count(), 1);
     assert.equal(await page.locator("tbody img").count(), 0);
     assert.equal(await page.evaluate(() => !!window.xss), false);
+    await page.getByRole("button", { name: "Ayuda", exact: true }).click();
+    assert.ok(await page.getByText("2 días después del primero", { exact: false }).count());
+    if (process.env.LEADS_SCREENSHOT_PREFIX)
+      await page.screenshot({
+        path: `${process.env.LEADS_SCREENSHOT_PREFIX}-help.png`,
+        fullPage: true,
+      });
+    await page.getByRole("button", { name: "Crear mi primera secuencia", exact: true }).click();
+    await page.getByLabel("Días desde la activación", { exact: true }).fill("4");
+    await page.getByRole("button", { name: "Usar ejemplo: 0, 2 y 5 días", exact: true }).click();
+    assert.equal(await page.locator(".la-step").count(), 1);
+    assert.equal(
+      await page.getByLabel("Días desde la activación", { exact: true }).inputValue(),
+      "4",
+    );
+    await page.getByLabel("Días desde la activación", { exact: true }).fill("0");
+    await page.getByRole("button", { name: "Usar ejemplo: 0, 2 y 5 días", exact: true }).click();
+    assert.equal(await page.locator(".la-step").count(), 3);
+    assert.equal(
+      await page.getByLabel("Días desde la activación", { exact: true }).inputValue(),
+      "0",
+    );
+    assert.deepEqual(
+      await page
+        .getByLabel("Días desde el mensaje anterior", { exact: true })
+        .evaluateAll((nodes) => nodes.map((n) => n.value)),
+      ["2", "5"],
+    );
+    await page.getByLabel("Plantilla aprobada de Meta", { exact: true }).nth(0).fill("saludo");
+    await page
+      .getByLabel("Plantilla aprobada de Meta", { exact: true })
+      .nth(1)
+      .fill("recordatorio");
+    await page.getByLabel("Plantilla aprobada de Meta", { exact: true }).nth(2).fill("cierre");
+    await page
+      .getByRole("button", { name: "+ Añadir campo rellenable", exact: true })
+      .first()
+      .click();
+    await page.getByLabel("Parámetro 1 del mensaje 1", { exact: true }).fill("Hola {{nombre}}");
+    assert.ok(
+      (await page.locator(".la-preview").textContent()).includes("5 días después del mensaje 2"),
+    );
+    await page.getByLabel("Nombre de la secuencia", { exact: true }).fill("Seguimiento de prueba");
+    if (process.env.LEADS_SCREENSHOT_PREFIX)
+      await page.screenshot({
+        path: `${process.env.LEADS_SCREENSHOT_PREFIX}-editor.png`,
+        fullPage: true,
+      });
+    await page.getByRole("button", { name: "Guardar nueva versión", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    const saved = calls.find((c) => c.action === "save_campaign").campaign;
+    assert.deepEqual(
+      saved.steps.map((s) => s.delay_days),
+      [0, 2, 5],
+    );
+    assert.deepEqual(saved.steps[0].variables, ["Hola {{nombre}}"]);
+    assert.equal(saved.active, false);
     await page.getByRole("button", { name: "Secuencias", exact: true }).click();
     await page.getByLabel("Nombre de la secuencia", { exact: true }).fill("Mi campaña");
     await page.getByRole("button", { name: "+ Añadir paso", exact: true }).click();

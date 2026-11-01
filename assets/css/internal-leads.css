@@ -127,6 +127,15 @@
   margin: 16px 0;
   min-width: 0;
 }
+#internalLeadsRoot summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+}
+#internalLeadsRoot .la-preview,
+#internalLeadsRoot .la-card {
+  overflow-wrap: anywhere;
+}
 #internalLeadsRoot h3 {
   font-size: 15px;
   margin-bottom: 14px;
