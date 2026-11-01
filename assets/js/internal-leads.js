@@ -150,7 +150,7 @@
     );
     root.append(banner);
     const tabs = el("div", undefined, "la-tabs");
-    for (const name of ["Leads", "Secuencias", "Conversaciones", "Configuración"]) {
+    for (const name of ["Leads", "Secuencias", "Conversaciones", "Configuración", "Ayuda"]) {
       const b = button(name, async () => {
         view = name;
         render();
@@ -172,7 +172,58 @@
     if (view === "Leads") renderLeads(content);
     else if (view === "Secuencias") renderCampaigns(content);
     else if (view === "Conversaciones") renderInbox(content);
+    else if (view === "Ayuda") renderHelp(content);
     else renderConfig(content);
+  }
+  function renderHelp(parent) {
+    const sections = [
+      [
+        "Cómo funciona",
+        "1. Sincroniza Airtable para traer los contactos. 2. Crea una secuencia con los mensajes y sus esperas. 3. En Leads, elige la secuencia y activa solo los contactos con consentimiento acreditado. Importar o guardar una secuencia no envía mensajes por sí solo.",
+      ],
+      [
+        "Cuándo sale cada mensaje",
+        "La espera del primer mensaje se cuenta desde la activación del lead. Las siguientes se cuentan desde el envío del mensaje anterior. Ejemplo: primer mensaje con 0 días, segundo 2 días después del primero y tercero 5 días después del segundo. Son días de calendario de Madrid; si un envío cae fuera de los días u horas permitidos, pasa al siguiente momento permitido. El límite diario y la separación mínima también pueden retrasarlo. Consulta Próximo envío en Leads.",
+      ],
+      [
+        "Qué escribir en los campos",
+        "Cada paso usa una plantilla aprobada de WhatsApp. Escribe su nombre e idioma exactos y rellena sus parámetros en orden: parámetro 1 corresponde a {{1}}, parámetro 2 a {{2}}, etc. Puedes usar texto fijo o {{nombre}}, {{telefono}}, {{email}} y {{origen}}. El texto completo del mensaje se define en la plantilla de Meta; estos campos rellenan sus huecos. Se admiten parámetros de texto del cuerpo; las cabeceras multimedia y los botones variables necesitan otra configuración.",
+      ],
+      [
+        "Qué detiene el seguimiento",
+        "Una respuesta o baja del contacto cancela los mensajes pendientes. Enviar manualmente desde Conversaciones pausa la secuencia. Los mensajes enviados desde el móvil dependen de que WhatsApp comunique ese evento. Puedes pausar desde Leads. Al reanudar se conserva la versión y no se repiten los pasos ya aceptados por WhatsApp.",
+      ],
+      [
+        "Cómo cambiar una secuencia",
+        "Editar crea una versión nueva. Los contactos ya activados mantienen sus mensajes y esperas originales. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. Pausar una campaña bloquea sus envíos.",
+      ],
+      [
+        "Prueba con tu número",
+        "En Configuración comprueba el canal de Automanize, el modo exclusivo de pruebas y el destinatario autorizado. Importa tu contacto con consentimiento y evidencia, crea una secuencia de un solo paso y actívala solo para ti. Verifica recepción y estado de entrega; responde desde tu WhatsApp para comprobar que se detiene. No repitas un envío con resultado incierto sin revisar antes su entrega.",
+      ],
+      [
+        "Por qué puede no enviar",
+        "Comprueba: canal vinculado, plantilla aprobada, contacto autorizado en modo de pruebas, consentimiento y evidencia, secuencia activa y activación general. El servidor también debe permitir envíos. Se respetan horario, días, límite diario y sincronización reciente de Airtable. Revisa los errores en Configuración. Tener credenciales configuradas no confirma que el canal esté funcionando.",
+      ],
+    ];
+    parent.append(el("h3", "Guía rápida de seguimiento"));
+    for (const [title, text] of sections) {
+      const details = el("details", undefined, "la-card");
+      details.open = title === "Cómo funciona" || title === "Cuándo sale cada mensaje";
+      details.append(el("summary", title));
+      note(details, text);
+      parent.append(details);
+    }
+    parent.append(
+      button(
+        "Crear mi primera secuencia",
+        async () => {
+          view = "Secuencias";
+          render();
+        },
+        true,
+      ),
+    );
   }
   function renderLeads(parent) {
     const stats = el("div", undefined, "la-stats");
@@ -349,6 +400,30 @@
     only_if_no_reply: true,
   });
   function renderCampaigns(parent) {
+    parent.append(el("h3", "Crea tu secuencia paso a paso"));
+    note(
+      parent,
+      "Elige una plantilla de WhatsApp por mensaje, rellena sus campos y decide cuánto esperar. El primer paso cuenta desde la activación; los demás, desde el envío anterior.",
+    );
+    parent.append(
+      button("Usar ejemplo: 0, 2 y 5 días", async () => {
+        if (
+          campaignName.trim() ||
+          campaignActive ||
+          steps.length > 1 ||
+          steps.some((s) => JSON.stringify(s) !== JSON.stringify(newStep()))
+        )
+          throw new Error(
+            "El ejemplo necesita un borrador vacío. Conserva tu trabajo actual guardándolo primero.",
+          );
+        steps = [0, 2, 5].map((delay_days, i) => ({
+          ...newStep(),
+          delay_days,
+          name: ["Primer contacto", "Seguimiento", "Último seguimiento"][i],
+        }));
+        render();
+      }),
+    );
     note(
       parent,
       "Editar guarda una versión nueva. Los leads ya activados conservan los pasos originales. Una respuesta o baja detiene siempre el seguimiento.",
@@ -390,7 +465,11 @@
         ["name", "Nombre", "text"],
         ["template", "Plantilla aprobada de Meta", "text"],
         ["language", "Idioma", "text"],
-        ["delay_days", "Días desde el paso anterior", "number"],
+        [
+          "delay_days",
+          index === 0 ? "Días desde la activación" : "Días desde el mensaje anterior",
+          "number",
+        ],
         ["time", "Hora de envío (Madrid)", "time"],
       ]) {
         const input = field(grid, label, type, step[key]);
@@ -403,17 +482,42 @@
           preview();
         });
       }
-      const variables = field(
-        grid,
-        "Variables de cuerpo (una por línea)",
-        "textarea",
-        step.variables.join("\n"),
-      );
-      variables.placeholder = "{{nombre}}";
-      variables.addEventListener("input", () => {
-        step.variables = variables.value.split("\n").filter(Boolean);
-        preview();
+      const variables = el("div");
+      step.variables.forEach((value, parameter) => {
+        const input = field(
+          variables,
+          `Parámetro ${parameter + 1} del mensaje ${index + 1}`,
+          "text",
+          value,
+        );
+        input.placeholder = "Ej.: {{nombre}} o un texto fijo";
+        input.maxLength = 500;
+        input.addEventListener("input", () => {
+          step.variables[parameter] = input.value;
+          preview();
+        });
+        variables.append(
+          button(`Quitar parámetro ${parameter + 1} del mensaje ${index + 1}`, async () => {
+            step.variables.splice(parameter, 1);
+            render();
+          }),
+        );
       });
+      variables.append(
+        button("+ Añadir campo rellenable", async () => {
+          if (step.variables.length >= 20)
+            throw new Error("Cada mensaje admite hasta 20 parámetros");
+          step.variables.push("");
+          render();
+        }),
+      );
+      grid.append(variables);
+      note(
+        card,
+        index === 0
+          ? "0 días = primer horario permitido desde que activas el contacto."
+          : `La espera empieza cuando se envía el mensaje ${index}, no cuando se importa el lead.`,
+      );
       card.append(grid);
       const days = el("div", undefined, "la-tools");
       ["D", "L", "M", "X", "J", "V", "S"].forEach((label, d) => {
@@ -455,7 +559,7 @@
         summary.append(
           el(
             "p",
-            `${i + 1}. ${s.name || s.template || "Plantilla pendiente"} · +${s.delay_days} días · ${s.time || "primera hora permitida"} · ${s.variables.join(" / ")}`,
+            `${i + 1}. ${s.name || s.template || "Plantilla pendiente"} · ${s.delay_days} días ${i === 0 ? "desde la activación" : `después del mensaje ${i}`} · ${s.time || "primera hora permitida"} (Madrid) · ${s.variables.join(" / ")}`,
           ),
         ),
       );
@@ -463,12 +567,30 @@
     preview();
     note(
       form,
-      "Variables disponibles: {{nombre}}, {{telefono}}, {{email}}, {{origen}}. Por ahora se admiten plantillas con parámetros de texto en el cuerpo.",
+      "Calendario orientativo: los días y horarios permitidos, la separación mínima y el límite diario pueden aplazar cada envío. La fecha real aparece en Próximo envío del contacto.",
+    );
+    note(
+      form,
+      "Campos disponibles: {{nombre}}, {{telefono}}, {{email}}, {{origen}}. Añade un campo por cada hueco de la plantilla, en el mismo orden. El texto completo se configura en Meta. Consulta Ayuda para ver ejemplos.",
     );
     form.append(
       button(
         "Guardar nueva versión",
         async () => {
+          if (!name.value.trim()) throw new Error("Pon un nombre a la secuencia");
+          if (!steps.length || steps.length > 20) throw new Error("Añade entre 1 y 20 mensajes");
+          for (const [i, s] of steps.entries()) {
+            if (!/^[a-z0-9_]{1,100}$/.test(s.template))
+              throw new Error(`Mensaje ${i + 1}: indica el nombre exacto de la plantilla aprobada`);
+            if (!Number.isInteger(s.delay_days) || s.delay_days < 0 || s.delay_days > 365)
+              throw new Error(
+                `Mensaje ${i + 1}: la espera debe ser un número entero entre 0 y 365 días`,
+              );
+            if (!s.weekdays.length)
+              throw new Error(`Mensaje ${i + 1}: selecciona al menos un día de envío`);
+            if (s.variables.some((v) => !v.trim()))
+              throw new Error(`Mensaje ${i + 1}: rellena o elimina los parámetros vacíos`);
+          }
           await api("save_campaign", {
             campaign: { name: name.value, active: active.checked, steps },
           });
@@ -718,7 +840,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261031";
+      link.href = "/assets/css/internal-leads.css?v=20261101";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
