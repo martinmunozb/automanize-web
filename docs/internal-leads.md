@@ -92,3 +92,24 @@ no usar la sesión de una inmobiliaria. No se ha completado el alta, activado
 envíos ni ejecutado la prueba real. El acceso automatizado al navegador no
 estaba disponible en esta sesión; la autorización de Meta/verificación móvil
 requiere intervención del usuario. La cobertura HTTP del monitor sigue pendiente.
+
+## Cuenta dedicada para el alta comercial (01/11/2026)
+
+Creada por autorización expresa del usuario la cuenta `automanize@gmail.com`
+para el tenant **Automanize Comercial**, slug `automanize-comercial`, ID
+`a9b82165-3f1b-4a90-ae1d-99b768ea7b43`. Se comprobó previamente que el email
+no existía. Aprovisionamiento administrativo en servidor con Auth Admin API,
+tenant activo de uso interno y perfil `admin` exclusivo del nuevo tenant, sin
+añadir acceso superadmin/Finanzas. Sin correos de invitación, claves en cliente,
+carpetas Drive ni cuestionarios inmobiliarios. No se modificó Jalaim/GoRoom.
+La contraseña se entregó privadamente y no se registra aquí.
+
+Verificación real: login correcto, perfil/empresa correctos, cero inquilinos
+visibles de otros tenants y API comercial interna 403 para este admin de tenant.
+`seendy-embedded-signup` respondió 200 con configuración Meta disponible y
+`canConnect=true`. `bot_activo=false` evita respuestas inmobiliarias mientras se
+completa el alta oficial. La autorización Meta/verificación móvil sigue pendiente;
+todavía no hay canal vinculado a este tenant ni envíos reales. Una vez conectado,
+vincular **este** tenant/phone ID al módulo y verificar canal/plantillas antes de
+habilitar exclusivamente el destinatario de prueba autorizado. El panel interno
+sigue requiriendo la sesión interna de Automanize; esta cuenta no la reemplaza.
