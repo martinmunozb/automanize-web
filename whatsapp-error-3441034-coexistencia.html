@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error WhatsApp #3441034: solución si está conectado a Meta Business Suite Inbox | Automanize</title>
+<meta name="description" content="Caso real del error #3441034 al conectar WhatsApp Business con la Cloud API en coexistencia. Cómo encontramos y desconectamos Meta Business Suite Inbox sin borrar la cuenta ni los chats.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Equipo Automanize">
+<link rel="canonical" href="https://automanize.com/whatsapp-error-3441034-coexistencia.html">
+<link rel="icon" href="/assets/images/favicon.ico">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Solucionamos el error #3441034 de WhatsApp: la conexión oculta con Meta Business Suite">
+<meta property="og:description" content="Un caso real de coexistencia WhatsApp Business + Cloud API. Qué revisar, qué desconectar y qué no borrar.">
+<meta property="og:url" content="https://automanize.com/whatsapp-error-3441034-coexistencia.html">
+<meta name="theme-color" content="#0e1014">
+<style>
+:root{color-scheme:dark;--bg:#0e1014;--text:#f2f4f7;--muted:#a5adbb;--line:#2d3440;--accent:#a8c5ff;--panel:#191d25}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:17px;line-height:1.7}a{color:var(--accent)}a:hover{text-decoration:none}.shell{max-width:860px;margin:0 auto;padding:0 26px}header{border-bottom:1px solid var(--line);padding:22px 0}header .shell{display:flex;justify-content:space-between;gap:20px;align-items:center}header a.brand{color:var(--text);font-weight:750;letter-spacing:-.03em;text-decoration:none;font-size:20px}header .back{font-size:14px;color:var(--muted)}main{padding:72px 0 88px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.13em;font-weight:700;font-size:12px}h1{font-size:clamp(34px,5vw,56px);letter-spacing:-.052em;line-height:1.12;margin:16px 0 26px}h2{font-size:27px;line-height:1.25;letter-spacing:-.03em;margin:48px 0 14px}h3{font-size:20px;margin:28px 0 8px}p{margin:14px 0}p.lead{font-size:20px;color:#ced4df;line-height:1.6}.meta{color:var(--muted);font-size:14px;margin:20px 0 40px}.notice{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:30px 0}.notice p{margin:0}.notice strong{color:#d5e2ff}ol,ul{padding-left:27px}li{padding-left:4px;margin:14px 0}code{padding:2px 6px;border-radius:5px;background:#242b36;color:#d5e2ff;font-size:.88em;overflow-wrap:anywhere}.divider{border:0;border-top:1px solid var(--line);margin:48px 0}.sources{font-size:15px;color:var(--muted)}footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:14px}@media(max-width:550px){main{padding:48px 0}.shell{padding:0 18px}header .back{display:none}h2{font-size:23px}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Error WhatsApp #3441034: solución si está conectado a Meta Business Suite Inbox","description":"Caso real de un fallo al conectar la coexistencia de WhatsApp Business con Cloud API","datePublished":"2026-11-01","dateModified":"2026-11-01","inLanguage":"es-ES","author":{"@type":"Organization","name":"Automanize"},"publisher":{"@type":"Organization","name":"Automanize","url":"https://automanize.com"},"mainEntityOfPage":"https://automanize.com/whatsapp-error-3441034-coexistencia.html"}
+</script>
+</head>
+<body>
+<header><div class="shell"><a class="brand" href="/">automanize</a><a class="back" href="/">Volver a Automanize</a></div></header>
+<main class="shell">
+<div class="eyebrow">Guía técnica · Caso real</div>
+<h1>Error #3441034 al conectar WhatsApp Business en coexistencia: lo que nos funcionó</h1>
+<p class="lead">Queríamos usar el mismo número en la aplicación WhatsApp Business del móvil y en una plataforma conectada a la API oficial de Meta. Pero al intentar activarlo, Meta rechazaba el registro con el error <strong>#3441034</strong>.</p>
+<p class="meta">Publicado el 1 de noviembre de 2026 · Equipo Automanize · 4 minutos</p>
+<div class="notice"><p><strong>La solución en nuestro caso:</strong> el número seguía conectado a «Bandeja de entrada de Meta Business Suite» como plataforma empresarial. Desconectamos esa integración desde WhatsApp Business en el móvil y repetimos el registro de coexistencia. El proceso dejó de mostrarnos el bloqueo.</p></div>
+<h2>El error que aparecía</h2>
+<p>Al introducir un número que ya usábamos en WhatsApp Business, Meta mostraba un mensaje equivalente a: <strong>«Este número de teléfono no cumple los requisitos para el registro ni la migración»</strong> (<code>#3441034</code>).</p>
+<p>Lo intentamos desde otra cartera empresarial y apareció otro mensaje, <code>#2494064</code>, indicando que el número ya estaba registrado en una cuenta de WhatsApp. No era motivo para borrar el número ni abandonar la aplicación del móvil.</p>
+<h2>La pista que nos desbloqueó</h2>
+<p>En WhatsApp Business, al entrar en <strong>Ajustes → Cuenta → Plataforma para empresas</strong>, aparecía <strong>«Bandeja de entrada de Meta Business Suite»</strong> como plataforma conectada. La propia pantalla advertía que el número solo podía estar conectado a una cuenta de la plataforma para empresas a la vez.</p>
+<p>Habíamos comprobado permisos, cuentas de Meta, Facebook e Instagram, e incluso el flujo de Embedded Signup. En nuestro caso, eso no eliminaba el bloqueo: faltaba desconectar la integración concreta con la bandeja de Meta.</p>
+<h2>Pasos que seguimos para solucionarlo</h2>
+<ol>
+<li><strong>Abre WhatsApp Business en el móvil principal</strong> donde funciona el número.</li>
+<li>Ve a <strong>Ajustes → Cuenta → Plataforma para empresas</strong>. El nombre de los menús puede variar según la versión y el sistema operativo.</li>
+<li>Comprueba si aparece <strong>«Bandeja de entrada de Meta Business Suite»</strong>. Si está conectada y necesitas utilizar otra plataforma, selecciona esa conexión y elige <strong>Desconectar</strong>. Lee el aviso antes de confirmar: la bandeja de Meta dejará de recibir esa integración.</li>
+<li><strong>Si WhatsApp muestra «Se produjo un error. Vuelve a intentarlo»</strong>, no borres datos ni elimines la cuenta. A nosotros también nos ocurrió. Reiniciamos el teléfono y después pudimos completar la desconexión. No sabemos si el reinicio fue la causa o si se resolvió un fallo temporal de Meta.</li>
+<li>Comprueba que ya no aparezca la plataforma anterior. Si Meta aún no reconoce el cambio, espera unos minutos; algunas guías de proveedores recomiendan alrededor de 15 minutos.</li>
+<li>Vuelve a la plataforma que quieres conectar y selecciona explícitamente <strong>seguir usando WhatsApp Business</strong> o <strong>coexistencia</strong>. Completa las pantallas de Meta y autoriza el proceso desde el WhatsApp Business del móvil cuando lo solicite.</li>
+<li>Comprueba que puedes seguir usando la app y prueba el envío y la recepción de mensajes por API antes de considerar terminada la integración.</li>
+</ol>
+<h2>Qué no debes hacer</h2>
+<ul>
+<li><strong>No elimines la cuenta de WhatsApp Business</strong> ni des de baja el número para intentar salir del error.</li>
+<li><strong>No pulses «Suprimir del porfolio empresarial» a ciegas</strong>: algunas pantallas de Meta advierten consecuencias importantes o irreversibles.</li>
+<li><strong>No confundas la conexión de Instagram o la página de Facebook</strong> con la plataforma conectada en el menú del móvil. Son relaciones distintas.</li>
+<li><strong>No cambies a registro estándar</strong> si necesitas mantener el mismo número funcionando en WhatsApp Business.</li>
+</ul>
+<h2>¿Es esta la solución para todos los errores #3441034?</h2>
+<p><strong>No necesariamente.</strong> El código indica que Meta ha rechazado el registro o la migración, pero por sí solo no confirma la causa. En nuestro caso encontramos la conexión anterior a Meta Business Suite Inbox y el registro pudo continuar tras desconectarla. Si no ves esa conexión, revisa los requisitos de elegibilidad, los permisos y la configuración de coexistencia; si persiste, contacta con soporte de Meta.</p>
+<p>También puedes consultar las guías técnicas de <a href="https://bird.com/docs/guides/whatsapp/coexistence/troubleshooting" rel="noopener noreferrer">Bird (solución de problemas de coexistencia)</a> y <a href="https://docs.waco.id/en/existing-number" rel="noopener noreferrer">WACO (número ya conectado a Meta Business Suite)</a>.</p>
+<hr class="divider">
+<h2>Resumen</h2>
+<p>Si tu número de WhatsApp Business recibe el <code>#3441034</code> al intentar activar la coexistencia, comprueba <strong>primero</strong> si está conectado a «Meta Business Suite Inbox» en <strong>WhatsApp Business → Ajustes → Cuenta → Plataforma para empresas</strong>. A nosotros nos funcionó quitar esa conexión y repetir el registro, sin eliminar la cuenta ni perder el número.</p>
+<p class="sources">Este artículo documenta una experiencia real de Automanize, no una garantía de resolución para cualquier cuenta. No estamos afiliados a Meta ni ofrecemos soporte oficial de WhatsApp.</p>
+</main>
+<footer><div class="shell">© Automanize · <a href="/">automanize.com</a></div></footer>
+</body>
+</html>
