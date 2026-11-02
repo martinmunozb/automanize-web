@@ -38,6 +38,7 @@
     root,
     view = "Leads",
     status = null,
+    metrics = null,
     leads = [],
     campaigns = [],
     templates = [],
@@ -168,6 +169,7 @@
   const usableTemplates = () => templates.filter((t) => t.status === "APPROVED" && t.supported);
   async function load() {
     [status, { items: campaigns }] = await Promise.all([api("status"), api("campaigns")]);
+    metrics = await api("metrics", undefined, "GET").catch(() => null);
     await Promise.all([loadLeads(), loadTemplates()]);
     render();
   }
@@ -285,19 +287,117 @@
       ),
     );
   }
-  function renderLeads(parent) {
+  const stateOrder = ["new", "pending", "active", "responded", "finished", "paused", "error", "opted_out"];
+  const barRow = (name, bars, max) => {
+    const row = el("div", undefined, "la-bar-row");
+    row.append(el("span", name, "la-bar-name"));
+    const marks = el("div", undefined, "la-bar-marks");
+    for (const { value, series, label } of bars) {
+      const line = el("div", undefined, "la-bar-line");
+      const mark = el("span", undefined, `la-bar la-bar-${series}`);
+      mark.style.width = `${max ? (value / max) * 100 : 0}%`;
+      line.title = `${label}: ${value}`;
+      line.append(mark, el("span", String(value), "la-bar-value"));
+      marks.append(line);
+    }
+    row.append(marks);
+    return row;
+  };
+  function renderSummary(parent) {
     const stats = el("div", undefined, "la-stats");
-    for (const [label, value] of [
-      ["Total filtrado", total],
-      ["Activos en página", leads.filter((l) => l.state === "active").length],
-      ["Respondidos en página", leads.filter((l) => l.state === "responded").length],
-      ["Sin consentimiento en página", leads.filter((l) => !l.consent).length],
-    ]) {
+    const share = (n, of) => (of ? ` · ${Math.round((n / of) * 100)} %` : "");
+    for (const [label, value, detail] of metrics
+      ? [
+          ["Contactos", metrics.total, `${metrics.without_consent} sin consentimiento`],
+          ["Contactados", metrics.contacted, `${metrics.pending} envíos programados`],
+          [
+            "Han contestado",
+            metrics.replied,
+            `${metrics.replied_after_message} tras un mensaje${share(metrics.replied_after_message, metrics.contacted)}`,
+          ],
+          ["Por revisar", metrics.to_review, `Bajas: ${metrics.by_state.opted_out || 0}`],
+        ]
+      : [["Total filtrado", total, "Resumen no disponible"]]) {
       const card = el("div", undefined, "stat-card");
-      card.append(el("div", label, "stat-label"), el("div", String(value), "stat-value"));
+      card.append(
+        el("div", label, "stat-label"),
+        el("div", String(value), "stat-value"),
+        el("small", detail),
+      );
       stats.append(card);
     }
     parent.append(stats);
+    if (!metrics) return;
+    const charts = el("div", undefined, "la-charts");
+    const phases = el("div", undefined, "la-card");
+    phases.append(el("h3", "En qué fase está cada contacto"));
+    note(phases, "Pulsa una fase para ver sus contactos en la tabla.");
+    const shown = stateOrder.filter((s) => s !== "pending" || metrics.by_state[s]);
+    const maxState = Math.max(0, ...shown.map((s) => metrics.by_state[s] || 0));
+    for (const state of shown) {
+      const row = barRow(
+        labels[state],
+        [{ value: metrics.by_state[state] || 0, series: 1, label: labels[state] }],
+        maxState,
+      );
+      const open = button("", async () => {
+        filter = state;
+        search = "";
+        page = 0;
+        await loadLeads();
+        render();
+      });
+      open.className = `la-bar-button${filter === state ? " active" : ""}`;
+      open.setAttribute("aria-label", `Ver contactos en fase ${labels[state]}`);
+      open.replaceChildren(row);
+      phases.append(open);
+    }
+    const messages = el("div", undefined, "la-card");
+    messages.append(el("h3", "Respuesta por mensaje"));
+    if (metrics.by_message.length) {
+      const legend = el("div", undefined, "la-legend");
+      for (const [series, name] of [
+        [1, "Enviados"],
+        [2, "Contestaron a ese mensaje"],
+      ]) {
+        const item = el("span");
+        item.append(el("i", undefined, `la-bar la-bar-${series}`), name);
+        legend.append(item);
+      }
+      messages.append(legend);
+      const maxSent = Math.max(...metrics.by_message.map((m) => m.sent));
+      for (const m of metrics.by_message)
+        messages.append(
+          barRow(
+            `Mensaje ${m.step + 1}`,
+            [
+              { value: m.sent, series: 1, label: "Enviados" },
+              { value: m.replied, series: 2, label: "Contestaron" },
+            ],
+            maxSent,
+          ),
+        );
+    } else note(messages, "Todavía no se ha enviado ningún mensaje de una secuencia.");
+    const d = metrics.delivery;
+    note(
+      messages,
+      `Último estado en WhatsApp: ${d.sent || 0} enviados, ${d.delivered || 0} entregados, ${d.read || 0} leídos, ${d.failed || 0} no entregados · ${metrics.reply_messages_sent} mensajes de «Si contesta».`,
+    );
+    charts.append(phases, messages);
+    parent.append(charts);
+    if (metrics.test_contacts)
+      note(parent, `Incluye ${metrics.test_contacts} contacto de prueba.`);
+  }
+  const repliedText = (lead) =>
+    lead.state === "opted_out"
+      ? "Pidió la baja"
+      : lead.state === "responded"
+        ? `Sí · ${date(lead.replied_at)}`
+        : lead.last_sent
+          ? "No"
+          : "—";
+  function renderLeads(parent) {
+    renderSummary(parent);
     const tools = el("div", undefined, "la-tools");
     const find = field(tools, "Buscar", "search", search);
     find.placeholder = "Nombre, teléfono o email";
@@ -348,6 +448,8 @@
       "Entrada / origen",
       "Estado",
       "Paso",
+      "Mensaje enviado",
+      "¿Contestó?",
       "Último mensaje",
       "Próximo envío",
       "Acciones",
@@ -393,6 +495,20 @@
             ? `${Math.min(lead.step + 1, lead.snapshot.length)} / ${lead.snapshot.length}`
             : "—",
         ),
+      );
+      const sentCell = el("td");
+      if (lead.last_sent)
+        sentCell.append(
+          el("div", lead.last_sent.label),
+          el(
+            "small",
+            `${date(lead.last_sent.at)}${lead.last_sent.delivery ? ` · ${deliveryLabels[lead.last_sent.delivery] || lead.last_sent.delivery}` : ""}`,
+          ),
+        );
+      else sentCell.textContent = "—";
+      row.append(
+        sentCell,
+        el("td", repliedText(lead)),
         el("td", lead.last_message || "—"),
         el("td", date(lead.next_due)),
       );
@@ -404,6 +520,13 @@
           render();
         }),
       );
+      if (lead.seendy_path) {
+        const seendy = el("a", "Abrir en Seendy", "btn btn-sm btn-ghost");
+        seendy.href = lead.seendy_path;
+        seendy.target = "_blank";
+        seendy.rel = "noopener noreferrer";
+        actions.append(seendy);
+      }
       if (lead.state === "active")
         actions.append(
           button("Pausar", async () => {
@@ -1251,7 +1374,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261102b";
+      link.href = "/assets/css/internal-leads.css?v=20261102d";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
