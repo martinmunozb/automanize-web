@@ -256,3 +256,9 @@
 #internalLeadsRoot td small {
   display: block;
 }
+
+#internalLeadsRoot .la-branch {
+  margin: 12px 0;
+  padding: 12px;
+  border-left: 3px solid #e8e8e8;
+}
