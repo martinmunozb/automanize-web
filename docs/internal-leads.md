@@ -116,9 +116,11 @@ sigue requiriendo la sesión interna de Automanize; esta cuenta no la reemplaza.
 
 ## Canal dedicado y editor con plantillas (02/11/2026)
 
-**Estado: código preparado, sin desplegar.** Requiere antes el backend de la rama
-`feat/leads-canal-seendy` (nuevo formato de `templates`). El canal es el de Seendy/Vault;
-sustituye lo anterior sobre vincular `tenants`.
+**Estado: desplegado el 02/11/2026 (web `4a2c220`), con envíos apagados en el servidor.**
+Usa el backend de `feat/leads-canal-seendy` (nuevo formato de `templates`). El canal es el de
+Seendy/Vault; sustituye lo anterior sobre vincular `tenants`. Comprobado en el panel real:
+sincronización de Airtable, Comprobar canal, contacto de prueba y editor. Falta guardar una
+secuencia y enviar: no hay plantillas y Meta bloquea el WABA por el error 141006.
 
 Editor: selector solo con plantillas APPROVED y compatibles, texto de la plantilla, un
 campo por hueco (nombre, empresa, origen, teléfono, email o texto fijo), «en cuanto se
