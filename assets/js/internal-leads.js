@@ -12,12 +12,36 @@
     error: "Error",
     opted_out: "Baja",
   };
+  const deliveryLabels = {
+    sent: "Enviado",
+    delivered: "Entregado",
+    read: "Leído",
+    failed: "No entregado",
+  };
+  const jobLabels = {
+    pending: "Programado",
+    reserved: "Enviando",
+    sending: "Enviando",
+    sent: "Enviado",
+    cancelled: "Detenido",
+    uncertain: "Por revisar",
+    error: "Error",
+  };
+  const fieldOptions = [
+    ["{{nombre}}", "Nombre del contacto"],
+    ["{{empresa}}", "Empresa"],
+    ["{{origen}}", "Origen"],
+    ["{{telefono}}", "Teléfono"],
+    ["{{email}}", "Email"],
+  ];
   let db,
     root,
     view = "Leads",
     status = null,
     leads = [],
     campaigns = [],
+    templates = [],
+    templatesError = "",
     total = 0,
     page = 0,
     search = "",
@@ -59,6 +83,7 @@
     const box = el("label", undefined, "la-field");
     box.append(el("span", label));
     const input = el("select");
+    input.setAttribute("aria-label", label);
     for (const [v, t] of options) {
       const o = el("option", t);
       o.value = v;
@@ -126,9 +151,23 @@
     total = r.total;
     selected.clear();
   }
+  async function loadTemplates() {
+    templatesError = "";
+    templates = [];
+    if (!status?.whatsapp.configured) {
+      templatesError = "El canal de WhatsApp todavía no está vinculado.";
+      return;
+    }
+    try {
+      templates = (await api("templates", undefined, "GET")).items;
+    } catch (e) {
+      templatesError = e.message;
+    }
+  }
+  const usableTemplates = () => templates.filter((t) => t.status === "APPROVED" && t.supported);
   async function load() {
     [status, { items: campaigns }] = await Promise.all([api("status"), api("campaigns")]);
-    await loadLeads();
+    await Promise.all([loadLeads(), loadTemplates()]);
     render();
   }
   function shell() {
@@ -179,31 +218,51 @@
     const sections = [
       [
         "Cómo funciona",
-        "1. Sincroniza Airtable para traer los contactos. 2. Crea una secuencia con los mensajes y sus esperas. 3. En Leads, elige la secuencia y activa solo los contactos con consentimiento acreditado. Importar o guardar una secuencia no envía mensajes por sí solo.",
+        "1. Importa los contactos desde Airtable. 2. Crea una secuencia con los mensajes y sus esperas. 3. Actívala para cada contacto con consentimiento acreditado. Importar o guardar una secuencia no envía mensajes por sí solo.",
+      ],
+      [
+        "Cómo importar leads",
+        "En Leads, pulsa Sincronizar Airtable. También se hace solo cada 15 minutos. Los contactos entran como Nuevo y nunca se activan automáticamente. Si una fila tiene el teléfono mal o repetido, se avisa y las demás se importan igualmente.",
+      ],
+      [
+        "Cómo crear una secuencia",
+        "En Secuencias, pon un nombre y añade un paso por mensaje. Elige una plantilla aprobada por Meta, indica con qué dato se rellena cada campo y cuánto esperar. Puedes reordenar y eliminar pasos. Pulsa Calcular fechas para ver un ejemplo y guarda. Marca Activar esta versión para poder usarla.",
+      ],
+      [
+        "Cómo activar o pausar un contacto",
+        "En Leads, elige la secuencia en la fila del contacto y pulsa Activar; el panel pide confirmación y te dice cuándo saldrá el primer mensaje. Pausar cancela lo programado. Reanudar continúa por el mensaje pendiente sin repetir los ya enviados.",
       ],
       [
         "Cuándo sale cada mensaje",
-        "La espera del primer mensaje se cuenta desde la activación del lead. Las siguientes se cuentan desde el envío del mensaje anterior. Ejemplo: primer mensaje con 0 días, segundo 2 días después del primero y tercero 5 días después del segundo. Son días de calendario de Madrid; si un envío cae fuera de los días u horas permitidos, pasa al siguiente momento permitido. El límite diario y la separación mínima también pueden retrasarlo. Consulta Próximo envío en Leads.",
+        "La espera del primer mensaje se cuenta desde la activación del lead. Las siguientes se cuentan desde el envío del mensaje anterior, nunca desde la importación. Ejemplo: primer mensaje con 0 días, segundo 2 días después del primero y tercero 5 días después del segundo. Son días de calendario de Madrid; si un envío cae fuera de los días u horas permitidos, pasa al siguiente momento permitido. El límite diario y la separación mínima también pueden retrasarlo. Consulta Próximo envío en Leads.",
+      ],
+      [
+        "Qué pasa si el cliente responde",
+        "Se cancelan todos los mensajes pendientes y el contacto queda como Respondido, con el motivo visible. Lo mismo ocurre si pide la baja, que además impide volver a escribirle. Si una persona le escribe desde el móvil o desde Seendy, la secuencia también se detiene y no se reanuda sola.",
+      ],
+      [
+        "Cómo comprobar si se envió un mensaje",
+        "En Leads, pulsa Conversación. Verás los mensajes programados, enviados y detenidos, con su motivo, y el estado de entrega que comunica WhatsApp: Enviado, Entregado, Leído o No entregado. Enviado significa que Meta lo aceptó, no que haya llegado.",
+      ],
+      [
+        "Qué significan los errores",
+        "Método de pago: Meta bloquea los mensajes iniciados por la empresa hasta corregirlo en la cuenta de WhatsApp. Plantilla no aprobada: elige otra o espera la aprobación. Falta un dato: el contacto no tiene, por ejemplo, empresa, y esa plantilla la necesita. Por revisar: no se sabe si salió; compruébalo en WhatsApp y, en Configuración, indica si llegó. Nunca se reenvía automáticamente.",
       ],
       [
         "Qué escribir en los campos",
-        "Cada paso usa una plantilla aprobada de WhatsApp. Escribe su nombre e idioma exactos y rellena sus parámetros en orden: parámetro 1 corresponde a {{1}}, parámetro 2 a {{2}}, etc. Puedes usar texto fijo o {{nombre}}, {{telefono}}, {{email}} y {{origen}}. El texto completo del mensaje se define en la plantilla de Meta; estos campos rellenan sus huecos. Se admiten parámetros de texto del cuerpo; las cabeceras multimedia y los botones variables necesitan otra configuración.",
-      ],
-      [
-        "Qué detiene el seguimiento",
-        "Una respuesta o baja del contacto cancela los mensajes pendientes. Enviar manualmente desde Conversaciones pausa la secuencia. Los mensajes enviados desde el móvil dependen de que WhatsApp comunique ese evento. Puedes pausar desde Leads. Al reanudar se conserva la versión y no se repiten los pasos ya aceptados por WhatsApp.",
+        "Cada campo de la plantilla se rellena en orden con un dato del contacto (nombre, empresa, origen, teléfono o email) o con un texto fijo. El texto completo del mensaje se define en la plantilla de Meta. Las plantillas con cabeceras multimedia o botones variables no se pueden usar aquí.",
       ],
       [
         "Cómo cambiar una secuencia",
-        "Editar crea una versión nueva. Los contactos ya activados mantienen sus mensajes y esperas originales. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. Pausar una campaña bloquea sus envíos.",
+        "Editar crea una versión nueva y Duplicar crea una copia. Los contactos ya activados mantienen sus mensajes y esperas originales. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. Pausar una secuencia bloquea sus envíos.",
       ],
       [
         "Prueba con tu número",
-        "En Configuración comprueba el canal de Automanize, el modo exclusivo de pruebas y el destinatario autorizado. Importa tu contacto con consentimiento y evidencia, crea una secuencia de un solo paso y actívala solo para ti. Verifica recepción y estado de entrega; responde desde tu WhatsApp para comprobar que se detiene. No repitas un envío con resultado incierto sin revisar antes su entrega.",
+        "En Configuración, pulsa Comprobar canal y crea el contacto de prueba; solo se admiten números autorizados. Crea una secuencia y actívala solo para ese contacto. Verifica recepción y estado de entrega; responde desde tu WhatsApp para comprobar que se detiene. Reiniciar prueba, en Leads, permite repetirla.",
       ],
       [
         "Por qué puede no enviar",
-        "Comprueba: canal vinculado, plantilla aprobada, contacto autorizado en modo de pruebas, consentimiento y evidencia, secuencia activa y activación general. El servidor también debe permitir envíos. Se respetan horario, días, límite diario y sincronización reciente de Airtable. Revisa los errores en Configuración. Tener credenciales configuradas no confirma que el canal esté funcionando.",
+        "Cada contacto muestra en Leads lo que le impide recibir mensajes. Comprueba también el estado del canal en Configuración. Se respetan horario, días, límite diario y sincronización reciente de Airtable.",
       ],
     ];
     parent.append(el("h3", "Guía rápida de seguimiento"));
@@ -312,7 +371,11 @@
       row.append(origin);
       const stateCell = el("td");
       stateCell.append(el("span", labels[lead.state] || lead.state, "la-state"));
-      if (!lead.consent) stateCell.append(el("small", "Sin consentimiento acreditado"));
+      if (lead.is_test) stateCell.append(el("small", "Contacto de prueba"));
+      if (lead.stop_text) stateCell.append(el("small", lead.stop_text));
+      for (const blocker of lead.blockers || []) stateCell.append(el("small", blocker));
+      if (!lead.blockers && !lead.consent)
+        stateCell.append(el("small", "Sin consentimiento acreditado"));
       row.append(stateCell);
       row.append(
         el(
@@ -351,15 +414,34 @@
           lead.snapshot ? "Reanudar" : "Activar",
           async () => {
             if (!lead.snapshot && !choice.value) throw new Error("Selecciona una secuencia");
-            await api("activate", { id: lead.id, campaign_id: choice.value });
+            const sequence = lead.snapshot
+              ? "la secuencia pendiente"
+              : `«${campaigns.find((c) => c.id === choice.value)?.name}»`;
+            if (
+              !confirm(
+                `¿Activar ${sequence} para ${lead.name || "+" + lead.phone}? Se le enviarán mensajes de WhatsApp si no responde.`,
+              )
+            )
+              return;
+            const r = await api("activate", { id: lead.id, campaign_id: choice.value });
             await loadLeads();
             render();
+            error(`Activado. Próximo envío previsto: ${date(r?.due_at)}.`);
           },
           true,
         );
         activate.disabled = !lead.consent;
         actions.append(activate);
       }
+      if (lead.is_test && lead.state !== "opted_out")
+        actions.append(
+          button("Reiniciar prueba", async () => {
+            if (!confirm("¿Reiniciar el contacto de prueba? Se borrará su programación.")) return;
+            await api("reset_test_lead", { id: lead.id });
+            await loadLeads();
+            render();
+          }),
+        );
       row.append(actions);
       body.append(row);
     }
@@ -370,7 +452,7 @@
       note(
         parent,
         status
-          ? "No hay contactos con estos filtros. Sincroniza Airtable para importarlos sin activar envíos."
+          ? "No hay contactos con estos filtros. Pulsa Sincronizar Airtable para importarlos sin activar envíos."
           : "El módulo aún no está disponible en el servidor.",
       );
     const pages = el("div", undefined, "la-tools");
@@ -395,7 +477,7 @@
     language: "es_ES",
     variables: [],
     delay_days: 0,
-    time: "10:00",
+    time: "",
     weekdays: [1, 2, 3, 4, 5],
     only_if_no_reply: true,
   });
@@ -405,6 +487,16 @@
       parent,
       "Elige una plantilla de WhatsApp por mensaje, rellena sus campos y decide cuánto esperar. El primer paso cuenta desde la activación; los demás, desde el envío anterior.",
     );
+    if (!usableTemplates().length)
+      parent.append(
+        el(
+          "div",
+          templatesError
+            ? `No se pueden cargar las plantillas: ${templatesError}`
+            : "Todavía no hay plantillas aprobadas por Meta. Sin ellas no se puede guardar una secuencia.",
+          "la-banner",
+        ),
+      );
     parent.append(
       button("Usar ejemplo: 0, 2 y 5 días", async () => {
         if (
@@ -434,13 +526,21 @@
       card.append(
         el("strong", c.name),
         el("p", `${c.steps.length} pasos · ${c.active ? "Activa" : "Pausada"}`),
+        el("small", c.steps.map((s) => `${s.template} (${s.delay_days} d)`).join(" → ")),
         button("Editar como nueva versión", async () => {
           steps = structuredClone(c.steps);
           campaignName = c.name + " · nueva versión";
           campaignActive = false;
           render();
         }),
-        button(c.active ? "Pausar campaña" : "Activar campaña", async () => {
+        button("Duplicar", async () => {
+          steps = structuredClone(c.steps);
+          campaignName = c.name + " · copia";
+          campaignActive = false;
+          render();
+          error("Copia cargada abajo. Revísala y guárdala.");
+        }),
+        button(c.active ? "Pausar secuencia" : "Activar secuencia", async () => {
           await api("campaign_state", { id: c.id, active: !c.active });
           await load();
         }),
@@ -459,58 +559,96 @@
     const editor = el("div");
     steps.forEach((step, index) => {
       const card = el("div", undefined, "la-step");
-      card.append(el("h3", `Paso ${index + 1}`));
+      card.append(el("h3", `Mensaje ${index + 1}`));
       const grid = el("div", undefined, "la-form-grid");
-      for (const [key, label, type] of [
-        ["name", "Nombre", "text"],
-        ["template", "Plantilla aprobada de Meta", "text"],
-        ["language", "Idioma", "text"],
+      const nameInput = field(grid, "Nombre", "text", step.name);
+      nameInput.addEventListener("input", () => {
+        step.name = nameInput.value;
+        preview();
+      });
+      const usable = usableTemplates();
+      const current = `${step.template}|${step.language}`;
+      const options = usable.map((t) => [
+        `${t.name}|${t.language}`,
+        `${t.name} · ${t.language} · ${t.category || ""}`,
+      ]);
+      if (step.template && !options.some(([v]) => v === current))
+        options.unshift([current, `${step.template} · no disponible en Meta`]);
+      const templateInput = select(
+        grid,
+        "Plantilla aprobada de Meta",
+        [["", usable.length ? "Elige una plantilla" : "Sin plantillas aprobadas"], ...options],
+        step.template ? current : "",
+      );
+      templateInput.addEventListener("change", () => {
+        const [template, language] = templateInput.value.split("|");
+        const chosen = usable.find((t) => t.name === template && t.language === language);
+        step.template = template || "";
+        step.language = language || "es_ES";
+        step.variables = Array.from({ length: chosen?.parameters || 0 }, (_, i) => step.variables[i] || "");
+        render();
+      });
+      const delay = field(
+        grid,
+        index === 0 ? "Días desde la activación" : "Días desde el mensaje anterior",
+        "number",
+        step.delay_days,
+      );
+      delay.min = "0";
+      delay.max = "365";
+      delay.addEventListener("input", () => {
+        step.delay_days = Number(delay.value);
+        preview();
+      });
+      const whenInput = select(
+        grid,
+        "A qué hora (Madrid)",
         [
-          "delay_days",
-          index === 0 ? "Días desde la activación" : "Días desde el mensaje anterior",
-          "number",
+          ["", "En cuanto se pueda, dentro del horario"],
+          ["at", "A una hora concreta"],
         ],
-        ["time", "Hora de envío (Madrid)", "time"],
-      ]) {
-        const input = field(grid, label, type, step[key]);
-        if (type === "number") {
-          input.min = "0";
-          input.max = "365";
-        }
-        input.addEventListener("input", () => {
-          step[key] = type === "number" ? Number(input.value) : input.value;
+        step.time ? "at" : "",
+      );
+      whenInput.addEventListener("change", () => {
+        step.time = whenInput.value ? "10:00" : "";
+        render();
+      });
+      if (step.time) {
+        const timeInput = field(grid, "Hora de envío", "time", step.time);
+        timeInput.addEventListener("input", () => {
+          step.time = timeInput.value;
           preview();
         });
       }
+      const chosen = usable.find((t) => t.name === step.template && t.language === step.language);
+      if (chosen) card.append(el("p", `Texto: ${chosen.body}`, "la-note"));
       const variables = el("div");
       step.variables.forEach((value, parameter) => {
+        const preset = fieldOptions.some(([v]) => v === value);
+        const source = select(
+          variables,
+          `Campo {{${parameter + 1}}} del mensaje ${index + 1}`,
+          [...fieldOptions, ["", "Texto fijo"]],
+          preset ? value : "",
+        );
+        source.addEventListener("change", () => {
+          step.variables[parameter] = source.value;
+          render();
+        });
+        if (preset) return;
         const input = field(
           variables,
-          `Parámetro ${parameter + 1} del mensaje ${index + 1}`,
+          `Texto fijo del campo {{${parameter + 1}}}`,
           "text",
           value,
         );
-        input.placeholder = "Ej.: {{nombre}} o un texto fijo";
+        input.placeholder = "Escribe el texto";
         input.maxLength = 500;
         input.addEventListener("input", () => {
           step.variables[parameter] = input.value;
           preview();
         });
-        variables.append(
-          button(`Quitar parámetro ${parameter + 1} del mensaje ${index + 1}`, async () => {
-            step.variables.splice(parameter, 1);
-            render();
-          }),
-        );
       });
-      variables.append(
-        button("+ Añadir campo rellenable", async () => {
-          if (step.variables.length >= 20)
-            throw new Error("Cada mensaje admite hasta 20 parámetros");
-          step.variables.push("");
-          render();
-        }),
-      );
       grid.append(variables);
       note(
         card,
@@ -536,7 +674,17 @@
       });
       card.append(days);
       note(card, "Solo enviar si no ha respondido: obligatorio");
+      const move = (to) => async () => {
+        steps.splice(to, 0, steps.splice(index, 1)[0]);
+        render();
+      };
+      const up = button("Subir", move(index - 1));
+      up.disabled = index === 0;
+      const down = button("Bajar", move(index + 1));
+      down.disabled = index === steps.length - 1;
       card.append(
+        up,
+        down,
         button("Eliminar paso", async () => {
           steps.splice(index, 1);
           render();
@@ -559,19 +707,24 @@
         summary.append(
           el(
             "p",
-            `${i + 1}. ${s.name || s.template || "Plantilla pendiente"} · ${s.delay_days} días ${i === 0 ? "desde la activación" : `después del mensaje ${i}`} · ${s.time || "primera hora permitida"} (Madrid) · ${s.variables.join(" / ")}`,
+            `${i + 1}. ${s.name || s.template || "Plantilla pendiente"} · ${s.delay_days} días ${i === 0 ? "desde la activación" : `después del mensaje ${i}`} · ${s.time || "primera hora permitida"} (Madrid)${s.variables.length ? " · " + s.variables.join(" / ") : ""}`,
           ),
         ),
       );
     }
     preview();
-    note(
-      form,
-      "Calendario orientativo: los días y horarios permitidos, la separación mínima y el límite diario pueden aplazar cada envío. La fecha real aparece en Próximo envío del contacto.",
+    const dates = el("div", undefined, "la-preview");
+    form.append(
+      button("Calcular fechas", async () => {
+        const r = await api("preview_schedule", { steps });
+        dates.replaceChildren(el("strong", "Si activas un contacto ahora"));
+        r.items.forEach((at, i) => dates.append(el("p", `Mensaje ${i + 1}: ${date(at)}`)));
+      }),
+      dates,
     );
     note(
       form,
-      "Campos disponibles: {{nombre}}, {{telefono}}, {{email}}, {{origen}}. Añade un campo por cada hueco de la plantilla, en el mismo orden. El texto completo se configura en Meta. Consulta Ayuda para ver ejemplos.",
+      "Calendario orientativo: los días y horarios permitidos, la separación mínima y el límite diario pueden aplazar cada envío. La fecha real aparece en Próximo envío del contacto.",
     );
     form.append(
       button(
@@ -581,7 +734,7 @@
           if (!steps.length || steps.length > 20) throw new Error("Añade entre 1 y 20 mensajes");
           for (const [i, s] of steps.entries()) {
             if (!/^[a-z0-9_]{1,100}$/.test(s.template))
-              throw new Error(`Mensaje ${i + 1}: indica el nombre exacto de la plantilla aprobada`);
+              throw new Error(`Mensaje ${i + 1}: elige una plantilla aprobada`);
             if (!Number.isInteger(s.delay_days) || s.delay_days < 0 || s.delay_days > 365)
               throw new Error(
                 `Mensaje ${i + 1}: la espera debe ser un número entero entre 0 y 365 días`,
@@ -589,7 +742,7 @@
             if (!s.weekdays.length)
               throw new Error(`Mensaje ${i + 1}: selecciona al menos un día de envío`);
             if (s.variables.some((v) => !v.trim()))
-              throw new Error(`Mensaje ${i + 1}: rellena o elimina los parámetros vacíos`);
+              throw new Error(`Mensaje ${i + 1}: rellena todos los campos de la plantilla`);
           }
           await api("save_campaign", {
             campaign: { name: name.value, active: active.checked, steps },
@@ -598,6 +751,7 @@
           campaignName = "";
           campaignActive = false;
           await load();
+          error("Secuencia guardada. Ningún contacto se ha activado.");
         },
         true,
       ),
@@ -630,6 +784,11 @@
       chat,
       `+${lead.phone} · ${labels[lead.state]} · ${lead.consent ? "Consentimiento acreditado" : "Consentimiento pendiente"}`,
     );
+    if (lead.stop_text) note(chat, `Motivo: ${lead.stop_text}`);
+    for (const blocker of lead.blockers || []) note(chat, `Bloqueo: ${blocker}`);
+    const plan = el("div");
+    plan.id = "laPlan";
+    chat.append(plan);
     chat.append(
       button("Pausar seguimiento", async () => {
         await api("pause", { id: lead.id });
@@ -671,6 +830,7 @@
       async () => {
         if (!text.value.trim() && !template.value)
           throw new Error("Escribe un mensaje o selecciona una plantilla");
+        if (!confirm(`¿Enviar este mensaje a +${lead.phone}? La secuencia se pausará.`)) return;
         if (!manualDraft)
           manualDraft = {
             id: lead.id,
@@ -700,6 +860,19 @@
     const target = document.getElementById("laHistory");
     if (!target || conversation?.id !== id || view !== "Conversaciones") return;
     target.replaceChildren();
+    const plan = document.getElementById("laPlan");
+    if (plan) {
+      plan.replaceChildren();
+      if (r.jobs?.length) plan.append(el("strong", "Plan de envíos"));
+      for (const job of r.jobs || [])
+        plan.append(
+          el(
+            "p",
+            `${job.kind === "manual" ? "Manual" : `Mensaje ${job.step + 1}`} · ${job.template} · ${jobLabels[job.state] || job.state} · ${date(job.sent_at || job.due_at)}${job.error_text ? ` · ${job.error_text}` : ""}`,
+            "la-note",
+          ),
+        );
+    }
     if (!r.items.length)
       note(
         target,
@@ -713,7 +886,10 @@
       );
       card.append(
         el("div", message.body || message.kind),
-        el("small", `${date(message.at)} · ${message.status || message.kind}`),
+        el(
+          "small",
+          `${date(message.at)} · ${deliveryLabels[message.status] || message.status || message.kind}${message.error_text ? ` · ${message.error_text}` : ""}`,
+        ),
       );
       target.append(card);
     }
@@ -734,27 +910,77 @@
     if (status.airtable.error) note(card, status.airtable.error);
     note(
       card,
-      `WhatsApp Automanize: +34 694 20 60 79 · ${status.whatsapp.configured ? "canal vinculado en servidor" : "vinculación pendiente"}`,
+      `WhatsApp Automanize: +34 694 20 60 79 · ${status.whatsapp.configured ? "canal vinculado en servidor" : status.whatsapp.detail || "vinculación pendiente"}`,
     );
     note(
       card,
       `Contactos de prueba configurados: ${status.test_phones?.map((phone) => "+" + phone).join(", ") || "pendiente"} · ${status.test_only ? "modo exclusivo de pruebas" : "modo comercial"}`,
     );
-    note(
-      card,
-      "La existencia de credenciales no acredita la salud del canal ni la coexistencia. Su comprobación real se realiza antes del despliegue.",
-    );
-    const templates = el("div");
+    const health = el("div");
     card.append(
-      button("Consultar plantillas en Meta", async () => {
-        const r = await api("templates");
-        templates.replaceChildren();
-        for (const t of r.items)
-          templates.append(el("p", `${t.name} · ${t.language} · ${t.status}`));
+      button("Comprobar canal", async () => {
+        const r = await api("channel_check", undefined, "GET");
+        health.replaceChildren();
+        for (const item of r.items)
+          note(health, `${item.ok ? "Correcto" : "Bloqueado"} · ${item.label}: ${item.detail}`);
       }),
-      templates,
+      health,
+    );
+    const list = el("div");
+    card.append(
+      button("Ver plantillas de Meta", async () => {
+        await loadTemplates();
+        if (templatesError) throw new Error(templatesError);
+        list.replaceChildren();
+        if (!templates.length) note(list, "No hay ninguna plantilla en esta cuenta.");
+        for (const t of templates)
+          note(list, `${t.name} · ${t.language} · ${t.status} · ${t.parameters} campos`);
+      }),
+      list,
     );
     parent.append(card);
+    if (status.test_phones?.length) {
+      const test = el("div", undefined, "la-card");
+      test.append(el("h3", "Contacto de prueba"));
+      note(
+        test,
+        "Crea un contacto separado de Airtable, solo para números autorizados. Crearlo no envía nada.",
+      );
+      const grid = el("div", undefined, "la-form-grid");
+      const phone = select(
+        grid,
+        "Número autorizado",
+        status.test_phones.map((p) => [p, "+" + p]),
+        status.test_phones[0],
+      );
+      const testName = field(grid, "Nombre", "text", "Prueba");
+      const company = field(grid, "Empresa", "text", "Automanize");
+      const source = field(grid, "Origen", "text", "Prueba interna");
+      const evidence = field(grid, "Evidencia del consentimiento", "text");
+      evidence.placeholder = "Quién lo autorizó, cómo y cuándo";
+      test.append(
+        grid,
+        button(
+          "Crear contacto de prueba",
+          async () => {
+            await api("test_lead", {
+              phone: phone.value,
+              name: testName.value,
+              company: company.value,
+              source: source.value,
+              consent_evidence: evidence.value,
+            });
+            search = "";
+            filter = "";
+            page = 0;
+            await loadLeads();
+            error("Contacto de prueba listo. No se ha enviado nada.");
+          },
+          true,
+        ),
+      );
+      parent.append(test);
+    }
     const form = el("div", undefined, "la-card");
     form.append(el("h3", "Configuración de seguimiento"));
     const enabled = field(form, "Activación general", "checkbox");
@@ -773,15 +999,20 @@
         "number",
         cfg.min_gap_minutes,
       );
-    const weekdays = field(
-      grid,
-      "Días permitidos: 0 domingo, 1 lunes… 6 sábado",
-      "text",
-      cfg.weekdays.join(","),
-    );
+    const allowed = el("div", undefined, "la-tools");
+    const dayInputs = ["D", "L", "M", "X", "J", "V", "S"].map((label, d) => {
+      const wrap = el("label", label, "la-day"),
+        input = el("input");
+      input.type = "checkbox";
+      input.checked = cfg.weekdays.includes(d);
+      wrap.prepend(input);
+      allowed.append(wrap);
+      return input;
+    });
     const mapping = {};
     for (const [key, label] of Object.entries({
       name: "Nombre",
+      company: "Empresa",
       phone: "Teléfono",
       email: "Email",
       date: "Fecha de registro",
@@ -790,7 +1021,7 @@
       evidence: "Referencia / evidencia del consentimiento",
     }))
       mapping[key] = field(grid, `Columna de Airtable: ${label}`, "text", cfg.mapping[key] || "");
-    form.append(grid);
+    form.append(el("strong", "Días permitidos"), allowed, grid);
     note(
       form,
       "El formulario de Meta recoge la aceptación según lo indicado. Para activaciones se requiere vincular una casilla de consentimiento y una referencia verificable del formulario/registro. Los contactos existentes se importan sin envíos.",
@@ -799,6 +1030,12 @@
       button(
         "Guardar configuración",
         async () => {
+          if (
+            enabled.checked &&
+            !cfg.enabled &&
+            !confirm("¿Encender la activación general? Los contactos activados podrán recibir mensajes.")
+          )
+            return;
           const config = {
             enabled: enabled.checked,
             timezone: "Europe/Madrid",
@@ -806,11 +1043,12 @@
             end: end.value,
             daily_limit: Number(limit.value),
             min_gap_minutes: Number(gap.value),
-            weekdays: weekdays.value.split(",").map((v) => Number(v.trim())),
+            weekdays: dayInputs.flatMap((input, d) => (input.checked ? [d] : [])),
             mapping: Object.fromEntries(Object.entries(mapping).map(([k, n]) => [k, n.value])),
           };
           await api("save_config", { config });
           await load();
+          error("Configuración guardada.");
         },
         true,
       ),
@@ -823,10 +1061,29 @@
         const r = await api("errors");
         results.replaceChildren();
         if (!r.items.length) note(results, "Sin errores registrados");
-        for (const j of r.items)
+        for (const j of r.items) {
+          const contact = j.internal_leads_records;
           results.append(
-            el("p", `${date(j.created_at)} · ${j.state} · ${j.error_code || "—"} · ${j.id}`),
+            el(
+              "p",
+              `${date(j.created_at)} · ${contact?.name || "+" + contact?.phone} · ${j.error_text || j.error_code || "—"}`,
+            ),
+            button("No llegó: permitir reactivarlo", async () => {
+              if (!confirm("¿Confirmas que este mensaje NO llegó al contacto?")) return;
+              await api("resolve_job", { id: j.id, outcome: "not_sent" });
+              results.replaceChildren();
+              await load();
+              error("Revisado. Puedes reanudar el contacto desde Leads.");
+            }),
+            button("Sí llegó: continuar", async () => {
+              if (!confirm("¿Confirmas que este mensaje SÍ llegó al contacto?")) return;
+              await api("resolve_job", { id: j.id, outcome: "sent" });
+              results.replaceChildren();
+              await load();
+              error("Revisado. Puedes reanudar el contacto desde Leads.");
+            }),
           );
+        }
       }),
     );
     const results = el("div");
@@ -840,7 +1097,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261101";
+      link.href = "/assets/css/internal-leads.css?v=20261102";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {

@@ -13,7 +13,8 @@ test(
     });
     t.after(() => browser.close());
     const page = await browser.newPage({ viewport: { width: 1360, height: 1000 } });
-    const calls = [];
+    const calls = [],
+      dialogs = [];
     const config = {
       enabled: false,
       timezone: "Europe/Madrid",
@@ -37,9 +38,25 @@ test(
       name: '<img src=x onerror="window.xss=true">',
       phone: "34600000000",
       email: "demo@example.invalid",
-      state: "new",
+      state: "paused",
       consent: false,
+      blockers: ["Modo de pruebas: este número no está autorizado."],
+      stop_text: "Una persona intervino desde el móvil o Seendy. El seguimiento se detuvo.",
     };
+    const templates = ["saludo", "recordatorio", "cierre"].map((name, i) => ({
+      name,
+      language: "es_ES",
+      status: "APPROVED",
+      category: "MARKETING",
+      body: `Texto de ${name}`,
+      parameters: i === 0 ? 2 : 0,
+      supported: true,
+    }));
+    templates.push({ ...templates[1], name: "rechazada", status: "REJECTED" });
+    page.on("dialog", (dialog) => {
+      dialogs.push(dialog.message());
+      dialog.accept();
+    });
     await page.route("**/*", async (route) => {
       const req = route.request(),
         url = new URL(req.url());
@@ -57,7 +74,8 @@ test(
             ? {
                 config,
                 airtable: { configured: true },
-                whatsapp: { configured: false },
+                whatsapp: { configured: true },
+                test_phones: ["34600000000"],
                 auto_send_enabled: false,
                 test_only: true,
               }
@@ -67,7 +85,21 @@ test(
                 ? { items: [] }
                 : body.action === "events"
                   ? { items: [] }
-                  : {};
+                  : body.action === "templates"
+                    ? { items: templates }
+                    : body.action === "preview_schedule"
+                      ? { items: ["2026-11-03T09:00:00Z", "2026-11-05T08:00:00Z", "2026-11-10T08:00:00Z"] }
+                      : body.action === "channel_check"
+                        ? {
+                            items: [
+                              {
+                                label: "WhatsApp puede iniciar conversaciones",
+                                ok: false,
+                                detail: "Meta bloquea el envío por un problema con el método de pago.",
+                              },
+                            ],
+                          }
+                        : {};
         return route.fulfill({
           json: { ok: true, result },
           headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*" },
@@ -132,20 +164,26 @@ test(
         .evaluateAll((nodes) => nodes.map((n) => n.value)),
       ["2", "5"],
     );
-    await page.getByLabel("Plantilla aprobada de Meta", { exact: true }).nth(0).fill("saludo");
-    await page
-      .getByLabel("Plantilla aprobada de Meta", { exact: true })
-      .nth(1)
-      .fill("recordatorio");
-    await page.getByLabel("Plantilla aprobada de Meta", { exact: true }).nth(2).fill("cierre");
-    await page
-      .getByRole("button", { name: "+ Añadir campo rellenable", exact: true })
-      .first()
-      .click();
-    await page.getByLabel("Parámetro 1 del mensaje 1", { exact: true }).fill("Hola {{nombre}}");
+    const templateSelect = (i) =>
+      page.getByLabel("Plantilla aprobada de Meta", { exact: true }).nth(i);
+    assert.equal(await templateSelect(0).locator('option[value^="rechazada"]').count(), 0);
+    await templateSelect(0).selectOption("saludo|es_ES");
+    await templateSelect(1).selectOption("recordatorio|es_ES");
+    await templateSelect(2).selectOption("cierre|es_ES");
+    assert.ok(await page.getByText("Texto: Texto de saludo").count());
+    await page.getByLabel("Texto fijo del campo {{2}}", { exact: true }).fill("Automanize");
+    await page.getByLabel("Campo {{1}} del mensaje 1", { exact: true }).selectOption("{{nombre}}");
     assert.ok(
-      (await page.locator(".la-preview").textContent()).includes("5 días después del mensaje 2"),
+      (await page.locator(".la-preview").first().textContent()).includes(
+        "5 días después del mensaje 2",
+      ),
     );
+    await page.getByRole("button", { name: "Bajar", exact: true }).first().click();
+    assert.equal(await templateSelect(0).inputValue(), "recordatorio|es_ES");
+    await page.getByRole("button", { name: "Subir", exact: true }).nth(1).click();
+    assert.equal(await templateSelect(0).inputValue(), "saludo|es_ES");
+    await page.getByRole("button", { name: "Calcular fechas", exact: true }).click();
+    await page.getByText("Si activas un contacto ahora").waitFor();
     await page.getByLabel("Nombre de la secuencia", { exact: true }).fill("Seguimiento de prueba");
     if (process.env.LEADS_SCREENSHOT_PREFIX)
       await page.screenshot({
@@ -159,7 +197,8 @@ test(
       saved.steps.map((s) => s.delay_days),
       [0, 2, 5],
     );
-    assert.deepEqual(saved.steps[0].variables, ["Hola {{nombre}}"]);
+    assert.deepEqual(saved.steps[0].variables, ["{{nombre}}", "Automanize"]);
+    assert.equal(saved.steps[0].time, "");
     assert.equal(saved.active, false);
     await page.getByRole("button", { name: "Secuencias", exact: true }).click();
     await page.getByLabel("Nombre de la secuencia", { exact: true }).fill("Mi campaña");
@@ -169,6 +208,8 @@ test(
       "Mi campaña",
     );
     await page.getByRole("button", { name: "Leads", exact: true }).click();
+    assert.ok(await page.getByText("Modo de pruebas: este número no está autorizado.").count());
+    assert.ok(await page.getByText("Una persona intervino", { exact: false }).count());
     await page.getByRole("checkbox").check();
     await page.getByRole("button", { name: "Pausar seleccionados" }).click();
     await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
@@ -178,6 +219,16 @@ test(
       await page.getByLabel("Columna de Airtable: Nombre", { exact: true }).inputValue(),
       "NOMBRE",
     );
+    await page.getByRole("button", { name: "Comprobar canal", exact: true }).click();
+    await page.getByText("método de pago", { exact: false }).waitFor();
+    await page
+      .getByLabel("Evidencia del consentimiento", { exact: true })
+      .fill("Autorización del titular");
+    await page.getByRole("button", { name: "Crear contacto de prueba", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    const created = calls.find((c) => c.action === "test_lead");
+    assert.equal(created.phone, "34600000000");
+    assert.equal(created.consent_evidence, "Autorización del titular");
     await page.setViewportSize({ width: 390, height: 844 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
     if (process.env.LEADS_SCREENSHOT)

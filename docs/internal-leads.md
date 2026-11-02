@@ -113,3 +113,21 @@ todavía no hay canal vinculado a este tenant ni envíos reales. Una vez conecta
 vincular **este** tenant/phone ID al módulo y verificar canal/plantillas antes de
 habilitar exclusivamente el destinatario de prueba autorizado. El panel interno
 sigue requiriendo la sesión interna de Automanize; esta cuenta no la reemplaza.
+
+## Canal dedicado y editor con plantillas (02/11/2026)
+
+**Estado: código preparado, sin desplegar.** Requiere antes el backend de la rama
+`feat/leads-canal-seendy` (nuevo formato de `templates`). El canal es el de Seendy/Vault;
+sustituye lo anterior sobre vincular `tenants`.
+
+Editor: selector solo con plantillas APPROVED y compatibles, texto de la plantilla, un
+campo por hueco (nombre, empresa, origen, teléfono, email o texto fijo), «en cuanto se
+pueda» u hora concreta, subir/bajar/eliminar pasos, duplicar secuencia y «Calcular fechas»
+con el cálculo real del servidor. Leads y Conversaciones muestran motivo de parada,
+bloqueos por contacto y plan de envíos. Configuración añade Comprobar canal, contacto de
+prueba, días con casillas y revisión de envíos con error. Confirmación antes de activar,
+enviar a mano, encender la activación general y resolver un envío. Ayuda ampliada.
+
+Sin claves ni datos nuevos en el navegador; render con textContent. Validación:
+`tests/internal-leads.test.cjs` y `tests/internal-leads-browser.test.cjs` en Chrome real con
+datos sintéticos. No equivale a una prueba de entrega de WhatsApp.
