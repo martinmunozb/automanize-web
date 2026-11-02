@@ -164,6 +164,7 @@
       templatesError = e.message;
     }
   }
+  const isAssignable = (c) => !status?.config.blocked_campaign_ids?.includes(c.id);
   const usableTemplates = () => templates.filter((t) => t.status === "APPROVED" && t.supported);
   async function load() {
     [status, { items: campaigns }] = await Promise.all([api("status"), api("campaigns")]);
@@ -254,7 +255,7 @@
       ],
       [
         "Cómo cambiar una secuencia",
-        "Editar crea una versión nueva y Duplicar crea una copia. Los contactos ya activados mantienen sus mensajes y esperas originales, también si apagas un mensaje en la versión nueva. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. La revisión diaria sigue usando la versión elegida en Configuración hasta que la cambies. Pausar una secuencia bloquea sus envíos.",
+        "Editar crea una versión nueva y Duplicar crea una copia. Los contactos ya activados mantienen sus mensajes y esperas originales, también si apagas un mensaje en la versión nueva. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. La revisión diaria sigue usando la versión elegida en Configuración hasta que la cambies. Pausar una secuencia bloquea sus envíos. No permitir asignar solo impide ponérsela a contactos nuevos: quien ya la tiene sigue.",
       ],
       [
         "Prueba con tu número",
@@ -321,6 +322,14 @@
         true,
       ),
     );
+    const { base, table: airtableTable, view: airtableView } = status?.airtable || {};
+    if (base && airtableTable) {
+      const link = el("a", "Ir a Airtable", "btn btn-sm btn-ghost");
+      link.href = `https://airtable.com/${[base, airtableTable, airtableView].filter(Boolean).map(encodeURIComponent).join("/")}`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      tools.append(link);
+    }
     parent.append(tools);
     parent.append(
       button("Pausar seleccionados", async () => {
@@ -407,7 +416,10 @@
         const choice = select(
           actions,
           "Secuencia",
-          [["", "Seleccionar"], ...campaigns.filter((c) => c.active).map((c) => [c.id, c.name])],
+          [
+            ["", "Seleccionar"],
+            ...campaigns.filter((c) => c.active && isAssignable(c)).map((c) => [c.id, c.name]),
+          ],
           lead.campaign_id || "",
         );
         let startChoice;
@@ -605,7 +617,7 @@
       const card = el("div", undefined, "la-card");
       card.append(
         el("strong", c.name),
-        el("p", `${c.steps.filter((s) => s.enabled !== false).length} pasos · ${c.active ? "Activa" : "Pausada"}`),
+        el("p", `${c.steps.filter((s) => s.enabled !== false).length} pasos · ${c.active ? "Activa" : "Pausada"} · ${isAssignable(c) ? "Se puede asignar" : "No se puede asignar"}`),
         el(
           "small",
           c.steps
@@ -628,6 +640,10 @@
           campaignActive = false;
           render();
           error("Copia cargada abajo. Revísala y guárdala.");
+        }),
+        button(isAssignable(c) ? "No permitir asignar" : "Permitir asignar", async () => {
+          await api("campaign_assignable", { id: c.id, assignable: !isAssignable(c) });
+          await load();
         }),
         button(c.active ? "Pausar secuencia" : "Activar secuencia", async () => {
           await api("campaign_state", { id: c.id, active: !c.active });
@@ -1104,7 +1120,7 @@
       [
         ["", "Elige una secuencia"],
         ...campaigns
-          .filter((c) => c.active || c.id === cfg.auto_campaign_id)
+          .filter((c) => (c.active && isAssignable(c)) || c.id === cfg.auto_campaign_id)
           .map((c) => [c.id, `${c.name}${c.active ? "" : " · pausada"}`]),
       ],
       cfg.auto_campaign_id || "",

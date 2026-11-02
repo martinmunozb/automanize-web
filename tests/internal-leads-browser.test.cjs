@@ -53,6 +53,8 @@ test(
         { name: "Tercero", template: "cierre", language: "es_ES", variables: [], delay_days: 2, weekdays: [1] },
       ],
     };
+    const blockedCampaign = { ...campaign, id: "00000000-0000-0000-0000-00000000000d", name: "Bloqueada" };
+    config.blocked_campaign_ids = [blockedCampaign.id];
     const templates = ["saludo", "recordatorio", "cierre"].map((name, i) => ({
       name,
       language: "es_ES",
@@ -83,7 +85,7 @@ test(
           body.action === "status"
             ? {
                 config,
-                airtable: { configured: true },
+                airtable: { configured: true, base: "appBase", table: "tblTabla", view: "viwVista" },
                 whatsapp: { configured: true },
                 test_phones: ["34600000000"],
                 auto_send_enabled: false,
@@ -92,7 +94,7 @@ test(
             : body.action === "list"
               ? { items: [lead], total: 1 }
               : body.action === "campaigns"
-                ? { items: [campaign] }
+                ? { items: [campaign, blockedCampaign] }
                 : body.action === "events"
                   ? { items: [] }
                   : body.action === "templates"
@@ -243,7 +245,21 @@ test(
       await page.getByLabel("Nombre de la secuencia", { exact: true }).inputValue(),
       "Mi campaña",
     );
+    await page.getByRole("button", { name: "No permitir asignar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    const assignable = calls.find((c) => c.action === "campaign_assignable");
+    assert.equal(assignable.id, campaign.id);
+    assert.equal(assignable.assignable, false);
+    assert.ok(await page.getByRole("button", { name: "Permitir asignar", exact: true }).count());
     await page.getByRole("button", { name: "Leads", exact: true }).click();
+    const airtable = page.getByRole("link", { name: "Ir a Airtable", exact: true });
+    assert.equal(await airtable.getAttribute("href"), "https://airtable.com/appBase/tblTabla/viwVista");
+    assert.equal(await airtable.getAttribute("target"), "_blank");
+    assert.equal(
+      await page.getByLabel("Secuencia", { exact: true }).locator(`option[value="${blockedCampaign.id}"]`).count(),
+      0,
+      "Una secuencia no asignable no se ofrece",
+    );
     assert.ok(await page.getByText("Modo de pruebas: este número no está autorizado.").count());
     assert.ok(await page.getByText("Una persona intervino", { exact: false }).count());
     await page.getByLabel("Secuencia", { exact: true }).selectOption(campaign.id);
@@ -270,6 +286,10 @@ test(
     assert.equal(
       await page.getByLabel("Hora de la revisión (Madrid)", { exact: true }).inputValue(),
       "10:00",
+    );
+    assert.equal(
+      await page.getByLabel("Secuencia de la revisión", { exact: true }).locator(`option[value="${blockedCampaign.id}"]`).count(),
+      0,
     );
     await page.getByLabel("Secuencia de la revisión", { exact: true }).selectOption(campaign.id);
     if (process.env.LEADS_SCREENSHOT_PREFIX)
