@@ -251,3 +251,8 @@
     font-size: 20px;
   }
 }
+
+#internalLeadsRoot .la-state + small,
+#internalLeadsRoot td small {
+  display: block;
+}
