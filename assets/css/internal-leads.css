@@ -366,6 +366,9 @@
   max-width: 360px;
   white-space: normal;
 }
+#internalLeadsRoot td.la-long-cell {
+  min-width: 280px;
+}
 #internalLeadsRoot .la-long {
   display: -webkit-box;
   overflow: hidden;

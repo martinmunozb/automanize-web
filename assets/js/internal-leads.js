@@ -27,6 +27,18 @@
     uncertain: "Por revisar",
     error: "Error",
   };
+  // Orden de la pestaña Plantillas: primero lo que aún requiere atención.
+  const templateStates = {
+    PENDING: ["En revisión de Meta", "yellow", 0],
+    IN_APPEAL: ["En apelación", "yellow", 0],
+    REJECTED: ["Rechazada", "red", 1],
+    PAUSED: ["Pausada", "orange", 2],
+    LIMIT_EXCEEDED: ["Límite superado", "orange", 2],
+    DISABLED: ["Desactivada", "gray", 3],
+    PENDING_DELETION: ["Eliminándose", "gray", 3],
+    APPROVED: ["Aprobada", "green", 4],
+  };
+  const templateState = (t) => templateStates[t.status] || [t.status, "gray", 3];
   const fieldOptions = [
     ["{{nombre}}", "Nombre del contacto"],
     ["{{empresa}}", "Empresa"],
@@ -45,6 +57,7 @@
     campaigns = [],
     templates = [],
     templatesError = "",
+    templatesCheckedAt = 0,
     total = 0,
     page = 0,
     search = "",
@@ -163,6 +176,7 @@
     }
     try {
       templates = (await api("templates", undefined, "GET")).items;
+      templatesCheckedAt = Date.now();
     } catch (e) {
       templatesError = e.message;
     }
@@ -195,9 +209,10 @@
     );
     root.append(banner);
     const tabs = el("div", undefined, "la-tabs");
-    for (const name of ["Leads", "Secuencias", "Conversaciones", "Configuración", "Ayuda"]) {
+    for (const name of ["Leads", "Secuencias", "Plantillas", "Conversaciones", "Configuración", "Ayuda"]) {
       const b = button(name, async () => {
         view = name;
+        if (name === "Plantillas") await loadTemplates();
         render();
       });
       if (view === name) b.classList.add("active");
@@ -216,6 +231,7 @@
     const content = shell();
     if (view === "Leads") renderLeads(content);
     else if (view === "Secuencias") renderCampaigns(content);
+    else if (view === "Plantillas") renderTemplates(content);
     else if (view === "Conversaciones") renderInbox(content);
     else if (view === "Ayuda") renderHelp(content);
     else renderConfig(content);
@@ -436,6 +452,18 @@
       el("small", days === 0 ? "Hoy" : days === 1 ? "Ayer" : days > 1 ? `Hace ${days} días` : ""),
     );
   };
+  const longText = (td, value) => {
+    const text = el("div", String(value), "la-long");
+    td.classList.add("la-long-cell");
+    td.append(text);
+    if (String(value).length <= 120) return;
+    const more = el("button", "Ver todo", "la-more");
+    more.type = "button";
+    more.addEventListener("click", () => {
+      more.textContent = text.classList.toggle("open") ? "Ver menos" : "Ver todo";
+    });
+    td.append(more);
+  };
   const airtableCell = (column, value) => {
     const td = el("td");
     const blank = value === undefined || value === null || value === "";
@@ -454,19 +482,9 @@
     else if (column.type === "url") {
       const href = safeUrl(value);
       td.append(href ? cellLink("Abrir enlace", href, true) : el("span", String(value)));
-    } else if (column.type === "multilineText" || String(value).length > 120) {
-      const text = el("div", String(value), "la-long");
-      td.classList.add("la-long-cell");
-      td.append(text);
-      if (String(value).length > 120) {
-        const more = el("button", "Ver todo", "la-more");
-        more.type = "button";
-        more.addEventListener("click", () => {
-          more.textContent = text.classList.toggle("open") ? "Ver menos" : "Ver todo";
-        });
-        td.append(more);
-      }
-    } else td.textContent = Array.isArray(value) ? value.join(", ") : String(value);
+    } else if (column.type === "multilineText" || String(value).length > 120)
+      longText(td, value);
+    else td.textContent = Array.isArray(value) ? value.join(", ") : String(value);
     return td;
   };
   const airtableFields = (lead) => {
@@ -737,6 +755,61 @@
     next.disabled = (page + 1) * 50 >= total;
     pages.append(prev, el("span", `Página ${page + 1} · 50 contactos por página`), next);
     parent.append(pages);
+  }
+  function renderTemplates(parent) {
+    const tools = el("div", undefined, "la-tools");
+    tools.append(
+      button("Comprobar ahora", async () => {
+        await loadTemplates();
+        render();
+      }),
+    );
+    parent.append(tools);
+    if (templatesError) return note(parent, templatesError);
+    const pending = templates.filter((t) => templateState(t)[2] === 0).length;
+    const approved = templates.filter((t) => t.status === "APPROVED").length;
+    note(
+      parent,
+      `${pending} en revisión · ${approved} aprobadas · Última comprobación en Meta: ${date(templatesCheckedAt)}.${pending ? " Mientras haya alguna en revisión se comprueba cada minuto con esta pestaña abierta." : ""}`,
+    );
+    if (!templates.length) return note(parent, "Todavía no hay plantillas en esta cuenta de WhatsApp.");
+    const wrap = el("div", undefined, "la-table-wrap"),
+      table = el("table"),
+      head = el("tr"),
+      thead = el("thead"),
+      body = el("tbody");
+    for (const name of ["Estado", "Plantilla", "Categoría", "Texto", "Secuencias que la usan"])
+      head.append(el("th", name));
+    thead.append(head);
+    table.append(thead);
+    const ordered = [...templates].sort(
+      (a, b) => templateState(a)[2] - templateState(b)[2] || a.name.localeCompare(b.name),
+    );
+    for (const t of ordered) {
+      const row = el("tr"),
+        [label, color] = templateState(t),
+        stateCell = el("td"),
+        nameCell = el("td"),
+        textCell = el("td");
+      stateCell.append(el("span", label, `la-chip la-chip-${color}`));
+      if (t.rejected_reason) stateCell.append(el("small", `Motivo de Meta: ${t.rejected_reason}`));
+      nameCell.append(el("strong", t.name), el("small", t.language));
+      longText(textCell, t.body || "—");
+      const used = campaigns
+        .filter((c) => c.steps?.some((s) => s.template === t.name && s.language === t.language))
+        .map((c) => c.name);
+      row.append(
+        stateCell,
+        nameCell,
+        el("td", t.category || "—"),
+        textCell,
+        el("td", used.join(", ") || "—"),
+      );
+      body.append(row);
+    }
+    table.append(body);
+    wrap.append(table);
+    parent.append(wrap);
   }
   const newStep = () => ({
     name: "",
@@ -1486,7 +1559,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261103b";
+      link.href = "/assets/css/internal-leads.css?v=20261103c";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
@@ -1503,6 +1576,18 @@
       }
     });
     refreshTimer = setInterval(() => {
+      if (
+        view === "Plantillas" &&
+        !document.hidden &&
+        root.closest(".section.active") &&
+        !busy &&
+        Date.now() - templatesCheckedAt >= 60000 &&
+        templates.some((t) => templateState(t)[2] === 0)
+      )
+        return run(async () => {
+          await loadTemplates();
+          render();
+        });
       if (
         document.hidden ||
         !root.closest(".section.active") ||
