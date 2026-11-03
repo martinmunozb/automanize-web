@@ -35,6 +35,7 @@ test(
     };
     const lead = {
       id: "00000000-0000-0000-0000-000000000001",
+      airtable_id: "rec1",
       name: '<img src=x onerror="window.xss=true">',
       phone: "34600000000",
       email: "demo@example.invalid",
@@ -110,6 +111,32 @@ test(
                 auto_send_enabled: false,
                 test_only: true,
               }
+            : body.action === "airtable"
+              ? {
+                  columns: [
+                    { name: "FECHA REGISTRO", type: "date" },
+                    { name: "NOMBRE", type: "singleLineText" },
+                    {
+                      name: "SITUACION",
+                      type: "singleSelect",
+                      choices: [{ name: "GESTOR", color: "blueLight2" }],
+                    },
+                    { name: "COMENTARIOS", type: "multilineText" },
+                    { name: "LLAMADA", type: "url" },
+                    { name: "OTRA LLAMADA", type: "url" },
+                  ],
+                  records: {
+                    rec1: {
+                      "FECHA REGISTRO": "2026-11-02",
+                      NOMBRE: '<img src=x onerror="window.xssAirtable=true">',
+                      SITUACION: "GESTOR",
+                      COMENTARIOS: "Comentario largo ".repeat(20),
+                      LLAMADA: "javascript:window.xssAirtable=true",
+                      "OTRA LLAMADA": "https://example.invalid/llamada",
+                    },
+                  },
+                  not_imported: ["fila-rechazada"],
+                }
             : body.action === "metrics"
               ? metrics
               : body.action === "list"
@@ -167,6 +194,23 @@ test(
       "La prueba debe cargar el CSS real del módulo",
     );
     assert.equal(await page.locator("tbody tr").count(), 1);
+    assert.ok(await page.locator("th", { hasText: "SITUACION" }).count());
+    assert.ok(await page.locator(".la-chip-blue", { hasText: "GESTOR" }).count());
+    assert.ok(await page.getByText("Sin importar por teléfono o duplicado: fila-rechazada.").count());
+    assert.equal(await page.evaluate(() => window.xssAirtable), undefined);
+    assert.equal(await page.locator("a[href^='javascript:']").count(), 0);
+    assert.equal(
+      await page.getByRole("link", { name: "Abrir enlace" }).getAttribute("href"),
+      "https://example.invalid/llamada",
+    );
+    await page.getByRole("button", { name: "Ver todo" }).click();
+    assert.ok(await page.getByRole("button", { name: "Ver menos" }).count());
+    await page.getByRole("button", { name: "Plantillas", exact: true }).click();
+    await page.locator(".la-chip-red", { hasText: "Rechazada" }).waitFor();
+    assert.equal(await page.locator("tbody tr").first().locator(".la-chip-red").count(), 1);
+    assert.ok(await page.getByRole("cell", { name: "Seguimiento, Bloqueada" }).count());
+    await page.getByRole("button", { name: "Leads", exact: true }).click();
+    await page.getByRole("button", { name: "Automatización", exact: true }).click();
     assert.ok(await page.getByText("En qué fase está cada contacto").count());
     assert.ok(await page.getByText("Mensaje 2: Seguimiento").count());
     assert.ok(await page.getByRole("cell", { name: "No", exact: true }).count());
