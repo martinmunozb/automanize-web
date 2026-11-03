@@ -1,7 +1,7 @@
 {
   "id": "crm-leads-columnas-plantillas-20261103",
   "createdAt": "2026-11-03T17:00:00.000Z",
-  "sourceCommit": "0fc2f1f",
+  "sourceCommit": "aa1c888",
   "entry": "assets/renderer-web-CwN8zttl.js",
   "documents": [
     "seendy.html"
@@ -405,11 +405,11 @@
     },
     {
       "path": "leads/internal-leads.js",
-      "sha256": "de02917576ba26b91ddf198ae7ccf6d3a82f43f34c0badc6ab811150b0ac9b84"
+      "sha256": "e8233959606ab3dbff343c210479ee53ddc6e46ceeb10c05b00816586c277b6d"
     },
     {
       "path": "leads/leads.html",
-      "sha256": "3162fb00b95600a54bf53e57d8706b9b24f6764d5f47499c537bc2a99a44e742"
+      "sha256": "bfe9bdd7cf6de02ff18c1e1a1e69d00221432637cc6e601f1f3193eb813909f3"
     },
     {
       "path": "seendy.html",
