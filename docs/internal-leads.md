@@ -133,3 +133,12 @@ enviar a mano, encender la activación general y resolver un envío. Ayuda ampli
 Sin claves ni datos nuevos en el navegador; render con textContent. Validación:
 `tests/internal-leads.test.cjs` y `tests/internal-leads-browser.test.cjs` en Chrome real con
 datos sintéticos. No equivale a una prueba de entrega de WhatsApp.
+
+## Ramas por respuesta y revisión diaria (02/11/2026)
+
+Secuencias: cada mensaje tiene el bloque «Si contesta» con interruptor y plantilla, y
+del segundo en adelante el interruptor «Enviar si no contesta al mensaje anterior». Leads:
+selector «Empezar en» para activar a mano por un paso concreto. Configuración: revisión
+diaria con interruptor, hora y secuencia. Reglas, contrato y orden de despliegue en
+`docs/internal-leads.md` del backend. Requiere la migración 023; **sin desplegar**.
+Validación: `node --test tests/internal-leads-browser.test.cjs` con Chromium real.

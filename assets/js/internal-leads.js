@@ -27,6 +27,18 @@
     uncertain: "Por revisar",
     error: "Error",
   };
+  // Orden de la pestaña Plantillas: primero lo que aún requiere atención.
+  const templateStates = {
+    PENDING: ["En revisión de Meta", "yellow", 0],
+    IN_APPEAL: ["En apelación", "yellow", 0],
+    REJECTED: ["Rechazada", "red", 1],
+    PAUSED: ["Pausada", "orange", 2],
+    LIMIT_EXCEEDED: ["Límite superado", "orange", 2],
+    DISABLED: ["Desactivada", "gray", 3],
+    PENDING_DELETION: ["Eliminándose", "gray", 3],
+    APPROVED: ["Aprobada", "green", 4],
+  };
+  const templateState = (t) => templateStates[t.status] || [t.status, "gray", 3];
   const fieldOptions = [
     ["{{nombre}}", "Nombre del contacto"],
     ["{{empresa}}", "Empresa"],
@@ -38,10 +50,14 @@
     root,
     view = "Leads",
     status = null,
+    metrics = null,
+    airtable = null,
+    leadsMode = "Airtable",
     leads = [],
     campaigns = [],
     templates = [],
     templatesError = "",
+    templatesCheckedAt = 0,
     total = 0,
     page = 0,
     search = "",
@@ -160,13 +176,18 @@
     }
     try {
       templates = (await api("templates", undefined, "GET")).items;
+      templatesCheckedAt = Date.now();
     } catch (e) {
       templatesError = e.message;
     }
   }
+  const isAssignable = (c) => !status?.config.blocked_campaign_ids?.includes(c.id);
   const usableTemplates = () => templates.filter((t) => t.status === "APPROVED" && t.supported);
   async function load() {
     [status, { items: campaigns }] = await Promise.all([api("status"), api("campaigns")]);
+    metrics = await api("metrics", undefined, "GET").catch(() => null);
+    airtable = await api("airtable", undefined, "GET").catch(() => null);
+    if (!airtable?.columns?.length) airtable = null;
     await Promise.all([loadLeads(), loadTemplates()]);
     render();
   }
@@ -189,9 +210,10 @@
     );
     root.append(banner);
     const tabs = el("div", undefined, "la-tabs");
-    for (const name of ["Leads", "Secuencias", "Conversaciones", "Configuración", "Ayuda"]) {
+    for (const name of ["Leads", "Secuencias", "Plantillas", "Conversaciones", "Configuración", "Ayuda"]) {
       const b = button(name, async () => {
         view = name;
+        if (name === "Plantillas") await loadTemplates();
         render();
       });
       if (view === name) b.classList.add("active");
@@ -210,6 +232,7 @@
     const content = shell();
     if (view === "Leads") renderLeads(content);
     else if (view === "Secuencias") renderCampaigns(content);
+    else if (view === "Plantillas") renderTemplates(content);
     else if (view === "Conversaciones") renderInbox(content);
     else if (view === "Ayuda") renderHelp(content);
     else renderConfig(content);
@@ -218,11 +241,11 @@
     const sections = [
       [
         "Cómo funciona",
-        "1. Importa los contactos desde Airtable. 2. Crea una secuencia con los mensajes y sus esperas. 3. Actívala para cada contacto con consentimiento acreditado. Importar o guardar una secuencia no envía mensajes por sí solo.",
+        "1. Los contactos se importan desde Airtable. 2. Crea una secuencia: qué se envía si no contesta y qué se envía si contesta. 3. Enciende la revisión diaria en Configuración para que los contactos nuevos con consentimiento reciban el primer mensaje a la hora elegida, o actívalos a mano desde Leads. Importar o guardar una secuencia no envía mensajes por sí solo.",
       ],
       [
         "Cómo importar leads",
-        "En Leads, pulsa Sincronizar Airtable. También se hace solo cada 15 minutos. Los contactos entran como Nuevo y nunca se activan automáticamente. Si una fila tiene el teléfono mal o repetido, se avisa y las demás se importan igualmente.",
+        "En Leads, pulsa Sincronizar Airtable. También se hace solo cada 15 minutos. Los contactos entran como Nuevo; solo la revisión diaria, si está encendida, activa a los que entraron después de encenderla. Si una fila tiene el teléfono mal o repetido, se avisa y las demás se importan igualmente.",
       ],
       [
         "Cómo crear una secuencia",
@@ -230,7 +253,7 @@
       ],
       [
         "Cómo activar o pausar un contacto",
-        "En Leads, elige la secuencia en la fila del contacto y pulsa Activar; el panel pide confirmación y te dice cuándo saldrá el primer mensaje. Pausar cancela lo programado. Reanudar continúa por el mensaje pendiente sin repetir los ya enviados.",
+        "En Leads, elige la secuencia y el paso por el que empieza el contacto, y pulsa Activar; el panel pide confirmación y te dice cuándo saldrá el mensaje. Si eliges un paso posterior, sale en el primer momento permitido y no se envían los anteriores. Pausar cancela lo programado. Reanudar continúa por el mensaje pendiente sin repetir los ya enviados.",
       ],
       [
         "Cuándo sale cada mensaje",
@@ -238,7 +261,7 @@
       ],
       [
         "Qué pasa si el cliente responde",
-        "Se cancelan todos los mensajes pendientes y el contacto queda como Respondido, con el motivo visible. Lo mismo ocurre si pide la baja, que además impide volver a escribirle. Si una persona le escribe desde el móvil o desde Seendy, la secuencia también se detiene y no se reanuda sola.",
+        "Se cancelan los mensajes siguientes y el contacto queda como Respondido, con el motivo visible. Si ese mensaje tiene activado Si contesta, se le envía esa plantilla una sola vez: al momento o, fuera de horario, al abrir el siguiente. Después sigue una persona. Cualquier respuesta cuenta, también un «no me interesa», salvo una baja: esta lo detiene todo e impide volver a escribirle. Si una persona le escribe desde el móvil o desde Seendy, la secuencia se detiene y no se reanuda sola, y el mensaje de Si contesta pendiente ya no sale.",
       ],
       [
         "Cómo comprobar si se envió un mensaje",
@@ -254,7 +277,7 @@
       ],
       [
         "Cómo cambiar una secuencia",
-        "Editar crea una versión nueva y Duplicar crea una copia. Los contactos ya activados mantienen sus mensajes y esperas originales. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. Pausar una secuencia bloquea sus envíos.",
+        "Editar crea una versión nueva y Duplicar crea una copia. Los contactos ya activados mantienen sus mensajes y esperas originales, también si apagas un mensaje en la versión nueva. Activar una versión permite seleccionarla para nuevos contactos; no activa contactos ni habilita el envío general. La revisión diaria sigue usando la versión elegida en Configuración hasta que la cambies. Pausar una secuencia bloquea sus envíos. No permitir asignar solo impide ponérsela a contactos nuevos: quien ya la tiene sigue.",
       ],
       [
         "Prueba con tu número",
@@ -284,19 +307,195 @@
       ),
     );
   }
-  function renderLeads(parent) {
+  const stateOrder = ["new", "pending", "active", "responded", "finished", "paused", "error", "opted_out"];
+  const barRow = (name, bars, max) => {
+    const row = el("div", undefined, "la-bar-row");
+    row.append(el("span", name, "la-bar-name"));
+    const marks = el("div", undefined, "la-bar-marks");
+    for (const { value, series, label } of bars) {
+      const line = el("div", undefined, "la-bar-line");
+      const mark = el("span", undefined, `la-bar la-bar-${series}`);
+      mark.style.width = `${max ? (value / max) * 100 : 0}%`;
+      line.title = `${label}: ${value}`;
+      line.append(mark, el("span", String(value), "la-bar-value"));
+      marks.append(line);
+    }
+    row.append(marks);
+    return row;
+  };
+  function renderSummary(parent) {
     const stats = el("div", undefined, "la-stats");
-    for (const [label, value] of [
-      ["Total filtrado", total],
-      ["Activos en página", leads.filter((l) => l.state === "active").length],
-      ["Respondidos en página", leads.filter((l) => l.state === "responded").length],
-      ["Sin consentimiento en página", leads.filter((l) => !l.consent).length],
-    ]) {
+    const share = (n, of) => (of ? ` · ${Math.round((n / of) * 100)} %` : "");
+    for (const [label, value, detail] of metrics
+      ? [
+          ["Contactos", metrics.total, `${metrics.without_consent} sin consentimiento`],
+          ["Contactados", metrics.contacted, `${metrics.pending} envíos programados`],
+          [
+            "Han contestado",
+            metrics.replied,
+            `${metrics.replied_after_message} tras un mensaje${share(metrics.replied_after_message, metrics.contacted)}`,
+          ],
+          ["Por revisar", metrics.to_review, `Bajas: ${metrics.by_state.opted_out || 0}`],
+        ]
+      : [["Total filtrado", total, "Resumen no disponible"]]) {
       const card = el("div", undefined, "stat-card");
-      card.append(el("div", label, "stat-label"), el("div", String(value), "stat-value"));
+      card.append(
+        el("div", label, "stat-label"),
+        el("div", String(value), "stat-value"),
+        el("small", detail),
+      );
       stats.append(card);
     }
     parent.append(stats);
+    if (!metrics) return;
+    const charts = el("div", undefined, "la-charts");
+    const phases = el("div", undefined, "la-card");
+    phases.append(el("h3", "En qué fase está cada contacto"));
+    note(phases, "Pulsa una fase para ver sus contactos en la tabla.");
+    const shown = stateOrder.filter((s) => s !== "pending" || metrics.by_state[s]);
+    const maxState = Math.max(0, ...shown.map((s) => metrics.by_state[s] || 0));
+    for (const state of shown) {
+      const row = barRow(
+        labels[state],
+        [{ value: metrics.by_state[state] || 0, series: 1, label: labels[state] }],
+        maxState,
+      );
+      const open = button("", async () => {
+        filter = state;
+        search = "";
+        page = 0;
+        await loadLeads();
+        render();
+      });
+      open.className = `la-bar-button${filter === state ? " active" : ""}`;
+      open.setAttribute("aria-label", `Ver contactos en fase ${labels[state]}`);
+      open.replaceChildren(row);
+      phases.append(open);
+    }
+    const messages = el("div", undefined, "la-card");
+    messages.append(el("h3", "Respuesta por mensaje"));
+    if (metrics.by_message.length) {
+      const legend = el("div", undefined, "la-legend");
+      for (const [series, name] of [
+        [1, "Enviados"],
+        [2, "Contestaron a ese mensaje"],
+      ]) {
+        const item = el("span");
+        item.append(el("i", undefined, `la-bar la-bar-${series}`), name);
+        legend.append(item);
+      }
+      messages.append(legend);
+      const maxSent = Math.max(...metrics.by_message.map((m) => m.sent));
+      for (const m of metrics.by_message)
+        messages.append(
+          barRow(
+            `Mensaje ${m.step + 1}`,
+            [
+              { value: m.sent, series: 1, label: "Enviados" },
+              { value: m.replied, series: 2, label: "Contestaron" },
+            ],
+            maxSent,
+          ),
+        );
+    } else note(messages, "Todavía no se ha enviado ningún mensaje de una secuencia.");
+    const d = metrics.delivery;
+    note(
+      messages,
+      `Último estado en WhatsApp: ${d.sent || 0} enviados, ${d.delivered || 0} entregados, ${d.read || 0} leídos, ${d.failed || 0} no entregados · ${metrics.reply_messages_sent} mensajes de «Si contesta».`,
+    );
+    charts.append(phases, messages);
+    parent.append(charts);
+    if (metrics.test_contacts)
+      note(parent, `Incluye ${metrics.test_contacts} contacto de prueba.`);
+  }
+  const repliedText = (lead) =>
+    lead.state === "opted_out"
+      ? "Pidió la baja"
+      : lead.state === "responded"
+        ? `Sí · ${date(lead.replied_at)}`
+        : lead.last_sent
+          ? "No"
+          : "—";
+  const chipColors = /^(blue|cyan|teal|green|yellow|orange|red|pink|purple|gray)/;
+  const madridDay = (d) => d.toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+  const safeUrl = (value) => {
+    try {
+      const url = new URL(String(value));
+      return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+    } catch {
+      return "";
+    }
+  };
+  const cellLink = (text, href, external) => {
+    const a = el("a", text, "la-cell-link");
+    a.href = href;
+    if (external) {
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+    }
+    return a;
+  };
+  const registeredDate = (td, value) => {
+    const day = String(value).slice(0, 10);
+    const parsed = new Date(`${day}T12:00:00Z`);
+    if (!Number.isFinite(+parsed)) return void (td.textContent = String(value));
+    const days = Math.round((Date.parse(madridDay(new Date())) - Date.parse(day)) / 86400000);
+    td.append(
+      el(
+        "strong",
+        parsed.toLocaleDateString("es-ES", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          timeZone: "UTC",
+        }),
+      ),
+      el("small", days === 0 ? "Hoy" : days === 1 ? "Ayer" : days > 1 ? `Hace ${days} días` : ""),
+    );
+  };
+  const longText = (td, value) => {
+    const text = el("div", String(value), "la-long");
+    td.classList.add("la-long-cell");
+    td.append(text);
+    if (String(value).length <= 120) return;
+    const more = el("button", "Ver todo", "la-more");
+    more.type = "button";
+    more.addEventListener("click", () => {
+      more.textContent = text.classList.toggle("open") ? "Ver menos" : "Ver todo";
+    });
+    td.append(more);
+  };
+  const airtableCell = (column, value) => {
+    const td = el("td");
+    const blank = value === undefined || value === null || value === "";
+    if (blank) {
+      td.append(el("span", "—", "la-empty"));
+      return td;
+    }
+    if (column.type === "date" || column.type === "dateTime") registeredDate(td, value);
+    else if (column.type === "singleSelect") {
+      const color = column.choices?.find((c) => c.name === value)?.color || "gray";
+      const family = chipColors.exec(color)?.[1] || "gray";
+      td.append(el("span", String(value), `la-chip la-chip-${family}`));
+    } else if (column.type === "email") td.append(cellLink(String(value), `mailto:${value}`));
+    else if (column.type === "phoneNumber")
+      td.append(cellLink(String(value), `tel:${String(value).replace(/[^\d+]/g, "")}`));
+    else if (column.type === "url") {
+      const href = safeUrl(value);
+      td.append(href ? cellLink("Abrir enlace", href, true) : el("span", String(value)));
+    } else if (column.type === "multilineText" || String(value).length > 120)
+      longText(td, value);
+    else td.textContent = Array.isArray(value) ? value.join(", ") : String(value);
+    return td;
+  };
+  const airtableFields = (lead) => {
+    const stored = airtable.records[lead.airtable_id];
+    if (stored) return stored;
+    const map = status?.config.mapping || {};
+    return { [map.name]: lead.name, [map.phone]: "+" + lead.phone, [map.email]: lead.email };
+  };
+  function renderLeads(parent) {
+    renderSummary(parent);
     const tools = el("div", undefined, "la-tools");
     const find = field(tools, "Buscar", "search", search);
     find.placeholder = "Nombre, teléfono o email";
@@ -315,12 +514,20 @@
           const r = await api("sync", {});
           await load();
           error(
-            `Sincronización: ${r.imported} revisados, ${r.rejected} requieren revisión. Ninguno activado automáticamente.`,
+            `Sincronización: ${r.imported} revisados, ${r.rejected} requieren revisión. Sincronizar no activa a nadie.`,
           );
         },
         true,
       ),
     );
+    const { base, table: airtableTable, view: airtableView } = status?.airtable || {};
+    if (base && airtableTable) {
+      const link = el("a", "Ir a Airtable", "btn btn-sm btn-ghost");
+      link.href = `https://airtable.com/${[base, airtableTable, airtableView].filter(Boolean).map(encodeURIComponent).join("/")}`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      tools.append(link);
+    }
     parent.append(tools);
     parent.append(
       button("Pausar seleccionados", async () => {
@@ -330,19 +537,42 @@
         render();
       }),
     );
+    const showAirtable = !!airtable && leadsMode === "Airtable";
+    if (airtable) {
+      const modes = el("div", undefined, "la-tabs la-modes");
+      for (const name of ["Airtable", "Automatización"]) {
+        const b = button(name, async () => {
+          leadsMode = name;
+          render();
+        });
+        if (leadsMode === name) b.classList.add("active");
+        modes.append(b);
+      }
+      parent.append(modes);
+      if (airtable.not_imported?.length)
+        note(
+          parent,
+          `Sin importar por teléfono o duplicado: ${airtable.not_imported.join(", ")}.`,
+        );
+    } else if (status)
+      note(parent, "No se han podido leer las columnas de Airtable. Pulsa Actualizar para reintentar.");
     const wrap = el("div", undefined, "la-table-wrap"),
-      table = el("table");
+      table = el("table", undefined, showAirtable ? "la-airtable" : undefined);
     const head = el("tr");
-    for (const name of [
-      "Seleccionar",
-      "Contacto",
-      "Entrada / origen",
-      "Estado",
-      "Paso",
-      "Último mensaje",
-      "Próximo envío",
-      "Acciones",
-    ])
+    for (const name of showAirtable
+      ? ["Seleccionar", ...airtable.columns.map((c) => c.name), "Estado", "Acciones"]
+      : [
+          "Seleccionar",
+          "Contacto",
+          "Entrada / origen",
+          "Estado",
+          "Paso",
+          "Mensaje enviado",
+          "¿Contestó?",
+          "Último mensaje",
+          "Próximo envío",
+          "Acciones",
+        ])
       head.append(el("th", name));
     const thead = el("thead");
     thead.append(head);
@@ -359,34 +589,58 @@
       );
       checkCell.append(check);
       row.append(checkCell);
-      const contact = el("td");
-      contact.append(
-        el("strong", lead.name || "Sin nombre"),
-        el("div", "+" + lead.phone),
-        el("small", lead.email || ""),
-      );
-      row.append(contact);
-      const origin = el("td");
-      origin.append(el("div", lead.entry_date || "—"), el("small", lead.source || "—"));
-      row.append(origin);
+      if (showAirtable) {
+        const fields = airtableFields(lead);
+        for (const column of airtable.columns)
+          row.append(airtableCell(column, fields[column.name]));
+      } else {
+        const contact = el("td");
+        contact.append(
+          el("strong", lead.name || "Sin nombre"),
+          el("div", "+" + lead.phone),
+          el("small", lead.email || ""),
+        );
+        row.append(contact);
+        const origin = el("td");
+        origin.append(el("div", lead.entry_date || "—"), el("small", lead.source || "—"));
+        row.append(origin);
+      }
       const stateCell = el("td");
       stateCell.append(el("span", labels[lead.state] || lead.state, "la-state"));
       if (lead.is_test) stateCell.append(el("small", "Contacto de prueba"));
-      if (lead.stop_text) stateCell.append(el("small", lead.stop_text));
-      for (const blocker of lead.blockers || []) stateCell.append(el("small", blocker));
-      if (!lead.blockers && !lead.consent)
-        stateCell.append(el("small", "Sin consentimiento acreditado"));
+      if (!showAirtable) {
+        if (lead.stop_text) stateCell.append(el("small", lead.stop_text));
+        for (const blocker of lead.blockers || []) stateCell.append(el("small", blocker));
+        if (!lead.blockers && !lead.consent)
+          stateCell.append(el("small", "Sin consentimiento acreditado"));
+      }
       row.append(stateCell);
-      row.append(
-        el(
-          "td",
-          lead.snapshot
-            ? `${Math.min(lead.step + 1, lead.snapshot.length)} / ${lead.snapshot.length}`
-            : "—",
-        ),
-        el("td", lead.last_message || "—"),
-        el("td", date(lead.next_due)),
-      );
+      if (!showAirtable) {
+        row.append(
+          el(
+            "td",
+            lead.snapshot
+              ? `${Math.min(lead.step + 1, lead.snapshot.length)} / ${lead.snapshot.length}`
+              : "—",
+          ),
+        );
+        const sentCell = el("td");
+        if (lead.last_sent)
+          sentCell.append(
+            el("div", lead.last_sent.label),
+            el(
+              "small",
+              `${date(lead.last_sent.at)}${lead.last_sent.delivery ? ` · ${deliveryLabels[lead.last_sent.delivery] || lead.last_sent.delivery}` : ""}`,
+            ),
+          );
+        else sentCell.textContent = "—";
+        row.append(
+          sentCell,
+          el("td", repliedText(lead)),
+          el("td", lead.last_message || "—"),
+          el("td", date(lead.next_due)),
+        );
+      }
       const actions = el("td");
       actions.append(
         button("Conversación", async () => {
@@ -395,7 +649,16 @@
           render();
         }),
       );
-      if (lead.state === "active")
+      if (lead.seendy_path) {
+        const seendy = el("a", "Abrir en Seendy", "btn btn-sm btn-ghost");
+        seendy.href = lead.seendy_path;
+        seendy.target = "_blank";
+        seendy.rel = "noopener noreferrer";
+        actions.append(seendy);
+      }
+      // La vista Airtable es de consulta: activar y pausar quedan en Automatización.
+      if (showAirtable);
+      else if (lead.state === "active")
         actions.append(
           button("Pausar", async () => {
             await api("pause", { id: lead.id });
@@ -407,9 +670,28 @@
         const choice = select(
           actions,
           "Secuencia",
-          [["", "Seleccionar"], ...campaigns.filter((c) => c.active).map((c) => [c.id, c.name])],
+          [
+            ["", "Seleccionar"],
+            ...campaigns.filter((c) => c.active && isAssignable(c)).map((c) => [c.id, c.name]),
+          ],
           lead.campaign_id || "",
         );
+        let startChoice;
+        if (!lead.snapshot) {
+          startChoice = select(actions, "Empezar en", [], "");
+          const fillSteps = () =>
+            startChoice.replaceChildren(
+              ...(campaigns.find((c) => c.id === choice.value)?.steps || [])
+                .filter((s) => s.enabled !== false)
+                .map((s, i) => {
+                  const o = el("option", `Mensaje ${i + 1}: ${s.name || s.template}`);
+                  o.value = String(i);
+                  return o;
+                }),
+            );
+          choice.addEventListener("change", fillSteps);
+          fillSteps();
+        }
         const activate = button(
           lead.snapshot ? "Reanudar" : "Activar",
           async () => {
@@ -419,11 +701,15 @@
               : `«${campaigns.find((c) => c.id === choice.value)?.name}»`;
             if (
               !confirm(
-                `¿Activar ${sequence} para ${lead.name || "+" + lead.phone}? Se le enviarán mensajes de WhatsApp si no responde.`,
+                `¿Activar ${sequence} para ${lead.name || "+" + lead.phone}? Se le enviarán mensajes de WhatsApp si no responde.${Number(startChoice?.value) > 0 ? ` Empezará en el mensaje ${Number(startChoice.value) + 1}, sin enviarle los anteriores.` : ""}`,
               )
             )
               return;
-            const r = await api("activate", { id: lead.id, campaign_id: choice.value });
+            const r = await api("activate", {
+              id: lead.id,
+              campaign_id: choice.value,
+              start_step: Number(startChoice?.value || 0),
+            });
             await loadLeads();
             render();
             error(`Activado. Próximo envío previsto: ${date(r?.due_at)}.`);
@@ -433,7 +719,7 @@
         activate.disabled = !lead.consent;
         actions.append(activate);
       }
-      if (lead.is_test && lead.state !== "opted_out")
+      if (!showAirtable && lead.is_test && lead.state !== "opted_out")
         actions.append(
           button("Reiniciar prueba", async () => {
             if (!confirm("¿Reiniciar el contacto de prueba? Se borrará su programación.")) return;
@@ -471,6 +757,61 @@
     pages.append(prev, el("span", `Página ${page + 1} · 50 contactos por página`), next);
     parent.append(pages);
   }
+  function renderTemplates(parent) {
+    const tools = el("div", undefined, "la-tools");
+    tools.append(
+      button("Comprobar ahora", async () => {
+        await loadTemplates();
+        render();
+      }),
+    );
+    parent.append(tools);
+    if (templatesError) return note(parent, templatesError);
+    const pending = templates.filter((t) => templateState(t)[2] === 0).length;
+    const approved = templates.filter((t) => t.status === "APPROVED").length;
+    note(
+      parent,
+      `${pending} en revisión · ${approved} aprobadas · Última comprobación en Meta: ${date(templatesCheckedAt)}.${pending ? " Mientras haya alguna en revisión se comprueba cada minuto con esta pestaña abierta." : ""}`,
+    );
+    if (!templates.length) return note(parent, "Todavía no hay plantillas en esta cuenta de WhatsApp.");
+    const wrap = el("div", undefined, "la-table-wrap"),
+      table = el("table"),
+      head = el("tr"),
+      thead = el("thead"),
+      body = el("tbody");
+    for (const name of ["Estado", "Plantilla", "Categoría", "Texto", "Secuencias que la usan"])
+      head.append(el("th", name));
+    thead.append(head);
+    table.append(thead);
+    const ordered = [...templates].sort(
+      (a, b) => templateState(a)[2] - templateState(b)[2] || a.name.localeCompare(b.name),
+    );
+    for (const t of ordered) {
+      const row = el("tr"),
+        [label, color] = templateState(t),
+        stateCell = el("td"),
+        nameCell = el("td"),
+        textCell = el("td");
+      stateCell.append(el("span", label, `la-chip la-chip-${color}`));
+      if (t.rejected_reason) stateCell.append(el("small", `Motivo de Meta: ${t.rejected_reason}`));
+      nameCell.append(el("strong", t.name), el("small", t.language));
+      longText(textCell, t.body || "—");
+      const used = campaigns
+        .filter((c) => c.steps?.some((s) => s.template === t.name && s.language === t.language))
+        .map((c) => c.name);
+      row.append(
+        stateCell,
+        nameCell,
+        el("td", t.category || "—"),
+        textCell,
+        el("td", used.join(", ") || "—"),
+      );
+      body.append(row);
+    }
+    table.append(body);
+    wrap.append(table);
+    parent.append(wrap);
+  }
   const newStep = () => ({
     name: "",
     template: "",
@@ -480,12 +821,72 @@
     time: "",
     weekdays: [1, 2, 3, 4, 5],
     only_if_no_reply: true,
+    enabled: true,
+    on_reply: null,
   });
+  const templateSelect = (parent, message, label) => {
+    const usable = usableTemplates();
+    const current = `${message.template}|${message.language}`;
+    const options = usable.map((t) => [
+      `${t.name}|${t.language}`,
+      `${t.name} · ${t.language} · ${t.category || ""}`,
+    ]);
+    if (message.template && !options.some(([v]) => v === current))
+      options.unshift([current, `${message.template} · no disponible en Meta`]);
+    const input = select(
+      parent,
+      label,
+      [["", usable.length ? "Elige una plantilla" : "Sin plantillas aprobadas"], ...options],
+      message.template ? current : "",
+    );
+    input.addEventListener("change", () => {
+      const [template, language] = input.value.split("|");
+      const chosen = usable.find((t) => t.name === template && t.language === language);
+      message.template = template || "";
+      message.language = language || "es_ES";
+      message.variables = Array.from(
+        { length: chosen?.parameters || 0 },
+        (_, i) => message.variables[i] || "",
+      );
+      render();
+    });
+    return usable.find((t) => t.name === message.template && t.language === message.language);
+  };
+  const variableFields = (message, context, onInput) => {
+    const variables = el("div");
+    message.variables.forEach((value, parameter) => {
+      const preset = fieldOptions.some(([v]) => v === value);
+      const source = select(
+        variables,
+        `Campo {{${parameter + 1}}} ${context}`,
+        [...fieldOptions, ["", "Texto fijo"]],
+        preset ? value : "",
+      );
+      source.addEventListener("change", () => {
+        message.variables[parameter] = source.value;
+        render();
+      });
+      if (preset) return;
+      const input = field(
+        variables,
+        `Texto fijo del campo {{${parameter + 1}}}`,
+        "text",
+        value,
+      );
+      input.placeholder = "Escribe el texto";
+      input.maxLength = 500;
+      input.addEventListener("input", () => {
+        message.variables[parameter] = input.value;
+        onInput();
+      });
+    });
+    return variables;
+  };
   function renderCampaigns(parent) {
     parent.append(el("h3", "Crea tu secuencia paso a paso"));
     note(
       parent,
-      "Elige una plantilla de WhatsApp por mensaje, rellena sus campos y decide cuánto esperar. El primer paso cuenta desde la activación; los demás, desde el envío anterior.",
+      "Cada mensaje tiene dos caminos: si no contesta, sale el mensaje siguiente tras la espera; si contesta, los siguientes se cancelan y puedes enviarle otro mensaje. Puedes activar o desactivar cada uno.",
     );
     if (!usableTemplates().length)
       parent.append(
@@ -518,15 +919,24 @@
     );
     note(
       parent,
-      "Editar guarda una versión nueva. Los leads ya activados conservan los pasos originales. Una respuesta o baja detiene siempre el seguimiento.",
+      "Editar guarda una versión nueva. Los leads ya activados conservan los pasos originales. Una baja lo detiene todo y nunca recibe el mensaje de Si contesta.",
     );
     const list = el("div", undefined, "la-tools");
     for (const c of campaigns) {
       const card = el("div", undefined, "la-card");
       card.append(
         el("strong", c.name),
-        el("p", `${c.steps.length} pasos · ${c.active ? "Activa" : "Pausada"}`),
-        el("small", c.steps.map((s) => `${s.template} (${s.delay_days} d)`).join(" → ")),
+        el("p", `${c.steps.filter((s) => s.enabled !== false).length} pasos · ${c.active ? "Activa" : "Pausada"} · ${isAssignable(c) ? "Se puede asignar" : "No se puede asignar"}`),
+        el(
+          "small",
+          c.steps
+            .filter((s) => s.enabled !== false)
+            .map(
+              (s) =>
+                `${s.template} (${s.delay_days} d)${s.on_reply?.enabled ? ` [si contesta: ${s.on_reply.template}]` : ""}`,
+            )
+            .join(" → "),
+        ),
         button("Editar como nueva versión", async () => {
           steps = structuredClone(c.steps);
           campaignName = c.name + " · nueva versión";
@@ -539,6 +949,10 @@
           campaignActive = false;
           render();
           error("Copia cargada abajo. Revísala y guárdala.");
+        }),
+        button(isAssignable(c) ? "No permitir asignar" : "Permitir asignar", async () => {
+          await api("campaign_assignable", { id: c.id, assignable: !isAssignable(c) });
+          await load();
         }),
         button(c.active ? "Pausar secuencia" : "Activar secuencia", async () => {
           await api("campaign_state", { id: c.id, active: !c.active });
@@ -558,36 +972,26 @@
     if (!steps.length) steps = [newStep()];
     const editor = el("div");
     steps.forEach((step, index) => {
-      const card = el("div", undefined, "la-step");
-      card.append(el("h3", `Mensaje ${index + 1}`));
+      const outer = el("div", undefined, "la-step");
+      outer.append(el("h3", `Mensaje ${index + 1}`));
+      if (index > 0) {
+        const sendIt = field(outer, "Enviar si no contesta al mensaje anterior", "checkbox");
+        sendIt.checked = step.enabled !== false;
+        sendIt.addEventListener("change", () => {
+          step.enabled = sendIt.checked;
+          render();
+        });
+      }
+      const card = el("div");
+      card.hidden = step.enabled === false;
+      outer.append(card);
       const grid = el("div", undefined, "la-form-grid");
       const nameInput = field(grid, "Nombre", "text", step.name);
       nameInput.addEventListener("input", () => {
         step.name = nameInput.value;
         preview();
       });
-      const usable = usableTemplates();
-      const current = `${step.template}|${step.language}`;
-      const options = usable.map((t) => [
-        `${t.name}|${t.language}`,
-        `${t.name} · ${t.language} · ${t.category || ""}`,
-      ]);
-      if (step.template && !options.some(([v]) => v === current))
-        options.unshift([current, `${step.template} · no disponible en Meta`]);
-      const templateInput = select(
-        grid,
-        "Plantilla aprobada de Meta",
-        [["", usable.length ? "Elige una plantilla" : "Sin plantillas aprobadas"], ...options],
-        step.template ? current : "",
-      );
-      templateInput.addEventListener("change", () => {
-        const [template, language] = templateInput.value.split("|");
-        const chosen = usable.find((t) => t.name === template && t.language === language);
-        step.template = template || "";
-        step.language = language || "es_ES";
-        step.variables = Array.from({ length: chosen?.parameters || 0 }, (_, i) => step.variables[i] || "");
-        render();
-      });
+      const chosen = templateSelect(grid, step, "Plantilla aprobada de Meta");
       const delay = field(
         grid,
         index === 0 ? "Días desde la activación" : "Días desde el mensaje anterior",
@@ -620,41 +1024,13 @@
           preview();
         });
       }
-      const chosen = usable.find((t) => t.name === step.template && t.language === step.language);
       if (chosen) card.append(el("p", `Texto: ${chosen.body}`, "la-note"));
-      const variables = el("div");
-      step.variables.forEach((value, parameter) => {
-        const preset = fieldOptions.some(([v]) => v === value);
-        const source = select(
-          variables,
-          `Campo {{${parameter + 1}}} del mensaje ${index + 1}`,
-          [...fieldOptions, ["", "Texto fijo"]],
-          preset ? value : "",
-        );
-        source.addEventListener("change", () => {
-          step.variables[parameter] = source.value;
-          render();
-        });
-        if (preset) return;
-        const input = field(
-          variables,
-          `Texto fijo del campo {{${parameter + 1}}}`,
-          "text",
-          value,
-        );
-        input.placeholder = "Escribe el texto";
-        input.maxLength = 500;
-        input.addEventListener("input", () => {
-          step.variables[parameter] = input.value;
-          preview();
-        });
-      });
-      grid.append(variables);
+      grid.append(variableFields(step, `del mensaje ${index + 1}`, () => preview()));
       note(
         card,
         index === 0
-          ? "0 días = primer horario permitido desde que activas el contacto."
-          : `La espera empieza cuando se envía el mensaje ${index}, no cuando se importa el lead.`,
+          ? "Este mensaje siempre se envía. 0 días = primer horario permitido desde que activas el contacto; con la revisión diaria sale a la hora de la revisión."
+          : "La espera empieza cuando se envía el mensaje anterior, no cuando se importa el lead.",
       );
       card.append(grid);
       const days = el("div", undefined, "la-tools");
@@ -673,7 +1049,34 @@
         days.append(wrap);
       });
       card.append(days);
-      note(card, "Solo enviar si no ha respondido: obligatorio");
+      const branch = el("div", undefined, "la-branch");
+      branch.append(el("strong", `Si contesta al mensaje ${index + 1}`));
+      const replyOn = field(branch, "Enviarle un mensaje", "checkbox");
+      replyOn.checked = !!step.on_reply?.enabled;
+      replyOn.addEventListener("change", () => {
+        step.on_reply = {
+          name: "",
+          template: "",
+          language: "es_ES",
+          variables: [],
+          ...step.on_reply,
+          enabled: replyOn.checked,
+        };
+        render();
+      });
+      if (step.on_reply?.enabled) {
+        const reply = step.on_reply;
+        const replyChosen = templateSelect(branch, reply, "Plantilla si contesta");
+        if (replyChosen) note(branch, `Texto: ${replyChosen.body}`);
+        branch.append(
+          variableFields(reply, `del mensaje ${index + 1}, si contesta`, () => preview()),
+        );
+      }
+      note(
+        branch,
+        "Si contesta, los mensajes siguientes ya no salen y sigue una persona. Este mensaje sale al momento o, fuera de horario, al abrir el siguiente.",
+      );
+      card.append(branch);
       const move = (to) => async () => {
         steps.splice(to, 0, steps.splice(index, 1)[0]);
         render();
@@ -682,7 +1085,7 @@
       up.disabled = index === 0;
       const down = button("Bajar", move(index + 1));
       down.disabled = index === steps.length - 1;
-      card.append(
+      outer.append(
         up,
         down,
         button("Eliminar paso", async () => {
@@ -690,7 +1093,7 @@
           render();
         }),
       );
-      editor.append(card);
+      editor.append(outer);
     });
     form.append(editor);
     form.append(
@@ -703,22 +1106,35 @@
     form.append(summary);
     function preview() {
       summary.replaceChildren(el("strong", "Vista previa"));
-      steps.forEach((s, i) =>
+      steps.forEach((s, i) => {
+        if (s.enabled === false) {
+          summary.append(el("p", `${i + 1}. Desactivado: no se envía`));
+          return;
+        }
         summary.append(
           el(
             "p",
-            `${i + 1}. ${s.name || s.template || "Plantilla pendiente"} · ${s.delay_days} días ${i === 0 ? "desde la activación" : `después del mensaje ${i}`} · ${s.time || "primera hora permitida"} (Madrid)${s.variables.length ? " · " + s.variables.join(" / ") : ""}`,
+            `${i + 1}. ${s.name || s.template || "Plantilla pendiente"} · ${s.delay_days} días ${i === 0 ? "desde la activación" : `después del mensaje anterior`} · ${s.time || "primera hora permitida"} (Madrid)${s.variables.length ? " · " + s.variables.join(" / ") : ""}`,
           ),
-        ),
-      );
+          el(
+            "p",
+            s.on_reply?.enabled
+              ? `   Si contesta: ${s.on_reply.template || "plantilla pendiente"} y fin de la secuencia`
+              : "   Si contesta: fin de la secuencia, sin más mensajes",
+          ),
+        );
+      });
     }
     preview();
     const dates = el("div", undefined, "la-preview");
     form.append(
       button("Calcular fechas", async () => {
-        const r = await api("preview_schedule", { steps });
-        dates.replaceChildren(el("strong", "Si activas un contacto ahora"));
-        r.items.forEach((at, i) => dates.append(el("p", `Mensaje ${i + 1}: ${date(at)}`)));
+        const on = steps.flatMap((s, i) => (s.enabled === false ? [] : [{ s, i }]));
+        const r = await api("preview_schedule", { steps: on.map(({ s }) => s) });
+        dates.replaceChildren(el("strong", "Si activas un contacto ahora y no contesta"));
+        r.items.forEach((at, k) =>
+          dates.append(el("p", `Mensaje ${on[k].i + 1}: ${date(at)}`)),
+        );
       }),
       dates,
     );
@@ -733,6 +1149,13 @@
           if (!name.value.trim()) throw new Error("Pon un nombre a la secuencia");
           if (!steps.length || steps.length > 20) throw new Error("Añade entre 1 y 20 mensajes");
           for (const [i, s] of steps.entries()) {
+            if (s.enabled === false) continue;
+            if (s.on_reply?.enabled) {
+              if (!/^[a-z0-9_]{1,100}$/.test(s.on_reply.template))
+                throw new Error(`Mensaje ${i + 1}: elige la plantilla de «Si contesta»`);
+              if (s.on_reply.variables.some((v) => !v.trim()))
+                throw new Error(`Mensaje ${i + 1}: rellena los campos de «Si contesta»`);
+            }
             if (!/^[a-z0-9_]{1,100}$/.test(s.template))
               throw new Error(`Mensaje ${i + 1}: elige una plantilla aprobada`);
             if (!Number.isInteger(s.delay_days) || s.delay_days < 0 || s.delay_days > 365)
@@ -751,7 +1174,11 @@
           campaignName = "";
           campaignActive = false;
           await load();
-          error("Secuencia guardada. Ningún contacto se ha activado.");
+          error(
+            status?.config.auto_enabled
+              ? "Secuencia guardada. La revisión diaria sigue usando la versión elegida en Configuración: cámbiala allí si quieres usar esta."
+              : "Secuencia guardada. Ningún contacto se ha activado.",
+          );
         },
         true,
       ),
@@ -816,7 +1243,9 @@
       [
         ["", "Seleccionar plantilla"],
         ...campaigns.flatMap((c) =>
-          c.steps.map((s) => [JSON.stringify(s), `${s.template} · ${s.language}`]),
+          c.steps
+            .filter((s) => s.template)
+            .map((s) => [JSON.stringify(s), `${s.template} · ${s.language}`]),
         ),
       ],
       "",
@@ -989,6 +1418,31 @@
       form,
       "La activación general no supera el interruptor de envíos del servidor ni la lista de pruebas.",
     );
+    form.append(el("strong", "Revisión diaria de Airtable"));
+    const autoOn = field(form, "Enviar el primer mensaje automáticamente cada día", "checkbox");
+    autoOn.checked = !!cfg.auto_enabled;
+    const autoGrid = el("div", undefined, "la-form-grid");
+    const autoTime = field(autoGrid, "Hora de la revisión (Madrid)", "time", cfg.auto_time || "10:00");
+    const autoCampaign = select(
+      autoGrid,
+      "Secuencia de la revisión",
+      [
+        ["", "Elige una secuencia"],
+        ...campaigns
+          .filter((c) => (c.active && isAssignable(c)) || c.id === cfg.auto_campaign_id)
+          .map((c) => [c.id, `${c.name}${c.active ? "" : " · pausada"}`]),
+      ],
+      cfg.auto_campaign_id || "",
+    );
+    form.append(autoGrid);
+    note(
+      form,
+      `Cada día permitido lee Airtable a esa hora (puede tardar hasta 15 minutos) y envía el primer mensaje a los contactos nuevos con consentimiento. Solo entran los importados desde que la enciendes; los que ya estaban se activan a mano en Leads, eligiendo el paso. Última revisión: ${status.auto_last_run || "—"}.`,
+    );
+    if (cfg.auto_enabled && !campaigns.find((c) => c.id === cfg.auto_campaign_id)?.active)
+      form.append(
+        el("div", "La secuencia de la revisión diaria está pausada: hoy no entrará nadie.", "la-banner"),
+      );
     const grid = el("div", undefined, "la-form-grid");
     const start = field(grid, "Desde (Europe/Madrid)", "time", cfg.start),
       end = field(grid, "Hasta", "time", cfg.end),
@@ -1036,8 +1490,17 @@
             !confirm("¿Encender la activación general? Los contactos activados podrán recibir mensajes.")
           )
             return;
+          if (
+            autoOn.checked &&
+            !cfg.auto_enabled &&
+            !confirm("¿Encender la revisión diaria? Los contactos nuevos con consentimiento recibirán el primer mensaje sin activarlos a mano.")
+          )
+            return;
           const config = {
             enabled: enabled.checked,
+            auto_enabled: autoOn.checked,
+            auto_time: autoTime.value,
+            auto_campaign_id: autoCampaign.value,
             timezone: "Europe/Madrid",
             start: start.value,
             end: end.value,
@@ -1097,7 +1560,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261102";
+      link.href = "/assets/css/internal-leads.css?v=20261103e";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
@@ -1114,6 +1577,18 @@
       }
     });
     refreshTimer = setInterval(() => {
+      if (
+        view === "Plantillas" &&
+        !document.hidden &&
+        root.closest(".section.active") &&
+        !busy &&
+        Date.now() - templatesCheckedAt >= 60000 &&
+        templates.some((t) => templateState(t)[2] === 0)
+      )
+        return run(async () => {
+          await loadTemplates();
+          render();
+        });
       if (
         document.hidden ||
         !root.closest(".section.active") ||
