@@ -35,6 +35,7 @@ test(
     };
     const lead = {
       id: "00000000-0000-0000-0000-000000000001",
+      airtable_id: "rec1",
       name: '<img src=x onerror="window.xss=true">',
       phone: "34600000000",
       email: "demo@example.invalid",
@@ -42,6 +43,25 @@ test(
       consent: false,
       blockers: ["Modo de pruebas: este número no está autorizado."],
       stop_text: "Una persona intervino desde el móvil o Seendy. El seguimiento se detuvo.",
+      last_sent: { label: "Mensaje 2: Seguimiento", at: "2026-11-02T10:00:00Z", delivery: "read" },
+      seendy_path: "/app/seendy.html#/workspace/org?view=inbox&conversation=conv",
+    };
+    const metrics = {
+      total: 58,
+      test_contacts: 1,
+      by_state: { new: 40, active: 9, responded: 5, finished: 2, paused: 1, opted_out: 1 },
+      without_consent: 3,
+      contacted: 17,
+      replied: 5,
+      replied_after_message: 5,
+      by_message: [
+        { step: 0, sent: 17, replied: 4 },
+        { step: 1, sent: 8, replied: 1 },
+      ],
+      delivery: { delivered: 12, read: 11, failed: 2 },
+      reply_messages_sent: 3,
+      pending: 9,
+      to_review: 1,
     };
     const campaign = {
       id: "00000000-0000-0000-0000-00000000000c",
@@ -91,7 +111,35 @@ test(
                 auto_send_enabled: false,
                 test_only: true,
               }
-            : body.action === "list"
+            : body.action === "airtable"
+              ? {
+                  columns: [
+                    { name: "FECHA REGISTRO", type: "date" },
+                    { name: "NOMBRE", type: "singleLineText" },
+                    {
+                      name: "SITUACION",
+                      type: "singleSelect",
+                      choices: [{ name: "GESTOR", color: "blueLight2" }],
+                    },
+                    { name: "COMENTARIOS", type: "multilineText" },
+                    { name: "LLAMADA", type: "url" },
+                    { name: "OTRA LLAMADA", type: "url" },
+                  ],
+                  records: {
+                    rec1: {
+                      "FECHA REGISTRO": "2026-11-02",
+                      NOMBRE: '<img src=x onerror="window.xssAirtable=true">',
+                      SITUACION: "GESTOR",
+                      COMENTARIOS: "Comentario largo ".repeat(20),
+                      LLAMADA: "javascript:window.xssAirtable=true",
+                      "OTRA LLAMADA": "https://example.invalid/llamada",
+                    },
+                  },
+                  not_imported: ["fila-rechazada"],
+                }
+            : body.action === "metrics"
+              ? metrics
+              : body.action === "list"
               ? { items: [lead], total: 1 }
               : body.action === "campaigns"
                 ? { items: [campaign, blockedCampaign] }
@@ -146,6 +194,41 @@ test(
       "La prueba debe cargar el CSS real del módulo",
     );
     assert.equal(await page.locator("tbody tr").count(), 1);
+    assert.ok(await page.locator("th", { hasText: "SITUACION" }).count());
+    assert.ok(await page.locator(".la-chip-blue", { hasText: "GESTOR" }).count());
+    assert.ok(await page.getByText("Sin importar por teléfono o duplicado: fila-rechazada.").count());
+    assert.equal(await page.evaluate(() => window.xssAirtable), undefined);
+    assert.equal(await page.locator("a[href^='javascript:']").count(), 0);
+    assert.equal(
+      await page.getByRole("link", { name: "Abrir enlace" }).getAttribute("href"),
+      "https://example.invalid/llamada",
+    );
+    await page.getByRole("button", { name: "Ver todo" }).click();
+    assert.ok(await page.getByRole("button", { name: "Ver menos" }).count());
+    await page.getByRole("button", { name: "Plantillas", exact: true }).click();
+    await page.locator(".la-chip-red", { hasText: "Rechazada" }).waitFor();
+    assert.equal(await page.locator("tbody tr").first().locator(".la-chip-red").count(), 1);
+    assert.ok(await page.getByRole("cell", { name: "Seguimiento, Bloqueada" }).count());
+    await page.getByRole("button", { name: "Leads", exact: true }).click();
+    await page.getByRole("button", { name: "Automatización", exact: true }).click();
+    assert.ok(await page.getByText("En qué fase está cada contacto").count());
+    assert.ok(await page.getByText("Mensaje 2: Seguimiento").count());
+    assert.ok(await page.getByRole("cell", { name: "No", exact: true }).count());
+    const seendyLink = page.getByRole("link", { name: "Abrir en Seendy", exact: true });
+    assert.equal(await seendyLink.getAttribute("href"), lead.seendy_path);
+    assert.equal(await seendyLink.getAttribute("target"), "_blank");
+    assert.ok(await page.getByRole("button", { name: "Ver contactos en fase Respondido" }).count());
+    if (process.env.LEADS_SCREENSHOT_PREFIX)
+      await page.screenshot({
+        path: `${process.env.LEADS_SCREENSHOT_PREFIX}-summary.png`,
+        fullPage: true,
+      });
+    await page.getByRole("button", { name: "Ver contactos en fase Respondido" }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    assert.ok(calls.some((c) => c.action === "list" && c.state === "responded"));
+    await page.getByLabel("Estado", { exact: true }).selectOption("");
+    await page.getByRole("button", { name: "Buscar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
     assert.equal(await page.locator("tbody img").count(), 0);
     assert.equal(await page.evaluate(() => !!window.xss), false);
     await page.getByRole("button", { name: "Ayuda", exact: true }).click();

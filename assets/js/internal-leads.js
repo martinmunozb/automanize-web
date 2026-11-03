@@ -27,6 +27,18 @@
     uncertain: "Por revisar",
     error: "Error",
   };
+  // Orden de la pestaña Plantillas: primero lo que aún requiere atención.
+  const templateStates = {
+    PENDING: ["En revisión de Meta", "yellow", 0],
+    IN_APPEAL: ["En apelación", "yellow", 0],
+    REJECTED: ["Rechazada", "red", 1],
+    PAUSED: ["Pausada", "orange", 2],
+    LIMIT_EXCEEDED: ["Límite superado", "orange", 2],
+    DISABLED: ["Desactivada", "gray", 3],
+    PENDING_DELETION: ["Eliminándose", "gray", 3],
+    APPROVED: ["Aprobada", "green", 4],
+  };
+  const templateState = (t) => templateStates[t.status] || [t.status, "gray", 3];
   const fieldOptions = [
     ["{{nombre}}", "Nombre del contacto"],
     ["{{empresa}}", "Empresa"],
@@ -38,10 +50,14 @@
     root,
     view = "Leads",
     status = null,
+    metrics = null,
+    airtable = null,
+    leadsMode = "Airtable",
     leads = [],
     campaigns = [],
     templates = [],
     templatesError = "",
+    templatesCheckedAt = 0,
     total = 0,
     page = 0,
     search = "",
@@ -160,6 +176,7 @@
     }
     try {
       templates = (await api("templates", undefined, "GET")).items;
+      templatesCheckedAt = Date.now();
     } catch (e) {
       templatesError = e.message;
     }
@@ -168,6 +185,9 @@
   const usableTemplates = () => templates.filter((t) => t.status === "APPROVED" && t.supported);
   async function load() {
     [status, { items: campaigns }] = await Promise.all([api("status"), api("campaigns")]);
+    metrics = await api("metrics", undefined, "GET").catch(() => null);
+    airtable = await api("airtable", undefined, "GET").catch(() => null);
+    if (!airtable?.columns?.length) airtable = null;
     await Promise.all([loadLeads(), loadTemplates()]);
     render();
   }
@@ -190,9 +210,10 @@
     );
     root.append(banner);
     const tabs = el("div", undefined, "la-tabs");
-    for (const name of ["Leads", "Secuencias", "Conversaciones", "Configuración", "Ayuda"]) {
+    for (const name of ["Leads", "Secuencias", "Plantillas", "Conversaciones", "Configuración", "Ayuda"]) {
       const b = button(name, async () => {
         view = name;
+        if (name === "Plantillas") await loadTemplates();
         render();
       });
       if (view === name) b.classList.add("active");
@@ -211,6 +232,7 @@
     const content = shell();
     if (view === "Leads") renderLeads(content);
     else if (view === "Secuencias") renderCampaigns(content);
+    else if (view === "Plantillas") renderTemplates(content);
     else if (view === "Conversaciones") renderInbox(content);
     else if (view === "Ayuda") renderHelp(content);
     else renderConfig(content);
@@ -285,19 +307,195 @@
       ),
     );
   }
-  function renderLeads(parent) {
+  const stateOrder = ["new", "pending", "active", "responded", "finished", "paused", "error", "opted_out"];
+  const barRow = (name, bars, max) => {
+    const row = el("div", undefined, "la-bar-row");
+    row.append(el("span", name, "la-bar-name"));
+    const marks = el("div", undefined, "la-bar-marks");
+    for (const { value, series, label } of bars) {
+      const line = el("div", undefined, "la-bar-line");
+      const mark = el("span", undefined, `la-bar la-bar-${series}`);
+      mark.style.width = `${max ? (value / max) * 100 : 0}%`;
+      line.title = `${label}: ${value}`;
+      line.append(mark, el("span", String(value), "la-bar-value"));
+      marks.append(line);
+    }
+    row.append(marks);
+    return row;
+  };
+  function renderSummary(parent) {
     const stats = el("div", undefined, "la-stats");
-    for (const [label, value] of [
-      ["Total filtrado", total],
-      ["Activos en página", leads.filter((l) => l.state === "active").length],
-      ["Respondidos en página", leads.filter((l) => l.state === "responded").length],
-      ["Sin consentimiento en página", leads.filter((l) => !l.consent).length],
-    ]) {
+    const share = (n, of) => (of ? ` · ${Math.round((n / of) * 100)} %` : "");
+    for (const [label, value, detail] of metrics
+      ? [
+          ["Contactos", metrics.total, `${metrics.without_consent} sin consentimiento`],
+          ["Contactados", metrics.contacted, `${metrics.pending} envíos programados`],
+          [
+            "Han contestado",
+            metrics.replied,
+            `${metrics.replied_after_message} tras un mensaje${share(metrics.replied_after_message, metrics.contacted)}`,
+          ],
+          ["Por revisar", metrics.to_review, `Bajas: ${metrics.by_state.opted_out || 0}`],
+        ]
+      : [["Total filtrado", total, "Resumen no disponible"]]) {
       const card = el("div", undefined, "stat-card");
-      card.append(el("div", label, "stat-label"), el("div", String(value), "stat-value"));
+      card.append(
+        el("div", label, "stat-label"),
+        el("div", String(value), "stat-value"),
+        el("small", detail),
+      );
       stats.append(card);
     }
     parent.append(stats);
+    if (!metrics) return;
+    const charts = el("div", undefined, "la-charts");
+    const phases = el("div", undefined, "la-card");
+    phases.append(el("h3", "En qué fase está cada contacto"));
+    note(phases, "Pulsa una fase para ver sus contactos en la tabla.");
+    const shown = stateOrder.filter((s) => s !== "pending" || metrics.by_state[s]);
+    const maxState = Math.max(0, ...shown.map((s) => metrics.by_state[s] || 0));
+    for (const state of shown) {
+      const row = barRow(
+        labels[state],
+        [{ value: metrics.by_state[state] || 0, series: 1, label: labels[state] }],
+        maxState,
+      );
+      const open = button("", async () => {
+        filter = state;
+        search = "";
+        page = 0;
+        await loadLeads();
+        render();
+      });
+      open.className = `la-bar-button${filter === state ? " active" : ""}`;
+      open.setAttribute("aria-label", `Ver contactos en fase ${labels[state]}`);
+      open.replaceChildren(row);
+      phases.append(open);
+    }
+    const messages = el("div", undefined, "la-card");
+    messages.append(el("h3", "Respuesta por mensaje"));
+    if (metrics.by_message.length) {
+      const legend = el("div", undefined, "la-legend");
+      for (const [series, name] of [
+        [1, "Enviados"],
+        [2, "Contestaron a ese mensaje"],
+      ]) {
+        const item = el("span");
+        item.append(el("i", undefined, `la-bar la-bar-${series}`), name);
+        legend.append(item);
+      }
+      messages.append(legend);
+      const maxSent = Math.max(...metrics.by_message.map((m) => m.sent));
+      for (const m of metrics.by_message)
+        messages.append(
+          barRow(
+            `Mensaje ${m.step + 1}`,
+            [
+              { value: m.sent, series: 1, label: "Enviados" },
+              { value: m.replied, series: 2, label: "Contestaron" },
+            ],
+            maxSent,
+          ),
+        );
+    } else note(messages, "Todavía no se ha enviado ningún mensaje de una secuencia.");
+    const d = metrics.delivery;
+    note(
+      messages,
+      `Último estado en WhatsApp: ${d.sent || 0} enviados, ${d.delivered || 0} entregados, ${d.read || 0} leídos, ${d.failed || 0} no entregados · ${metrics.reply_messages_sent} mensajes de «Si contesta».`,
+    );
+    charts.append(phases, messages);
+    parent.append(charts);
+    if (metrics.test_contacts)
+      note(parent, `Incluye ${metrics.test_contacts} contacto de prueba.`);
+  }
+  const repliedText = (lead) =>
+    lead.state === "opted_out"
+      ? "Pidió la baja"
+      : lead.state === "responded"
+        ? `Sí · ${date(lead.replied_at)}`
+        : lead.last_sent
+          ? "No"
+          : "—";
+  const chipColors = /^(blue|cyan|teal|green|yellow|orange|red|pink|purple|gray)/;
+  const madridDay = (d) => d.toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+  const safeUrl = (value) => {
+    try {
+      const url = new URL(String(value));
+      return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+    } catch {
+      return "";
+    }
+  };
+  const cellLink = (text, href, external) => {
+    const a = el("a", text, "la-cell-link");
+    a.href = href;
+    if (external) {
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+    }
+    return a;
+  };
+  const registeredDate = (td, value) => {
+    const day = String(value).slice(0, 10);
+    const parsed = new Date(`${day}T12:00:00Z`);
+    if (!Number.isFinite(+parsed)) return void (td.textContent = String(value));
+    const days = Math.round((Date.parse(madridDay(new Date())) - Date.parse(day)) / 86400000);
+    td.append(
+      el(
+        "strong",
+        parsed.toLocaleDateString("es-ES", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          timeZone: "UTC",
+        }),
+      ),
+      el("small", days === 0 ? "Hoy" : days === 1 ? "Ayer" : days > 1 ? `Hace ${days} días` : ""),
+    );
+  };
+  const longText = (td, value) => {
+    const text = el("div", String(value), "la-long");
+    td.classList.add("la-long-cell");
+    td.append(text);
+    if (String(value).length <= 120) return;
+    const more = el("button", "Ver todo", "la-more");
+    more.type = "button";
+    more.addEventListener("click", () => {
+      more.textContent = text.classList.toggle("open") ? "Ver menos" : "Ver todo";
+    });
+    td.append(more);
+  };
+  const airtableCell = (column, value) => {
+    const td = el("td");
+    const blank = value === undefined || value === null || value === "";
+    if (blank) {
+      td.append(el("span", "—", "la-empty"));
+      return td;
+    }
+    if (column.type === "date" || column.type === "dateTime") registeredDate(td, value);
+    else if (column.type === "singleSelect") {
+      const color = column.choices?.find((c) => c.name === value)?.color || "gray";
+      const family = chipColors.exec(color)?.[1] || "gray";
+      td.append(el("span", String(value), `la-chip la-chip-${family}`));
+    } else if (column.type === "email") td.append(cellLink(String(value), `mailto:${value}`));
+    else if (column.type === "phoneNumber")
+      td.append(cellLink(String(value), `tel:${String(value).replace(/[^\d+]/g, "")}`));
+    else if (column.type === "url") {
+      const href = safeUrl(value);
+      td.append(href ? cellLink("Abrir enlace", href, true) : el("span", String(value)));
+    } else if (column.type === "multilineText" || String(value).length > 120)
+      longText(td, value);
+    else td.textContent = Array.isArray(value) ? value.join(", ") : String(value);
+    return td;
+  };
+  const airtableFields = (lead) => {
+    const stored = airtable.records[lead.airtable_id];
+    if (stored) return stored;
+    const map = status?.config.mapping || {};
+    return { [map.name]: lead.name, [map.phone]: "+" + lead.phone, [map.email]: lead.email };
+  };
+  function renderLeads(parent) {
+    renderSummary(parent);
     const tools = el("div", undefined, "la-tools");
     const find = field(tools, "Buscar", "search", search);
     find.placeholder = "Nombre, teléfono o email";
@@ -339,19 +537,42 @@
         render();
       }),
     );
+    const showAirtable = !!airtable && leadsMode === "Airtable";
+    if (airtable) {
+      const modes = el("div", undefined, "la-tabs la-modes");
+      for (const name of ["Airtable", "Automatización"]) {
+        const b = button(name, async () => {
+          leadsMode = name;
+          render();
+        });
+        if (leadsMode === name) b.classList.add("active");
+        modes.append(b);
+      }
+      parent.append(modes);
+      if (airtable.not_imported?.length)
+        note(
+          parent,
+          `Sin importar por teléfono o duplicado: ${airtable.not_imported.join(", ")}.`,
+        );
+    } else if (status)
+      note(parent, "No se han podido leer las columnas de Airtable. Pulsa Actualizar para reintentar.");
     const wrap = el("div", undefined, "la-table-wrap"),
-      table = el("table");
+      table = el("table", undefined, showAirtable ? "la-airtable" : undefined);
     const head = el("tr");
-    for (const name of [
-      "Seleccionar",
-      "Contacto",
-      "Entrada / origen",
-      "Estado",
-      "Paso",
-      "Último mensaje",
-      "Próximo envío",
-      "Acciones",
-    ])
+    for (const name of showAirtable
+      ? ["Seleccionar", ...airtable.columns.map((c) => c.name), "Estado", "Acciones"]
+      : [
+          "Seleccionar",
+          "Contacto",
+          "Entrada / origen",
+          "Estado",
+          "Paso",
+          "Mensaje enviado",
+          "¿Contestó?",
+          "Último mensaje",
+          "Próximo envío",
+          "Acciones",
+        ])
       head.append(el("th", name));
     const thead = el("thead");
     thead.append(head);
@@ -368,34 +589,58 @@
       );
       checkCell.append(check);
       row.append(checkCell);
-      const contact = el("td");
-      contact.append(
-        el("strong", lead.name || "Sin nombre"),
-        el("div", "+" + lead.phone),
-        el("small", lead.email || ""),
-      );
-      row.append(contact);
-      const origin = el("td");
-      origin.append(el("div", lead.entry_date || "—"), el("small", lead.source || "—"));
-      row.append(origin);
+      if (showAirtable) {
+        const fields = airtableFields(lead);
+        for (const column of airtable.columns)
+          row.append(airtableCell(column, fields[column.name]));
+      } else {
+        const contact = el("td");
+        contact.append(
+          el("strong", lead.name || "Sin nombre"),
+          el("div", "+" + lead.phone),
+          el("small", lead.email || ""),
+        );
+        row.append(contact);
+        const origin = el("td");
+        origin.append(el("div", lead.entry_date || "—"), el("small", lead.source || "—"));
+        row.append(origin);
+      }
       const stateCell = el("td");
       stateCell.append(el("span", labels[lead.state] || lead.state, "la-state"));
       if (lead.is_test) stateCell.append(el("small", "Contacto de prueba"));
-      if (lead.stop_text) stateCell.append(el("small", lead.stop_text));
-      for (const blocker of lead.blockers || []) stateCell.append(el("small", blocker));
-      if (!lead.blockers && !lead.consent)
-        stateCell.append(el("small", "Sin consentimiento acreditado"));
+      if (!showAirtable) {
+        if (lead.stop_text) stateCell.append(el("small", lead.stop_text));
+        for (const blocker of lead.blockers || []) stateCell.append(el("small", blocker));
+        if (!lead.blockers && !lead.consent)
+          stateCell.append(el("small", "Sin consentimiento acreditado"));
+      }
       row.append(stateCell);
-      row.append(
-        el(
-          "td",
-          lead.snapshot
-            ? `${Math.min(lead.step + 1, lead.snapshot.length)} / ${lead.snapshot.length}`
-            : "—",
-        ),
-        el("td", lead.last_message || "—"),
-        el("td", date(lead.next_due)),
-      );
+      if (!showAirtable) {
+        row.append(
+          el(
+            "td",
+            lead.snapshot
+              ? `${Math.min(lead.step + 1, lead.snapshot.length)} / ${lead.snapshot.length}`
+              : "—",
+          ),
+        );
+        const sentCell = el("td");
+        if (lead.last_sent)
+          sentCell.append(
+            el("div", lead.last_sent.label),
+            el(
+              "small",
+              `${date(lead.last_sent.at)}${lead.last_sent.delivery ? ` · ${deliveryLabels[lead.last_sent.delivery] || lead.last_sent.delivery}` : ""}`,
+            ),
+          );
+        else sentCell.textContent = "—";
+        row.append(
+          sentCell,
+          el("td", repliedText(lead)),
+          el("td", lead.last_message || "—"),
+          el("td", date(lead.next_due)),
+        );
+      }
       const actions = el("td");
       actions.append(
         button("Conversación", async () => {
@@ -404,7 +649,16 @@
           render();
         }),
       );
-      if (lead.state === "active")
+      if (lead.seendy_path) {
+        const seendy = el("a", "Abrir en Seendy", "btn btn-sm btn-ghost");
+        seendy.href = lead.seendy_path;
+        seendy.target = "_blank";
+        seendy.rel = "noopener noreferrer";
+        actions.append(seendy);
+      }
+      // La vista Airtable es de consulta: activar y pausar quedan en Automatización.
+      if (showAirtable);
+      else if (lead.state === "active")
         actions.append(
           button("Pausar", async () => {
             await api("pause", { id: lead.id });
@@ -465,7 +719,7 @@
         activate.disabled = !lead.consent;
         actions.append(activate);
       }
-      if (lead.is_test && lead.state !== "opted_out")
+      if (!showAirtable && lead.is_test && lead.state !== "opted_out")
         actions.append(
           button("Reiniciar prueba", async () => {
             if (!confirm("¿Reiniciar el contacto de prueba? Se borrará su programación.")) return;
@@ -502,6 +756,61 @@
     next.disabled = (page + 1) * 50 >= total;
     pages.append(prev, el("span", `Página ${page + 1} · 50 contactos por página`), next);
     parent.append(pages);
+  }
+  function renderTemplates(parent) {
+    const tools = el("div", undefined, "la-tools");
+    tools.append(
+      button("Comprobar ahora", async () => {
+        await loadTemplates();
+        render();
+      }),
+    );
+    parent.append(tools);
+    if (templatesError) return note(parent, templatesError);
+    const pending = templates.filter((t) => templateState(t)[2] === 0).length;
+    const approved = templates.filter((t) => t.status === "APPROVED").length;
+    note(
+      parent,
+      `${pending} en revisión · ${approved} aprobadas · Última comprobación en Meta: ${date(templatesCheckedAt)}.${pending ? " Mientras haya alguna en revisión se comprueba cada minuto con esta pestaña abierta." : ""}`,
+    );
+    if (!templates.length) return note(parent, "Todavía no hay plantillas en esta cuenta de WhatsApp.");
+    const wrap = el("div", undefined, "la-table-wrap"),
+      table = el("table"),
+      head = el("tr"),
+      thead = el("thead"),
+      body = el("tbody");
+    for (const name of ["Estado", "Plantilla", "Categoría", "Texto", "Secuencias que la usan"])
+      head.append(el("th", name));
+    thead.append(head);
+    table.append(thead);
+    const ordered = [...templates].sort(
+      (a, b) => templateState(a)[2] - templateState(b)[2] || a.name.localeCompare(b.name),
+    );
+    for (const t of ordered) {
+      const row = el("tr"),
+        [label, color] = templateState(t),
+        stateCell = el("td"),
+        nameCell = el("td"),
+        textCell = el("td");
+      stateCell.append(el("span", label, `la-chip la-chip-${color}`));
+      if (t.rejected_reason) stateCell.append(el("small", `Motivo de Meta: ${t.rejected_reason}`));
+      nameCell.append(el("strong", t.name), el("small", t.language));
+      longText(textCell, t.body || "—");
+      const used = campaigns
+        .filter((c) => c.steps?.some((s) => s.template === t.name && s.language === t.language))
+        .map((c) => c.name);
+      row.append(
+        stateCell,
+        nameCell,
+        el("td", t.category || "—"),
+        textCell,
+        el("td", used.join(", ") || "—"),
+      );
+      body.append(row);
+    }
+    table.append(body);
+    wrap.append(table);
+    parent.append(wrap);
   }
   const newStep = () => ({
     name: "",
@@ -1251,7 +1560,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261102b";
+      link.href = "/assets/css/internal-leads.css?v=20261103e";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
@@ -1268,6 +1577,18 @@
       }
     });
     refreshTimer = setInterval(() => {
+      if (
+        view === "Plantillas" &&
+        !document.hidden &&
+        root.closest(".section.active") &&
+        !busy &&
+        Date.now() - templatesCheckedAt >= 60000 &&
+        templates.some((t) => templateState(t)[2] === 0)
+      )
+        return run(async () => {
+          await loadTemplates();
+          render();
+        });
       if (
         document.hidden ||
         !root.closest(".section.active") ||
