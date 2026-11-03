@@ -187,6 +187,7 @@
     [status, { items: campaigns }] = await Promise.all([api("status"), api("campaigns")]);
     metrics = await api("metrics", undefined, "GET").catch(() => null);
     airtable = await api("airtable", undefined, "GET").catch(() => null);
+    if (!airtable?.columns?.length) airtable = null;
     await Promise.all([loadLeads(), loadTemplates()]);
     render();
   }
@@ -548,7 +549,7 @@
         modes.append(b);
       }
       parent.append(modes);
-      if (airtable.not_imported.length)
+      if (airtable.not_imported?.length)
         note(
           parent,
           `Sin importar por teléfono o duplicado: ${airtable.not_imported.join(", ")}.`,
@@ -1559,7 +1560,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261103c";
+      link.href = "/assets/css/internal-leads.css?v=20261103e";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
