@@ -1,7 +1,7 @@
 {
-  "id": "crm-comercial-solo-seendy-20261103",
-  "createdAt": "2026-11-03T14:31:33.000Z",
-  "sourceCommit": "6405844",
+  "id": "crm-leads-columnas-plantillas-20261103",
+  "createdAt": "2026-11-03T17:00:00.000Z",
+  "sourceCommit": "aa1c888",
   "entry": "assets/renderer-web-CwN8zttl.js",
   "documents": [
     "seendy.html"
@@ -401,15 +401,15 @@
     },
     {
       "path": "leads/internal-leads.css",
-      "sha256": "b7f99ceae40011e9c3f394ac30e5df90a36c06b0d6dce76e0f9e6a74a1e24ae9"
+      "sha256": "aed5c806c1550dcf07443ec3a4c578d1287198dfc94157e6753af973d2bd1217"
     },
     {
       "path": "leads/internal-leads.js",
-      "sha256": "525307aacd6027f34efbd8888170694a535479d71c1921b5bc493877e810d60a"
+      "sha256": "e8233959606ab3dbff343c210479ee53ddc6e46ceeb10c05b00816586c277b6d"
     },
     {
       "path": "leads/leads.html",
-      "sha256": "1eee6ef91a4ddfcb03babb0cd2fae181ce407ad070a9a46de2b4410d18837925"
+      "sha256": "bfe9bdd7cf6de02ff18c1e1a1e69d00221432637cc6e601f1f3193eb813909f3"
     },
     {
       "path": "seendy.html",
