@@ -1,6 +1,6 @@
 {
   "id": "crm-usuarios-gastos-20261104",
-  "createdAt": "2026-11-04T21:21:02.767Z",
+  "createdAt": "2026-11-04T21:21:33.976Z",
   "sourceCommit": "711e673",
   "entry": "assets/renderer-web-DmgHnNwY.js",
   "documents": [
@@ -433,11 +433,11 @@
     },
     {
       "path": "third-party/big-calendar/LICENSE",
-      "sha256": "8845460f7d019151dc144207eb6a74aab88966e51c9d0b9684c499cc8255ec1b"
+      "sha256": "4fec5bf0b29beefaee1876b69b48f5d7e6ee666a874d222d29c15753585fc822"
     },
     {
       "path": "third-party/tremor/LICENSE",
-      "sha256": "aab2f679fc7fb32112b338cfcce98276958ffc52c007a0e03153a9c50db44f8f"
+      "sha256": "6e43333ff4b171baacff233a3672365923eb688bf7ce8724eac42868bc4a08eb"
     },
     {
       "path": "third-party/tremor/NOTICE.txt",
