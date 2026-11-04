@@ -116,6 +116,7 @@
     if (n) {
       n.textContent = message;
       n.className = "la-feedback";
+      n.scrollIntoView({ block: "nearest" });
     }
   };
   async function run(action) {
@@ -253,7 +254,7 @@
       ],
       [
         "Cómo activar o pausar un contacto",
-        "En Leads, elige la secuencia y el paso por el que empieza el contacto, y pulsa Activar; el panel pide confirmación y te dice cuándo saldrá el mensaje. Si eliges un paso posterior, sale en el primer momento permitido y no se envían los anteriores. Pausar cancela lo programado. Reanudar continúa por el mensaje pendiente sin repetir los ya enviados.",
+        "En Leads, elige la secuencia y el paso por el que empieza el contacto, y pulsa Activar; el panel pide confirmación y te dice cuándo saldrá el mensaje. Los anteriores no se envían. Si ese mensaje tiene espera, indica también el día en el que va el contacto: sale cuando se cumpla el resto de la espera. El botón ¿Cómo funciona?, en la vista Automatización, lo explica con un ejemplo. Pausar cancela lo programado. Reanudar continúa por el mensaje pendiente sin repetir los ya enviados; solo se elige el día de su espera.",
       ],
       [
         "Cuándo sale cada mensaje",
@@ -351,7 +352,7 @@
     const charts = el("div", undefined, "la-charts");
     const phases = el("div", undefined, "la-card");
     phases.append(el("h3", "En qué fase está cada contacto"));
-    note(phases, "Pulsa una fase para ver sus contactos en la tabla.");
+    note(phases, "Pulsa una fase para ver sus contactos.");
     const shown = stateOrder.filter((s) => s !== "pending" || metrics.by_state[s]);
     const maxState = Math.max(0, ...shown.map((s) => metrics.by_state[s] || 0));
     for (const state of shown) {
@@ -494,6 +495,319 @@
     const map = status?.config.mapping || {};
     return { [map.name]: lead.name, [map.phone]: "+" + lead.phone, [map.email]: lead.email };
   };
+  const days = (n) => `${n} ${n === 1 ? "día" : "días"}`;
+  const leadActions = (lead) => {
+    const actions = el("div", undefined, "la-lead-actions");
+    actions.append(
+      button("Conversación", async () => {
+        conversation = lead;
+        view = "Conversaciones";
+        render();
+      }),
+    );
+    if (lead.seendy_path) {
+      const seendy = el("a", "Abrir en Seendy", "btn btn-sm btn-ghost");
+      seendy.href = lead.seendy_path;
+      seendy.target = "_blank";
+      seendy.rel = "noopener noreferrer";
+      actions.append(seendy);
+    }
+    return actions;
+  };
+  const selectBox = (lead) => {
+    const check = el("input");
+    check.type = "checkbox";
+    check.setAttribute("aria-label", `Seleccionar ${lead.name || lead.phone}`);
+    check.addEventListener("change", () =>
+      check.checked ? selected.add(lead.id) : selected.delete(lead.id),
+    );
+    return check;
+  };
+  function renderAirtableTable(parent) {
+    const wrap = el("div", undefined, "la-table-wrap"),
+      table = el("table", undefined, "la-airtable"),
+      head = el("tr"),
+      thead = el("thead"),
+      body = el("tbody");
+    for (const name of ["Seleccionar", ...airtable.columns.map((c) => c.name), "Estado", "Acciones"])
+      head.append(el("th", name));
+    thead.append(head);
+    table.append(thead);
+    for (const lead of leads) {
+      const row = el("tr"),
+        checkCell = el("td"),
+        stateCell = el("td"),
+        actions = el("td"),
+        fields = airtableFields(lead);
+      checkCell.append(selectBox(lead));
+      row.append(checkCell);
+      for (const column of airtable.columns) row.append(airtableCell(column, fields[column.name]));
+      stateCell.append(el("span", labels[lead.state] || lead.state, "la-state"));
+      if (lead.is_test) stateCell.append(el("small", "Contacto de prueba"));
+      actions.append(leadActions(lead));
+      row.append(stateCell, actions);
+      body.append(row);
+    }
+    table.append(body);
+    wrap.append(table);
+    parent.append(wrap);
+  }
+  // Lo que bloquea a todos se dice una vez arriba, no en cada contacto.
+  const sharedBlockers = () => {
+    const open = leads.filter((l) => !["responded", "finished", "opted_out"].includes(l.state));
+    if (open.length < 2) return [];
+    return (open[0].blockers || []).filter((b) => open.every((l) => l.blockers?.includes(b)));
+  };
+  function showAutomationHelp() {
+    const dialog = el("dialog", undefined, "la-help");
+    dialog.setAttribute("aria-labelledby", "laHelpTitle");
+    const title = el("h3", "Cómo elegir por dónde va un contacto");
+    title.id = "laHelpTitle";
+    dialog.append(title);
+    note(
+      dialog,
+      "Una secuencia es una lista de mensajes separados por días de espera. Aquí indicas en qué punto está el contacto y la secuencia sigue desde ahí.",
+    );
+    const terms = el("dl", undefined, "la-help-terms");
+    for (const [term, text] of [
+      ["Secuencia", "Los mensajes que recibirá."],
+      ["Empezar en", "El siguiente mensaje que debe recibir. Los anteriores no se le envían."],
+      [
+        "Día",
+        "Cuántos días de la espera de ese mensaje ya han pasado. Si el mensaje no tiene espera, no aparece.",
+      ],
+    ])
+      terms.append(el("dt", term), el("dd", text));
+    dialog.append(terms);
+    const example = el("div", undefined, "la-help-example");
+    example.append(
+      el("strong", "Ejemplo"),
+      el("p", "Una secuencia con el mensaje 2 a los 2 días del 1 y el mensaje 3 a los 5 días del 2."),
+      el(
+        "p",
+        "Si eliges Mensaje 3 y Día 3 de 5, ya han pasado 3 de esos 5 días: el mensaje 3 sale dentro de 2 días y no se envían ni el 1 ni el 2.",
+      ),
+      el("p", "Si eliges el último día, Día 5 de 5, sale en el primer momento permitido."),
+    );
+    dialog.append(example);
+    const after = el("ul");
+    for (const text of [
+      "Los mensajes siguientes mantienen su espera normal, contada desde este envío.",
+      "Los días son de calendario de Madrid. El horario, los días permitidos y el límite diario pueden retrasar el envío.",
+      "Al activar se muestra la fecha prevista, que luego aparece en Próximo envío.",
+      "Un contacto pausado sigue en su mensaje pendiente: al reanudar solo eliges el día.",
+      "Si el contacto contesta, la secuencia se detiene.",
+    ])
+      after.append(el("li", text));
+    dialog.append(after);
+    const close = el("button", "Entendido", "btn btn-sm btn-accent");
+    close.type = "button";
+    close.addEventListener("click", () => dialog.close());
+    dialog.append(close);
+    dialog.addEventListener("close", () => dialog.remove());
+    root.append(dialog);
+    dialog.showModal();
+  }
+  function leadControls(lead) {
+    const box = el("div", undefined, "la-lead-controls");
+    const resuming = !!lead.snapshot;
+    let choice, startChoice;
+    if (resuming)
+      box.append(
+        el(
+          "p",
+          `Sigue en «${campaigns.find((c) => c.id === lead.campaign_id)?.name || "su secuencia"}», mensaje ${lead.step + 1} de ${lead.snapshot.length}: ${lead.snapshot[lead.step]?.name || lead.snapshot[lead.step]?.template || ""}`,
+          "la-lead-resume",
+        ),
+      );
+    else {
+      choice = select(
+        box,
+        "Secuencia",
+        [
+          ["", "Seleccionar"],
+          ...campaigns.filter((c) => c.active && isAssignable(c)).map((c) => [c.id, c.name]),
+        ],
+        "",
+      );
+      startChoice = select(box, "Empezar en", [], "");
+    }
+    const dayChoice = select(box, "Día", [], "");
+    const hint = el("small", "", "la-lead-hint");
+    hint.setAttribute("aria-live", "polite");
+    const currentStep = () =>
+      resuming
+        ? lead.snapshot[lead.step]
+        : (campaigns.find((c) => c.id === choice.value)?.steps || []).filter(
+            (s) => s.enabled !== false,
+          )[Number(startChoice.value)];
+    const showHint = () => {
+      const step = currentStep();
+      if (!step) return (hint.textContent = "Elige una secuencia para ver cuándo saldría.");
+      const left = (step.delay_days || 0) - Number(dayChoice.value);
+      hint.textContent =
+        left > 0
+          ? `Saldrá dentro de ${days(left)}${step.time ? ` a las ${step.time}` : ""}.`
+          : "Saldrá en el primer momento permitido.";
+    };
+    const fillDays = () => {
+      const step = currentStep(),
+        wait = step?.delay_days || 0;
+      dayChoice.replaceChildren(
+        ...Array.from({ length: wait + 1 }, (_, d) => {
+          const o = el(
+            "option",
+            `Día ${d} de ${wait} · ${d === wait ? "sale ya" : `faltan ${days(wait - d)}`}`,
+          );
+          o.value = String(d);
+          return o;
+        }),
+      );
+      dayChoice.parentElement.hidden = !wait;
+      // Un mensaje posterior entra sin esperar salvo que se indique otro día.
+      dayChoice.value = String(!resuming && Number(startChoice.value) > 0 ? wait : 0);
+      showHint();
+    };
+    if (!resuming) {
+      const fillSteps = () => {
+        startChoice.replaceChildren(
+          ...(campaigns.find((c) => c.id === choice.value)?.steps || [])
+            .filter((s) => s.enabled !== false)
+            .map((s, i) => {
+              const o = el("option", `Mensaje ${i + 1}: ${s.name || s.template}`);
+              o.value = String(i);
+              return o;
+            }),
+        );
+        startChoice.disabled = !choice.value;
+        fillDays();
+      };
+      choice.addEventListener("change", fillSteps);
+      startChoice.addEventListener("change", fillDays);
+      fillSteps();
+    } else fillDays();
+    dayChoice.addEventListener("change", showHint);
+    const activate = button(
+      resuming ? "Reanudar" : "Activar",
+      async () => {
+        if (!resuming && !choice.value) throw new Error("Selecciona una secuencia");
+        const sequence = resuming
+          ? "la secuencia pendiente"
+          : `«${campaigns.find((c) => c.id === choice.value)?.name}»`;
+        if (
+          !confirm(
+            `¿Activar ${sequence} para ${lead.name || "+" + lead.phone}? Se le enviarán mensajes de WhatsApp si no responde.${Number(startChoice?.value) > 0 ? ` Empezará en el mensaje ${Number(startChoice.value) + 1}, sin enviarle los anteriores.` : ""} ${hint.textContent}`,
+          )
+        )
+          return;
+        const r = await api("activate", {
+          id: lead.id,
+          campaign_id: resuming ? lead.campaign_id : choice.value,
+          start_step: Number(startChoice?.value || 0),
+          start_day: Number(dayChoice.value || 0),
+        });
+        await loadLeads();
+        render();
+        error(`Activado. Próximo envío previsto: ${date(r?.due_at)}.`);
+      },
+      true,
+    );
+    activate.disabled = !lead.consent;
+    const submit = el("div", undefined, "la-lead-submit");
+    submit.append(activate);
+    box.append(submit, hint);
+    if (!lead.consent) box.append(el("small", "No se puede activar sin consentimiento acreditado.", "la-lead-hint"));
+    return box;
+  }
+  function automationCard(lead, shared) {
+    const card = el("article", undefined, "la-lead");
+    const top = el("div", undefined, "la-lead-top");
+    const contact = el("div", undefined, "la-lead-contact");
+    contact.append(
+      el("strong", lead.name || "Sin nombre"),
+      el("span", `+${lead.phone}${lead.email ? ` · ${lead.email}` : ""}`),
+      el("small", `${lead.entry_date || "Sin fecha"} · ${lead.source || "Sin origen"}`),
+    );
+    const actions = leadActions(lead);
+    if (lead.state === "active")
+      actions.append(
+        button("Pausar", async () => {
+          await api("pause", { id: lead.id });
+          await loadLeads();
+          render();
+        }),
+      );
+    if (lead.is_test && lead.state !== "opted_out")
+      actions.append(
+        button("Reiniciar prueba", async () => {
+          if (!confirm("¿Reiniciar el contacto de prueba? Se borrará su programación.")) return;
+          await api("reset_test_lead", { id: lead.id });
+          await loadLeads();
+          render();
+        }),
+      );
+    top.append(selectBox(lead), contact, el("span", labels[lead.state] || lead.state, "la-state"), actions);
+    card.append(top);
+    const reasons = [
+      lead.is_test ? "Contacto de prueba" : "",
+      lead.stop_text,
+      ...(lead.blockers || []).filter((b) => !shared.includes(b)),
+    ].filter(Boolean);
+    if (reasons.length) {
+      const list = el("div", undefined, "la-lead-reasons");
+      for (const text of reasons) list.append(el("small", text));
+      card.append(list);
+    }
+    if (lead.snapshot || lead.last_sent || lead.next_due || lead.last_message) {
+      const facts = el("dl", undefined, "la-lead-facts");
+      const fact = (term, value) => {
+        const box = el("div"),
+          text = el("dd");
+        if (value instanceof Node) text.append(value);
+        else text.textContent = value || "—";
+        box.append(el("dt", term), text);
+        facts.append(box);
+      };
+      fact(
+        "Paso",
+        lead.snapshot ? `${Math.min(lead.step + 1, lead.snapshot.length)} de ${lead.snapshot.length}` : "",
+      );
+      fact(
+        "Mensaje enviado",
+        lead.last_sent
+          ? `${lead.last_sent.label} · ${date(lead.last_sent.at)}${lead.last_sent.delivery ? ` · ${deliveryLabels[lead.last_sent.delivery] || lead.last_sent.delivery}` : ""}`
+          : "",
+      );
+      fact("¿Contestó?", repliedText(lead));
+      fact("Próximo envío", date(lead.next_due));
+      if (lead.last_message) {
+        const box = el("div");
+        longText(box, lead.last_message);
+        fact("Último mensaje", box);
+      }
+      card.append(facts);
+    }
+    if (!["active", "responded", "finished", "opted_out", "error"].includes(lead.state))
+      card.append(leadControls(lead));
+    return card;
+  }
+  function renderAutomation(parent) {
+    const bar = el("div", undefined, "la-tools");
+    bar.append(button("¿Cómo funciona?", async () => showAutomationHelp()));
+    parent.append(bar);
+    const shared = sharedBlockers();
+    if (shared.length) {
+      const box = el("div", undefined, "la-banner");
+      box.append(el("strong", "Ahora no se pueden enviar mensajes a estos contactos:"));
+      const list = el("ul");
+      for (const text of shared) list.append(el("li", text));
+      box.append(list);
+      parent.append(box);
+    }
+    const list = el("div", undefined, "la-leads");
+    for (const lead of leads) list.append(automationCard(lead, shared));
+    parent.append(list);
+  }
   function renderLeads(parent) {
     renderSummary(parent);
     const tools = el("div", undefined, "la-tools");
@@ -556,184 +870,8 @@
         );
     } else if (status)
       note(parent, "No se han podido leer las columnas de Airtable. Pulsa Actualizar para reintentar.");
-    const wrap = el("div", undefined, "la-table-wrap"),
-      table = el("table", undefined, showAirtable ? "la-airtable" : undefined);
-    const head = el("tr");
-    for (const name of showAirtable
-      ? ["Seleccionar", ...airtable.columns.map((c) => c.name), "Estado", "Acciones"]
-      : [
-          "Seleccionar",
-          "Contacto",
-          "Entrada / origen",
-          "Estado",
-          "Paso",
-          "Mensaje enviado",
-          "¿Contestó?",
-          "Último mensaje",
-          "Próximo envío",
-          "Acciones",
-        ])
-      head.append(el("th", name));
-    const thead = el("thead");
-    thead.append(head);
-    table.append(thead);
-    const body = el("tbody");
-    for (const lead of leads) {
-      const row = el("tr");
-      const checkCell = el("td"),
-        check = el("input");
-      check.type = "checkbox";
-      check.setAttribute("aria-label", `Seleccionar ${lead.name || lead.phone}`);
-      check.addEventListener("change", () =>
-        check.checked ? selected.add(lead.id) : selected.delete(lead.id),
-      );
-      checkCell.append(check);
-      row.append(checkCell);
-      if (showAirtable) {
-        const fields = airtableFields(lead);
-        for (const column of airtable.columns)
-          row.append(airtableCell(column, fields[column.name]));
-      } else {
-        const contact = el("td");
-        contact.append(
-          el("strong", lead.name || "Sin nombre"),
-          el("div", "+" + lead.phone),
-          el("small", lead.email || ""),
-        );
-        row.append(contact);
-        const origin = el("td");
-        origin.append(el("div", lead.entry_date || "—"), el("small", lead.source || "—"));
-        row.append(origin);
-      }
-      const stateCell = el("td");
-      stateCell.append(el("span", labels[lead.state] || lead.state, "la-state"));
-      if (lead.is_test) stateCell.append(el("small", "Contacto de prueba"));
-      if (!showAirtable) {
-        if (lead.stop_text) stateCell.append(el("small", lead.stop_text));
-        for (const blocker of lead.blockers || []) stateCell.append(el("small", blocker));
-        if (!lead.blockers && !lead.consent)
-          stateCell.append(el("small", "Sin consentimiento acreditado"));
-      }
-      row.append(stateCell);
-      if (!showAirtable) {
-        row.append(
-          el(
-            "td",
-            lead.snapshot
-              ? `${Math.min(lead.step + 1, lead.snapshot.length)} / ${lead.snapshot.length}`
-              : "—",
-          ),
-        );
-        const sentCell = el("td");
-        if (lead.last_sent)
-          sentCell.append(
-            el("div", lead.last_sent.label),
-            el(
-              "small",
-              `${date(lead.last_sent.at)}${lead.last_sent.delivery ? ` · ${deliveryLabels[lead.last_sent.delivery] || lead.last_sent.delivery}` : ""}`,
-            ),
-          );
-        else sentCell.textContent = "—";
-        row.append(
-          sentCell,
-          el("td", repliedText(lead)),
-          el("td", lead.last_message || "—"),
-          el("td", date(lead.next_due)),
-        );
-      }
-      const actions = el("td");
-      actions.append(
-        button("Conversación", async () => {
-          conversation = lead;
-          view = "Conversaciones";
-          render();
-        }),
-      );
-      if (lead.seendy_path) {
-        const seendy = el("a", "Abrir en Seendy", "btn btn-sm btn-ghost");
-        seendy.href = lead.seendy_path;
-        seendy.target = "_blank";
-        seendy.rel = "noopener noreferrer";
-        actions.append(seendy);
-      }
-      // La vista Airtable es de consulta: activar y pausar quedan en Automatización.
-      if (showAirtable);
-      else if (lead.state === "active")
-        actions.append(
-          button("Pausar", async () => {
-            await api("pause", { id: lead.id });
-            await loadLeads();
-            render();
-          }),
-        );
-      else if (!["responded", "finished", "opted_out", "error"].includes(lead.state)) {
-        const choice = select(
-          actions,
-          "Secuencia",
-          [
-            ["", "Seleccionar"],
-            ...campaigns.filter((c) => c.active && isAssignable(c)).map((c) => [c.id, c.name]),
-          ],
-          lead.campaign_id || "",
-        );
-        let startChoice;
-        if (!lead.snapshot) {
-          startChoice = select(actions, "Empezar en", [], "");
-          const fillSteps = () =>
-            startChoice.replaceChildren(
-              ...(campaigns.find((c) => c.id === choice.value)?.steps || [])
-                .filter((s) => s.enabled !== false)
-                .map((s, i) => {
-                  const o = el("option", `Mensaje ${i + 1}: ${s.name || s.template}`);
-                  o.value = String(i);
-                  return o;
-                }),
-            );
-          choice.addEventListener("change", fillSteps);
-          fillSteps();
-        }
-        const activate = button(
-          lead.snapshot ? "Reanudar" : "Activar",
-          async () => {
-            if (!lead.snapshot && !choice.value) throw new Error("Selecciona una secuencia");
-            const sequence = lead.snapshot
-              ? "la secuencia pendiente"
-              : `«${campaigns.find((c) => c.id === choice.value)?.name}»`;
-            if (
-              !confirm(
-                `¿Activar ${sequence} para ${lead.name || "+" + lead.phone}? Se le enviarán mensajes de WhatsApp si no responde.${Number(startChoice?.value) > 0 ? ` Empezará en el mensaje ${Number(startChoice.value) + 1}, sin enviarle los anteriores.` : ""}`,
-              )
-            )
-              return;
-            const r = await api("activate", {
-              id: lead.id,
-              campaign_id: choice.value,
-              start_step: Number(startChoice?.value || 0),
-            });
-            await loadLeads();
-            render();
-            error(`Activado. Próximo envío previsto: ${date(r?.due_at)}.`);
-          },
-          true,
-        );
-        activate.disabled = !lead.consent;
-        actions.append(activate);
-      }
-      if (!showAirtable && lead.is_test && lead.state !== "opted_out")
-        actions.append(
-          button("Reiniciar prueba", async () => {
-            if (!confirm("¿Reiniciar el contacto de prueba? Se borrará su programación.")) return;
-            await api("reset_test_lead", { id: lead.id });
-            await loadLeads();
-            render();
-          }),
-        );
-      row.append(actions);
-      body.append(row);
-    }
-    table.append(body);
-    wrap.append(table);
-    parent.append(wrap);
+    if (showAirtable) renderAirtableTable(parent);
+    else renderAutomation(parent);
     if (!leads.length)
       note(
         parent,
@@ -1560,7 +1698,7 @@
       const link = el("link");
       link.id = "internalLeadsStyles";
       link.rel = "stylesheet";
-      link.href = "/assets/css/internal-leads.css?v=20261103e";
+      link.href = "/assets/css/internal-leads.css?v=20261104";
       document.head.append(link);
     }
     db.auth.onAuthStateChange((event) => {
