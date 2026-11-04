@@ -46,6 +46,7 @@ test(
       last_sent: { label: "Mensaje 2: Seguimiento", at: "2026-11-02T10:00:00Z", delivery: "read" },
       seendy_path: "/app/seendy.html#/workspace/org?view=inbox&conversation=conv",
     };
+    let extraLeads = [];
     const metrics = {
       total: 58,
       test_contacts: 1,
@@ -140,7 +141,7 @@ test(
             : body.action === "metrics"
               ? metrics
               : body.action === "list"
-              ? { items: [lead], total: 1 }
+              ? { items: [lead, ...extraLeads], total: 1 + extraLeads.length }
               : body.action === "campaigns"
                 ? { items: [campaign, blockedCampaign] }
                 : body.action === "events"
@@ -213,7 +214,7 @@ test(
     await page.getByRole("button", { name: "Automatización", exact: true }).click();
     assert.ok(await page.getByText("En qué fase está cada contacto").count());
     assert.ok(await page.getByText("Mensaje 2: Seguimiento").count());
-    assert.ok(await page.getByRole("cell", { name: "No", exact: true }).count());
+    assert.ok(await page.locator(".la-lead-facts dd", { hasText: /^No$/ }).count());
     const seendyLink = page.getByRole("link", { name: "Abrir en Seendy", exact: true });
     assert.equal(await seendyLink.getAttribute("href"), lead.seendy_path);
     assert.equal(await seendyLink.getAttribute("target"), "_blank");
@@ -229,7 +230,7 @@ test(
     await page.getByLabel("Estado", { exact: true }).selectOption("");
     await page.getByRole("button", { name: "Buscar", exact: true }).click();
     await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
-    assert.equal(await page.locator("tbody img").count(), 0);
+    assert.equal(await page.locator(".la-lead img").count(), 0);
     assert.equal(await page.evaluate(() => !!window.xss), false);
     await page.getByRole("button", { name: "Ayuda", exact: true }).click();
     assert.ok(await page.getByText("2 días después del primero", { exact: false }).count());
@@ -351,6 +352,82 @@ test(
       ["Mensaje 1: Primero", "Mensaje 2: Tercero"],
       "Solo se puede empezar en pasos encendidos",
     );
+    assert.equal(await page.getByLabel("Día", { exact: true }).isVisible(), false, "Sin espera no hay día");
+    await page.getByLabel("Empezar en", { exact: true }).selectOption("1");
+    assert.deepEqual(
+      await page.getByLabel("Día", { exact: true }).locator("option").allTextContents(),
+      ["Día 0 de 2 · faltan 2 días", "Día 1 de 2 · faltan 1 día", "Día 2 de 2 · sale ya"],
+    );
+    assert.equal(await page.getByLabel("Día", { exact: true }).inputValue(), "2");
+    await page.getByLabel("Día", { exact: true }).selectOption("1");
+    await page.getByText("Saldrá dentro de 1 día.", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "¿Cómo funciona?", exact: true }).click();
+    await page.getByRole("dialog").getByText("Día 3 de 5", { exact: false }).first().waitFor();
+    if (process.env.LEADS_SCREENSHOT_PREFIX)
+      await page.screenshot({ path: `${process.env.LEADS_SCREENSHOT_PREFIX}-ayuda.png` });
+    await page.getByRole("button", { name: "Entendido", exact: true }).click();
+    assert.equal(await page.getByRole("dialog").count(), 0);
+    assert.equal(await page.getByRole("button", { name: "Activar", exact: true }).isDisabled(), true);
+    await page.setViewportSize({ width: 390, height: 844 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    if (process.env.LEADS_SCREENSHOT_PREFIX)
+      await page.screenshot({ path: `${process.env.LEADS_SCREENSHOT_PREFIX}-movil.png`, fullPage: true });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    lead.consent = true;
+    await page.getByRole("button", { name: "Buscar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    await page.getByLabel("Secuencia", { exact: true }).selectOption(campaign.id);
+    await page.getByLabel("Empezar en", { exact: true }).selectOption("1");
+    await page.getByLabel("Día", { exact: true }).selectOption("1");
+    await page.getByRole("button", { name: "Activar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    const activated = calls.find((c) => c.action === "activate");
+    assert.equal(activated.start_step, 1);
+    assert.equal(activated.start_day, 1);
+    assert.ok(dialogs.some((d) => d.includes("Saldrá dentro de 1 día.")));
+    const common = "Los envíos están apagados en el servidor.";
+    const inProgress = {
+      ...lead,
+      consent: true,
+      name: "Contacto en curso",
+      seendy_path: null,
+      stop_text: null,
+      blockers: [common],
+      campaign_id: campaign.id,
+      snapshot: [campaign.steps[0], { ...campaign.steps[2], delay_days: 4 }],
+      step: 1,
+    };
+    extraLeads = [
+      { ...inProgress, id: "00000000-0000-0000-0000-000000000002", state: "active" },
+      { ...inProgress, id: "00000000-0000-0000-0000-000000000003", state: "paused", name: "Contacto pausado" },
+    ];
+    lead.blockers = [...lead.blockers, common];
+    await page.getByRole("button", { name: "Buscar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    assert.equal(await page.getByText(common, { exact: true }).count(), 1, "Lo común se avisa una vez");
+    const activeCard = page.locator(".la-lead", { hasText: "Contacto en curso" });
+    assert.equal(await activeCard.getByRole("button", { name: "Pausar", exact: true }).count(), 1);
+    assert.equal(await activeCard.locator(".la-lead-controls").count(), 0);
+    const pausedCard = page.locator(".la-lead", { hasText: "Contacto pausado" });
+    assert.equal(await pausedCard.getByLabel("Secuencia", { exact: true }).count(), 0);
+    await pausedCard.getByLabel("Día", { exact: true }).selectOption("3");
+    await pausedCard.getByText("Saldrá dentro de 1 día.", { exact: true }).waitFor();
+    if (process.env.LEADS_SCREENSHOT_PREFIX) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.screenshot({ path: `${process.env.LEADS_SCREENSHOT_PREFIX}-varios.png`, fullPage: true });
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
+    await pausedCard.getByRole("button", { name: "Reanudar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    const resumed = calls.filter((c) => c.action === "activate").at(-1);
+    assert.equal(resumed.id, extraLeads[1].id);
+    assert.equal(resumed.start_day, 3);
+    extraLeads = [];
+    lead.blockers = lead.blockers.filter((b) => b !== common);
+    lead.consent = false;
+    await page.getByRole("button", { name: "Buscar", exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector("[aria-busy=true]"));
+    await page.getByLabel("Secuencia", { exact: true }).selectOption(campaign.id);
     if (process.env.LEADS_SCREENSHOT_PREFIX)
       await page.screenshot({
         path: `${process.env.LEADS_SCREENSHOT_PREFIX}-leads.png`,

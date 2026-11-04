@@ -142,3 +142,12 @@ selector «Empezar en» para activar a mano por un paso concreto. Configuración
 diaria con interruptor, hora y secuencia. Reglas, contrato y orden de despliegue en
 `docs/internal-leads.md` del backend. Requiere la migración 023; **sin desplegar**.
 Validación: `node --test tests/internal-leads-browser.test.cjs` con Chromium real.
+
+## Vista Automatización por tarjetas (04/11/2026)
+
+Leads > Automatización deja la tabla y muestra una tarjeta por contacto, sin scroll
+horizontal. La vista Airtable sigue en tabla. Lo que bloquea a todos los contactos abiertos
+de la página se avisa una vez arriba. Cada tarjeta permite elegir secuencia, mensaje y día de
+la espera en la que va el contacto, con aviso de cuándo saldría; envía `start_day` en
+`activate`, por lo que **el backend debe desplegarse antes que el panel**. El botón ¿Cómo
+funciona? abre la explicación con un ejemplo. Copia del CRM en `app/leads` y su `release.json`.
