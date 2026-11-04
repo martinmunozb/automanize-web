@@ -54,6 +54,7 @@
     airtable = null,
     leadsMode = "Airtable",
     leads = [],
+    upcoming = [],
     campaigns = [],
     templates = [],
     templatesError = "",
@@ -167,6 +168,21 @@
     leads = r.items;
     total = r.total;
     selected.clear();
+    await loadUpcoming();
+  }
+  // Toda la cola, no solo la página visible. Si falla, la lista de contactos sigue.
+  async function loadUpcoming() {
+    try {
+      const active = [];
+      for (let p = 0; ; p++) {
+        const r = await api("list", { page: p, state: "active" }, "GET");
+        active.push(...r.items);
+        if (!r.items.length || active.length >= r.total) break;
+      }
+      upcoming = active.filter((lead) => lead.next_due);
+    } catch {
+      upcoming = [];
+    }
   }
   async function loadTemplates() {
     templatesError = "";
@@ -808,7 +824,48 @@
     for (const lead of leads) list.append(automationCard(lead, shared));
     parent.append(list);
   }
+  function renderUpcoming(parent) {
+    if (!upcoming.length) return;
+    const madridDay = (value) =>
+      new Date(value).toLocaleDateString("en-CA", { timeZone: "Europe/Madrid" });
+    const today = new Date();
+    const tomorrow = new Date(+today + 86400000);
+    const dayLabel = (value) => {
+      const day = madridDay(value);
+      const when = new Date(value).toLocaleString("es-ES", {
+        timeZone: "Europe/Madrid",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      if (day === madridDay(today)) return `Hoy, ${when}`;
+      if (day === madridDay(tomorrow)) return `Mañana, ${when}`;
+      return when;
+    };
+    const groups = new Map();
+    for (const lead of [...upcoming].sort((a, b) => +new Date(a.next_due) - +new Date(b.next_due))) {
+      const key = dayLabel(lead.next_due);
+      const message = lead.snapshot?.[lead.step]?.name || "Mensaje";
+      if (!groups.has(key)) groups.set(key, new Map());
+      const messages = groups.get(key);
+      messages.set(message, [...(messages.get(message) || []), lead.name || `+${lead.phone}`]);
+    }
+    const box = el("div", undefined, "la-banner");
+    box.append(el("strong", `Próximos envíos automáticos: ${upcoming.length}`));
+    for (const [when, messages] of groups) {
+      const count = [...messages.values()].reduce((sum, names) => sum + names.length, 0);
+      box.append(el("div", `${when} · ${count} ${count === 1 ? "mensaje" : "mensajes"}`));
+      const list = el("ul");
+      for (const [message, names] of messages)
+        list.append(el("li", `${message} (${names.length}): ${names.join(", ")}`));
+      box.append(list);
+    }
+    parent.append(box);
+  }
   function renderLeads(parent) {
+    renderUpcoming(parent);
     renderSummary(parent);
     const tools = el("div", undefined, "la-tools");
     const find = field(tools, "Buscar", "search", search);

@@ -1,6 +1,6 @@
 {
-  "id": "crm-leads-dia-del-paso-20261104",
-  "createdAt": "2026-11-04T11:01:28.000Z",
+  "id": "crm-leads-aviso-envios-20261104",
+  "createdAt": "2026-11-04T19:17:34.476Z",
   "sourceCommit": "c033a37",
   "entry": "assets/renderer-web-CwN8zttl.js",
   "documents": [
@@ -405,11 +405,11 @@
     },
     {
       "path": "leads/internal-leads.js",
-      "sha256": "f674d93bb716bcd35a4962ef2da904b821d2b862d19c16f9458eb66f60c04683"
+      "sha256": "5424b103927e1a8a039567ac04fc80e982e0492b97b479e28a8c70b54b7d9ce7"
     },
     {
       "path": "leads/leads.html",
-      "sha256": "0c226d37ccd04b15fcfbf30cd738a99d874a2ba94bd07dfcccd00563cada4848"
+      "sha256": "51ad8ed4fa9d2afb00dafd6377075573f4bdf1a16cb9c41e448880d810078ac4"
     },
     {
       "path": "seendy.html",
