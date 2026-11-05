@@ -29,7 +29,8 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 ```
 /
 ├── index.html              — Landing principal Automanize
-├── solicitar-demo.html     — Landing trial gratuito Nize (7 días), enlazada desde el sitio
+├── solicitar-demo.html     — Reserva de la llamada Elite Gold en popup de Cal.com, enlazada desde el sitio
+├── gracias-demo.html       — Agradecimiento tras reservar desde solicitar-demo.html
 ├── formulario.html         — Formulario dinámico de leads por token (WhatsApp)
 ├── alta-agencia.html       — Ficha de alta para agencias ya contratadas, por token
 ├── alta-agencia-admin.html — Panel interno: ver fichas recibidas y generar tokens

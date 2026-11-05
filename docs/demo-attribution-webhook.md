@@ -1,5 +1,9 @@
 # Campañas del formulario de demo
 
+> Desde el 5 de noviembre de 2026, `solicitar-demo.html` no llama a `trial-signup`:
+> reserva por Cal.com y la URL con UTM viaja como `metadata[url]`, que llega en el
+> webhook de `calcom-booking`. Lo siguiente solo aplica a altas que envíen `attribution`.
+
 `solicitar-demo.html` captura `utm_source`, `utm_medium`, `utm_campaign`,
 `utm_content` y `utm_term`, junto con `landing_url`. Conserva la última campaña
 en la misma pestaña hasta 24 horas; una URL con UTM sustituye la campaña anterior.

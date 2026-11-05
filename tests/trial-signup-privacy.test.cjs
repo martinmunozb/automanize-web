@@ -10,12 +10,8 @@ function read(file) {
 }
 
 test('los formularios publicos de prueba gratis exigen privacidad', () => {
-  const solicitarDemo = read('solicitar-demo.html');
   const crm = read('crm.html');
   const crmPricing = read('assets/js/crm-pricing.js');
-
-  assert.match(solicitarDemo, /name="privacidad_aceptada" required/);
-  assert.match(solicitarDemo, /privacidad_aceptada:\s*datos\.privacidad_aceptada === 'on'/);
 
   assert.match(crm, /id="pricingForm"[\s\S]*name="privacidad_aceptada" required/);
   assert.match(crm, /id="pricingForm"[\s\S]*nize-privacy\.html/);
