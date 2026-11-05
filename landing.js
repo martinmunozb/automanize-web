@@ -164,14 +164,16 @@
     if (!event.target.checkValidity()) { event.target.reportValidity(); return; }
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(event.target).entries()) };
 
-    // El telefono va dentro de las notas a proposito: Cal.com solo acepta
-    // prefill de campos que existan en el tipo de evento, y el nuestro no tiene
-    // campo de telefono. Metiendolo aqui viaja con la reserva (se ve al abrirla,
-    // que antes no pasaba) y vuelve en el webhook BOOKING_CREATED, que es de
-    // donde lo saca calcom-booking para no volver a pedirselo en usar-demo.html.
+    // El telefono tambien va en las notas, por si el tipo de evento las recoge:
+    // calcom-booking lo saca de ahi si no llega en el campo propio de Cal.com.
     // Si se cambia el formato de esta linea, hay que cambiar la regex de alli.
     const notas = `Teléfono: ${eliteData.telefono || '—'} · Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
+    // Cal.com pide el teléfono: se rellena solo para no preguntarlo otra vez. Exige
+    // formato internacional; si no lo cumple, lo escribe la persona en el calendario.
+    const telefonoCal = String(eliteData.telefono || '').replace(/[\s().-]/g, '').replace(/^00/, '+');
+    if (/^[6789]\d{8}$/.test(telefonoCal)) params.set('attendeePhoneNumber', `+34${telefonoCal}`);
+    else if (/^\+\d{8,15}$/.test(telefonoCal)) params.set('attendeePhoneNumber', telefonoCal);
     // El evento Schedule ya no sale de aqui (esto es solo abrir el calendario, no
     // reservar): lo manda calcom-booking cuando Cal.com confirma la reserva de
     // verdad. Para que Meta pueda atribuirlo al anuncio, viajan con la reserva

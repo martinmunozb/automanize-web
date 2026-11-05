@@ -223,6 +223,11 @@
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(eliteForm2).entries()) };
     const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
+    // Cal.com pide el teléfono: se rellena solo para no preguntarlo otra vez. Exige
+    // formato internacional; si no lo cumple, lo escribe la persona en el calendario.
+    const telefonoCal = String(eliteData.telefono || '').replace(/[\s().-]/g, '').replace(/^00/, '+');
+    if (/^[6789]\d{8}$/.test(telefonoCal)) params.set('attendeePhoneNumber', `+34${telefonoCal}`);
+    else if (/^\+\d{8,15}$/.test(telefonoCal)) params.set('attendeePhoneNumber', telefonoCal);
     // Igual que en landing.js: el Schedule lo manda calcom-booking al confirmarse
     // la reserva, y con esta metadata puede atribuirlo al anuncio de Meta.
     const ids = window.AutomanizeMeta ? window.AutomanizeMeta.ids() : {};
