@@ -1040,6 +1040,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     try {
       const res = await fetch(WEBHOOK_POST, { method: 'POST', body: form });
+      if (res.status === 409) {
+        btnSubmit.classList.remove('loading'); btnSubmit.disabled = false;
+        alert('Esos pagos ya constan como pagados. Si crees que es un error, escríbenos por WhatsApp.');
+        return;
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       formState.style.display    = 'none';
       successState.style.display = 'block';
