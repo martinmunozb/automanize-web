@@ -401,7 +401,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "931a45d25b589159de9ba4d9119f30a731d22d698f175fa23018969100be18ce"
+      "sha256": "31f0adb6368eba8d2a673ee7bc027ae419ccf2aec4dbcc84c4f9e7674376f261"
     },
     {
       "path": "leads/internal-leads.css",
@@ -417,7 +417,7 @@
     },
     {
       "path": "seendy.html",
-      "sha256": "d5b9a6e8b9f1d4a7ea0d9fb29469ce1b45344e01f7e466f39c55ca647a775e6d"
+      "sha256": "9747f6d0ee5a9d11286a38215577ec38ac8b2723414bfeef238a2fc3e818888f"
     },
     {
       "path": "seendy/chat-doodles.svg",
