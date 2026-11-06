@@ -1,7 +1,7 @@
 {
-  "id": "seendy-visual-20261105-2",
-  "createdAt": "2026-11-05T16:16:06.549Z",
-  "sourceCommit": "2f3d2f9483b3eb0e08bd12f88c2e16f76680430b",
+  "id": "seendy-sync-plantillas-20261106",
+  "createdAt": "2026-11-06T12:16:49.925Z",
+  "sourceCommit": "76205540a4ab61ba71b43860bb74508364ef46fa",
   "entry": "assets/renderer-web-Ccl4pPMj.js",
   "documents": [
     "seendy.html"
@@ -332,8 +332,8 @@
       "sha256": "af9f2b5e0ba3b4e14fd1fca8736d8437cf0b902e2c0020224bdc37cdf92cfd08"
     },
     {
-      "path": "assets/seendy-K8ZMcyHn.js",
-      "sha256": "a9b59d829d490759f3026c20f505b201881754dba33808002814346768416e52"
+      "path": "assets/seendy-DBXk_SXT.js",
+      "sha256": "32aadf8791b98e60b4bec0b8e4d97d8a97fbc0644d75d390ab3c062e676b05b9"
     },
     {
       "path": "assets/SeendyFrame-CuDtfyjO.js",
@@ -421,7 +421,7 @@
     },
     {
       "path": "seendy.html",
-      "sha256": "b377858f1da264f8393c0edce0b2d9818d059faf1c8a44b9d80ac09f4845b081"
+      "sha256": "f99a94181c872e87095424c1ac7d19be894408fa090afd2aa5818974f2351342"
     },
     {
       "path": "seendy/chat-doodles.svg",
