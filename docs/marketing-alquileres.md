@@ -141,3 +141,30 @@ Revisión visual en escritorio, tablet y móvil; no equivale a pruebas en dispos
 físicos o en todos los navegadores. Todas las descripciones siguen visibles en móvil.
 Cuatro pruebas existentes (CTA, clientes y política HTTP Caddy) correctas;
 node --check assets/js/home-video.js y git diff --check correctos.
+
+## Corrección de reproducción móvil — 07/11/2026
+
+Tras el informe de vídeo detenido en Safari/iPhone, se prepara una inicialización
+con autoplay, muted y playsinline explícitos, propiedades configuradas antes de
+cargar el recurso y preload de metadatos. Se reintenta al estar listo el vídeo,
+al volver a la página y de forma síncrona en una interacción real si el navegador
+bloqueó el arranque. No se añade botón de pausa ni se fuerzan reintentos por tiempo.
+Los dispositivos de puntero grueso utilizan el MP4 ligero, también en horizontal;
+un fallo del decodificador de escritorio prueba una vez ese recurso ligero.
+Se mantienen movimiento reducido, ahorro de datos y suspensión fuera de pantalla.
+
+Comprobaciones: 8 pruebas de comportamiento con medios simulados (incluido rechazo
+de autoplay seguido de interacción), 3 regresiones de portada y manifiesto CRM
+(112 archivos) correctos. El MP4 móvil es H.264 High nivel 3.1 sin audio y con
+metadatos antes de mdat (fast start). No se dispone de un iPhone/Safari real en esta
+sesión: el funcionamiento en el dispositivo del usuario no se da por verificado.
+
+Safari puede impedir autoplay por políticas de batería/navegador; una web no puede
+garantizar reproducción automática en todas las configuraciones del dispositivo.
+Fuentes: https://webkit.org/blog/6784/new-video-policies-for-ios/ y
+https://bugs.webkit.org/show_bug.cgi?id=216887.
+
+Publicación autorizada por el usuario. Comprobación previa del recurso móvil
+en producción: HTTP 206 y Content-Range correctos para bytes 0-1. Doce pruebas
+locales (incluida política Caddy) y los 112 archivos de Nize verificados. El
+script usa una nueva versión de caché para que los móviles reciban la corrección.
