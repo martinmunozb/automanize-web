@@ -1,31 +1,51 @@
 (() => {
   const video = document.querySelector('#hero-video');
-  if (!video) return;
-
+  const backdrop = document.querySelector('#hero-backdrop');
+  if (!video || !backdrop) return;
+  const hero = video.closest('.cinema-hero');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const portrait = matchMedia('(max-width: 800px) and (orientation: portrait)');
   const connection = navigator.connection;
-  const hero = video.closest('.cinema-hero') || video;
+  const landscapePoster = backdrop.getAttribute('src');
   const bounds = hero.getBoundingClientRect();
   let visible = bounds.bottom > 0 && bounds.top < window.innerHeight;
-  let failed = false;
   let pending = false;
   let attempt = 0;
+  let animationMode = false;
+  let animationFailed = false;
 
-  // Set the playback properties before attaching a source (including on Safari).
   video.muted = true;
   video.defaultMuted = true;
   video.playsInline = true;
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
-  video.setAttribute('webkit-playsinline', '');
+  video.controls = false;
+  video.disablePictureInPicture = true;
+  for (const attribute of ['muted', 'playsinline', 'webkit-playsinline']) video.setAttribute(attribute, '');
 
   const allowed = () => !document.hidden && visible && !motion.matches && !connection?.saveData;
-  const source = () => matchMedia('(max-width: 800px), (pointer: coarse)').matches ||
-    /^(slow-)?2g$|^3g$/.test(connection?.effectiveType || '')
-    ? video.dataset.mobile : video.dataset.desktop;
-
+  const poster = () => portrait.matches ? backdrop.dataset.portraitPoster : landscapePoster;
+  const setBackdrop = src => { if (backdrop.getAttribute('src') !== src) backdrop.src = src; };
+  const source = () => portrait.matches ? video.dataset.portrait :
+    matchMedia('(max-width: 800px), (pointer: coarse)').matches || /^(slow-)?2g$|^3g$/.test(connection?.effectiveType || '')
+      ? video.dataset.mobile : video.dataset.desktop;
+  const renderBackdrop = () => {
+    const animate = animationMode && !animationFailed && allowed();
+    setBackdrop(animate ? (portrait.matches ? backdrop.dataset.portraitMotion : backdrop.dataset.motion) : poster());
+    hero.dataset.media = animate ? 'animation' : video.dataset.playing === 'true' ? 'video' : 'poster';
+  };
+  const useAnimation = () => {
+    animationMode = true;
+    ++attempt;
+    pending = false;
+    video.hidden = true;
+    video.autoplay = false;
+    video.dataset.playing = 'false';
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+    renderBackdrop();
+  };
   const play = () => {
-    if (failed || pending || !allowed() || !video.paused) return;
+    if (animationMode || pending || !allowed() || !video.paused) return;
     if (!video.getAttribute('src')) {
       video.src = source();
       video.load();
@@ -36,8 +56,7 @@
     const rejected = error => {
       if (currentAttempt !== attempt) return;
       pending = false;
-      // No timer loop: retry on readiness, a real interaction or page restoration.
-      video.dataset.playback = error?.name === 'NotAllowedError' ? 'blocked' : 'waiting';
+      if (error?.name === 'NotAllowedError' || error?.name === 'NotSupportedError') useAnimation();
     };
     try {
       const result = video.play();
@@ -45,52 +64,59 @@
         if (currentAttempt !== attempt) return;
         pending = false;
         if (!allowed()) video.pause();
-        else video.dataset.playback = 'playing';
       }, rejected);
       else pending = false;
     } catch (error) { rejected(error); }
   };
   const update = () => {
-    video.autoplay = allowed() && !failed;
+    renderBackdrop();
+    video.autoplay = allowed() && !animationMode;
     if (!allowed()) {
       ++attempt;
       pending = false;
       video.pause();
-    } else play();
+      video.dataset.playing = 'false';
+    } else if (!animationMode) play();
   };
-
-  // A synchronous call from a real touch also works when autoplay needs a gesture.
-  const interact = event => { if (event.isTrusted) update(); };
-  for (const event of ['touchend', 'pointerup', 'keydown']) {
-    document.addEventListener(event, interact, { capture: true, passive: true });
-  }
+  video.addEventListener('playing', () => {
+    if (animationMode || !allowed()) { video.pause(); return; }
+    pending = false;
+    video.dataset.playing = 'true';
+    hero.dataset.media = 'video';
+  });
+  video.addEventListener('pause', () => { video.dataset.playing = 'false'; });
   for (const event of ['loadeddata', 'canplay']) video.addEventListener(event, update);
   video.addEventListener('error', () => {
-    if (failed) return;
+    if (animationMode) return;
     ++attempt;
     pending = false;
     if (video.getAttribute('src') === video.dataset.desktop) {
       video.src = video.dataset.mobile;
       video.load();
       update();
-    } else {
-      failed = true;
-      video.autoplay = false;
-      video.dataset.playback = 'unavailable';
-      video.removeAttribute('src');
-      video.load();
-    }
+    } else useAnimation();
+  });
+  backdrop.addEventListener('error', () => {
+    if (animationMode && !animationFailed) { animationFailed = true; renderBackdrop(); }
   });
   document.addEventListener('visibilitychange', update);
   window.addEventListener('pageshow', update);
-  if (motion.addEventListener) motion.addEventListener('change', update);
-  else motion.addListener(update);
+  const watch = (query, handler) => query.addEventListener ? query.addEventListener('change', handler) : query.addListener(handler);
+  watch(motion, update);
+  watch(portrait, () => {
+    if (!animationMode && video.getAttribute('src')) {
+      ++attempt;
+      pending = false;
+      video.dataset.playing = 'false';
+      video.src = source();
+      video.load();
+    }
+    update();
+  });
   connection?.addEventListener?.('change', update);
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(entries => {
-      visible = entries[0].isIntersecting;
-      update();
-    }).observe(hero);
-  }
+  if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
+    visible = entries[0].isIntersecting;
+    update();
+  }).observe(hero);
   update();
 })();
