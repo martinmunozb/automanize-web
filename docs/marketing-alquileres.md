@@ -83,3 +83,61 @@ release CRM y sus hashes deben seguir pasando `check-crm-release.mjs`.
 - Pendiente revisión visual real en móvil y escritorio: en esta sesión el
   navegador de Computer Use no está disponible. Las reglas responsive están
   preparadas, pero eso no equivale a una inspección visual del resultado.
+
+
+## Vista previa de portada con vídeo — 06/11/2026
+
+Preparada localmente en la rama feat/home-video-20261106, sin publicar.
+El usuario seleccionó la opción 3: visita inmobiliaria de Anastasia Shuraeva,
+https://www.pexels.com/video/real-estate-agent-touring-the-couples-while-talking-7647253/
+Licencia: https://www.pexels.com/license/ (consultada el 06/11/2026).
+Los archivos property-tour-* se sirven localmente, sin depender de Pexels.
+Vídeo de escritorio 3840x2160, versión móvil 1280x720, sin audio,
+reproducción en bucle y botón de pausa; imagen de respaldo y respeto a
+preferencias de movimiento reducido y ahorro de datos. Solo index.html carga
+home-video.css y home-video.js. No cambia CRM, autenticación ni datos de clientes.
+Verificado: CTA/clientes y política Caddy (4 pruebas), manifiesto CRM (112 archivos).
+
+Refinamiento local: navegación dividida en marca, enlaces centrales y acceso/contacto.
+La cápsula de enlaces y su animación CSS se inspiran en Pill Nav de React Bits
+(https://reactbits.dev/components/pill-nav); implementación propia sin dependencias nuevas.
+Los destinos originales se conservan. Menú móvil agrupado, foco visible,
+animaciones desactivadas con movimiento reducido. Revisión visual a 1440, 820 y 390 px;
+se comprobó apertura del menú móvil y ausencia de desbordamiento horizontal.
+
+
+Rediseño del resto de la portada (local): home-sections.css unifica tipografía,
+espaciado, tarjetas, producto, funciones, testimonios, planes, FAQ, contacto y pie.
+Fondo verde oscuro para producto/contacto; superficies claras y acentos naranja.
+Se comparó con la copia previa: texto íntegro, 45 enlaces, 23 imágenes y
+31 desplegables conservados. En móvil se muestran también las descripciones
+que la hoja anterior ocultaba. Sin datos nuevos ni cambios de autenticación.
+Verificación: 4 pruebas locales y 112 archivos de la release CRM correctos.
+
+## Refinamiento editorial y responsive — 07/11/2026 (solo local)
+
+Se hizo git pull --ff-only en feat/home-video-20261106: bfa72c8 → 81f2732,
+sin conflictos y conservando los cambios locales. La nueva release CRM recibida
+se mantiene intacta (crm-contabilidad-resumen-20261107, 112 archivos verificados).
+
+home-sections.css sustituye las tarjetas redondeadas y superficies verdes por
+filas abiertas con separadores, producto con presentación lateral, testimonios
+con tipografía serif, planes sin panel decorativo y cierre a ancho completo en
+carbón. No modifica las otras páginas. Se verificó igualdad de todos los textos,
+45 enlaces, 23 imágenes y 31 desplegables respecto a la copia previa.
+
+Por petición posterior del usuario se elimina el botón de pausa del vídeo y su
+lógica asociada. Se conserva el bucle automático, el póster si falla autoplay,
+la preferencia de movimiento reducido, ahorro de datos y suspensión automática
+al salir de pantalla o al ocultar la pestaña. Se comprobó reproducción real en
+el navegador sin control de pausa.
+
+Verificación responsive en navegador: 320, 360, 390, 580, 768, 820, 1024, 1280,
+1440 y 1920 px sin desbordamiento horizontal. Navegación sin solapamientos en
+801, 820, 1024 y 1151 px. Menú de 320 px apilado y menú horizontal 667 × 375
+con altura limitada y desplazamiento cuando hace falta. Se probaron apertura y
+cierre del menú y desplegables de público, funciones y preguntas con teclado.
+Revisión visual en escritorio, tablet y móvil; no equivale a pruebas en dispositivos
+físicos o en todos los navegadores. Todas las descripciones siguen visibles en móvil.
+Cuatro pruebas existentes (CTA, clientes y política HTTP Caddy) correctas;
+node --check assets/js/home-video.js y git diff --check correctos.
