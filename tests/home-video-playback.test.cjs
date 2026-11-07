@@ -53,17 +53,17 @@ test('phones use the high-resolution portrait source inline without controls', a
   assert.equal(f.video.controls, false); assert.equal(f.video.disablePictureInPicture, true);
   assert.equal(f.video.dataset.playing, 'true');
 });
-test('autoplay denial automatically shows animation with no tap or native player', async () => {
+test('autoplay denial automatically shows the hardware-decoded MP4 image with no tap or native player', async () => {
   const f = fixture({ blocked: true }); await tick();
-  assert.equal(f.backdrop.src, 'portrait-motion.webp'); assert.equal(f.hero.dataset.media, 'animation');
+  assert.equal(f.backdrop.src, 'portrait.mp4'); assert.equal(f.hero.dataset.media, 'animation');
   assert.equal(f.video.hidden, true); assert.equal(f.video.src, undefined); assert.equal(f.video.autoplay, false);
   assert.equal(f.video.paused, true); const attempts = f.video.calls;
   f.video.emit('canplay'); f.document.emit('touchend', { isTrusted: true });
   assert.equal(f.video.calls, attempts);
 });
-test('blocked landscape uses the landscape animation', async () => {
+test('blocked landscape uses the landscape MP4 image', async () => {
   const f = fixture({ blocked: true, portraitMode: false }); await tick();
-  assert.equal(f.backdrop.src, 'landscape-motion.webp');
+  assert.equal(f.backdrop.src, 'mobile.mp4');
 });
 test('visibility and restoration resume video without reloading the file', async () => {
   const f = fixture(); await tick();
@@ -76,7 +76,7 @@ test('visibility and restoration resume video without reloading the file', async
 test('offscreen and motion reduction suspend the animated fallback', async () => {
   const f = fixture({ blocked: true }); await tick();
   f.intersect(false); assert.equal(f.backdrop.src, 'portrait.webp');
-  f.intersect(true); assert.equal(f.backdrop.src, 'portrait-motion.webp');
+  f.intersect(true); assert.equal(f.backdrop.src, 'portrait.mp4');
   f.motion.matches = true; f.motion.emit('change'); assert.equal(f.backdrop.src, 'portrait.webp');
 });
 test('motion and data saving avoid loading video and animated images', async () => {
@@ -93,18 +93,23 @@ test('legacy media-query listeners retain preference changes', async () => {
 test('desktop decode failure tries mobile once then animation', async () => {
   const f = fixture({ mobile: false }); await tick(); assert.equal(f.video.src, 'desktop.mp4');
   f.video.pause(); f.video.emit('error'); await tick(); assert.equal(f.video.src, 'mobile.mp4');
-  f.video.pause(); f.video.emit('error'); await tick(); assert.equal(f.backdrop.src, 'landscape-motion.webp');
+  f.video.pause(); f.video.emit('error'); await tick(); assert.equal(f.backdrop.src, 'mobile.mp4');
   const attempts = f.video.calls; f.video.emit('error'); assert.equal(f.video.calls, attempts);
+});
+test('MP4 image failure falls back to the animated WebP once', async () => {
+  const f = fixture({ blocked: true }); await tick();
+  f.backdrop.emit('error'); assert.equal(f.backdrop.src, 'portrait-motion.webp');
+  f.intersect(false); f.intersect(true); assert.equal(f.backdrop.src, 'portrait-motion.webp');
 });
 test('animation decode failure returns to the static poster without retries', async () => {
   const f = fixture({ blocked: true }); await tick();
-  f.backdrop.emit('error'); assert.equal(f.backdrop.src, 'portrait.webp');
+  f.backdrop.emit('error'); f.backdrop.emit('error'); assert.equal(f.backdrop.src, 'portrait.webp');
   f.window.emit('pageshow'); assert.equal(f.backdrop.src, 'portrait.webp');
 });
 test('rotating the phone selects the matching framing for video and animation', async () => {
   for (const blocked of [false, true]) {
     const f = fixture({ blocked }); await tick();
     f.portrait.matches = false; f.portrait.emit('change'); await tick();
-    assert.equal(blocked ? f.backdrop.src : f.video.src, blocked ? 'landscape-motion.webp' : 'mobile.mp4');
+    assert.equal(blocked ? f.backdrop.src : f.video.src, 'mobile.mp4');
   }
 });

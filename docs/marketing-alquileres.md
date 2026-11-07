@@ -193,3 +193,24 @@ diferentes sin ninguna interacción. Prueba normal: MP4 1080x1920 reproduciéndo
 inline y sin controles. La simulación no equivale a probar Safari en un iPhone
 físico; queda pendiente confirmar el resultado en el dispositivo del usuario.
 Referencia de compatibilidad: https://developers.google.com/speed/webp/faq.
+
+## Vídeo móvil fluido y nítido — 07/11/2026
+
+El usuario reporta el vídeo del hero «muy lagueado» en móvil (en PC va bien). Causa:
+cuando el móvil bloquea autoplay (p. ej. modo ahorro de batería del iPhone) el respaldo
+era un WebP animado de 720p a 16 fps, decodificado por CPU: entrecortado y borroso.
+Ahora el primer respaldo es el propio MP4 dentro del `<img>` del fondo: Safari lo
+decodifica por hardware, en bucle y sin reglas de autoplay. Los navegadores que no lo
+admiten lanzan error de imagen y pasan al WebP; si también falla, póster estático.
+
+Recodificación desde el 4K original (H.264 High, sin audio, faststart, un fotograma
+clave por segundo para arrancar antes y repetir el bucle sin saltos, escalado lanczos):
+vertical 1080x1920 CRF 19 (recorte x=1522 del original, 4,7 MB, nivel 4.1) y horizontal
+móvil de 1280x720 a 1920x1080 CRF 20 (4,3 MB, nivel 4.0), tope 6 Mbps. Fuentes con `?v=`
+para saltar la caché de los móviles.
+
+Validación: 11 pruebas de reproducción/respaldo correctas (las 2 que fallan en `main`,
+vista previa social y Caddy, fallan igual sin este cambio). Chrome headless emulando
+390x844: MP4 vertical 1080x1920 reproduciéndose inline; con autoplay bloqueado, el
+MP4-en-img da error en Chrome y se muestra el WebP animado. El paso MP4-en-img de
+Safari no se ha podido probar en un iPhone físico en esta sesión.

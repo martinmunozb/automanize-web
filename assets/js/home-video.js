@@ -13,6 +13,9 @@
   let attempt = 0;
   let animationMode = false;
   let animationFailed = false;
+  // Safari decodes MP4 inside <img> in hardware, without autoplay rules: smooth and sharp.
+  // Browsers that cannot do that fire an image error and fall back to the animated WebP.
+  let animationStage = 0;
 
   video.muted = true;
   video.defaultMuted = true;
@@ -27,9 +30,12 @@
   const source = () => portrait.matches ? video.dataset.portrait :
     matchMedia('(max-width: 800px), (pointer: coarse)').matches || /^(slow-)?2g$|^3g$/.test(connection?.effectiveType || '')
       ? video.dataset.mobile : video.dataset.desktop;
+  const animationSources = () => portrait.matches
+    ? [video.dataset.portrait, backdrop.dataset.portraitMotion]
+    : [video.dataset.mobile, backdrop.dataset.motion];
   const renderBackdrop = () => {
     const animate = animationMode && !animationFailed && allowed();
-    setBackdrop(animate ? (portrait.matches ? backdrop.dataset.portraitMotion : backdrop.dataset.motion) : poster());
+    setBackdrop(animate ? animationSources()[animationStage] : poster());
     hero.dataset.media = animate ? 'animation' : video.dataset.playing === 'true' ? 'video' : 'poster';
   };
   const useAnimation = () => {
@@ -97,7 +103,10 @@
     } else useAnimation();
   });
   backdrop.addEventListener('error', () => {
-    if (animationMode && !animationFailed) { animationFailed = true; renderBackdrop(); }
+    if (!animationMode || animationFailed || backdrop.getAttribute('src') !== animationSources()[animationStage]) return;
+    if (animationStage < animationSources().length - 1) animationStage++;
+    else animationFailed = true;
+    renderBackdrop();
   });
   document.addEventListener('visibilitychange', update);
   window.addEventListener('pageshow', update);
