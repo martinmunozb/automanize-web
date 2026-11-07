@@ -3,22 +3,21 @@
 Página **no publicada**: no la enlaza ninguna otra página del sitio, lleva
 `noindex, nofollow` y sin el token del correo no enseña formulario. Se llega
 solo desde el enlace personal que se manda al agendar la llamada de Elite Gold
-en `nize.html` (Edge Function `calcom-booking`, repo `automanize-app`).
+en `nize.html` o `solicitar-demo.html` (Edge Function `calcom-booking`, repo `automanize-app`).
 
 **URL**: `https://automanize.com/usar-demo.html?t=<token uuid>`
 
 ## En qué se diferencia de solicitar-demo.html
 
-`solicitar-demo.html` es la página pública de alta: pide nombre, email,
-teléfono y NIF a cualquiera que llegue. Esta no.
+`solicitar-demo.html` es la página pública para reservar la llamada en Cal.com.
+Reservar desde ella también genera este enlace personal, porque usa el mismo evento.
 
 | | `solicitar-demo.html` | `usar-demo.html` |
 |---|---|---|
 | Quién entra | cualquiera, desde el sitio | solo quien ya agendó la llamada |
-| Campos | nombre, email, teléfono, NIF | **ninguno**: todo viene puesto |
-| NIF | obligatorio | no se pide (lo exime el token en el servidor) |
-| Botón | "Solicitar demo y descargar" | "Usar la demo y descargar" |
-| Indexable | sí | no |
+| Qué hace | abre el calendario de Cal.com | arranca la prueba de 7 días |
+| Campos | los pide Cal.com al reservar | **ninguno**: todo viene puesto |
+| Botón | "Elegir día y hora" | "Usar la demo y descargar" |
 
 El texto evita el "solicitar" a propósito: aquí no hay nada que pedir ni que
 aprobar, la prueba de 7 días se activa sola al pulsar el botón.

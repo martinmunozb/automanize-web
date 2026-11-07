@@ -1,4 +1,4 @@
-# solicitar-demo.html — Landing trial gratuito Nize
+# solicitar-demo.html — Reserva de llamada y alta de prueba Nize
 
 > Hasta el 10 de agosto de 2026 esta era la ficha de `prueba-nize.html`,
 > landing separada solo para tráfico de Meta Ads. Se eliminó porque no la
@@ -10,10 +10,10 @@
 
 ## Para qué sirve
 
-Página de captación enlazada desde el sitio (casos de éxito, CRM, servicios).
-Un potencial cliente de Nize (inmobiliaria o particular con varios pisos)
-rellena sus datos y se le crea una cuenta real con **7 días de prueba
-gratis** del software — no es un simple envío de lead por correo.
+Desde el 5 de noviembre de 2026, `solicitar-demo.html` ya no crea cuentas: sirve
+para reservar la llamada Elite Gold (`automanize/elitegold`) en un popup de Cal.com.
+La prueba por cuenta propia sigue disponible en el formulario de `crm.html`, que
+usa `trial-signup` como se describe más abajo.
 
 **URL**: `https://automanize.com/solicitar-demo.html`
 
@@ -22,46 +22,24 @@ gratis** del software — no es un simple envío de lead por correo.
 ## Flujo
 
 ```
-1. Usuario llega desde una de las páginas que enlazan aquí
-2. Rellena el formulario: nombre/empresa, correo y teléfono
-3. POST a Supabase Edge Function: /functions/v1/trial-signup
-4. La función crea usuario (Supabase Auth), tenant, perfil admin,
-   token de activación, envía email de bienvenida (instalador +
-   credenciales + código) y crea la carpeta de Drive del tenant
-5. Usuario ve pantalla de confirmación con enlace de descarga directa
+1. El usuario pulsa "Elegir día y hora"
+2. Se carga embed.js de Cal.com y se abre el popup (antes del clic no se contacta con Cal.com)
+3. Reserva. Cal.com avisa con el evento bookingSuccessfulV2 y la web va a gracias-demo.html
+4. Cal.com dispara BOOKING_CREATED contra calcom-booking, que envía la invitación
+   a usar-demo.html y el evento Schedule a Meta
 ```
 
-Si Stripe redirige aquí de vuelta tras un pago (pantalla de bloqueo del
-trial en la app de escritorio, `?pago=exitoso`), la tarjeta del formulario
-se sustituye por un aviso de "pago confirmado" en vez de pedir el alta otra
-vez.
+Con la reserva viajan `metadata[ua]`, `metadata[url]` (conserva los UTM) y, si
+existen, `metadata[fbp]` y `metadata[fbc]`. Si embed.js no carga, el botón abre
+`cal.com/automanize/elitegold`; ese camino no pasa por `gracias-demo.html`.
 
----
+Si Stripe redirige aquí tras un pago (pantalla de bloqueo del trial en la app de
+escritorio, `?pago=exitoso`), la tarjeta se sustituye por un aviso de "pago
+confirmado". La URL está en `automanize-backend/src/integrations/stripe.js`.
 
-## Formulario
-
-- **Nombre y apellidos**: texto libre — se envía como `empresa` al backend
-  (es lo que se muestra como nombre del tenant en toda la app y en el
-  panel de superadmin; vale igual para una persona particular con varios
-  pisos que para una inmobiliaria formal)
-- **Correo electrónico**: email, obligatorio (con esto se crea el usuario
-  de Supabase Auth)
-- **Teléfono**: obligatorio, normalizado en el servidor. No se admite un
-  teléfono ya asociado a otra cuenta; los números españoles sin prefijo
-  equivalen a +34. El correo tampoco se puede repetir.
-- **DNI/NIF**: eliminado del alta; los datos fiscales se configuran aparte.
-- **Honeypot**: campo oculto `website` anti-spam, invisible para una
-  persona real
-
-### Envío
-
-```js
-fetch(`${SUPABASE_URL}/functions/v1/trial-signup`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
-  body: JSON.stringify({ empresa, telefono, email, website }),
-});
-```
+La CSP de la página, en su `<meta>`, permite `https://app.cal.com` en `script-src`,
+`frame-src` y `connect-src`. El monitor de Supabase no vigila la página, y
+`calcom-booking` conserva su verificación de firma.
 
 ---
 
