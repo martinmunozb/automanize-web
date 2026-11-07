@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const script = fs.readFileSync(path.join(__dirname, '../assets/js/home-video.js'), 'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
-function fixture({ mobile = true, portraitMode = mobile, reduced = false, saveData = false, blocked = false, legacy = false } = {}) {
+function fixture({ mobile = true, portraitMode = mobile, reduced = false, saveData = false, blocked = false, legacy = false, hevc = false, download } = {}) {
   function target() {
     const handlers = {};
     return { addEventListener(name, callback) { (handlers[name] ||= []).push(callback); },
@@ -22,7 +22,8 @@ function fixture({ mobile = true, portraitMode = mobile, reduced = false, saveDa
   const backdrop = media({ dataset: { portraitPoster: 'portrait.webp', motion: 'landscape-motion.webp', portraitMotion: 'portrait-motion.webp' } });
   backdrop.src = 'landscape.webp';
   const video = media({
-    dataset: { desktop: 'desktop.mp4', mobile: 'mobile.mp4', portrait: 'portrait.mp4' }, paused: true, calls: 0,
+    dataset: { desktop: 'desktop.mp4', mobile: 'mobile.mp4', portrait: 'portrait.mp4', ...(hevc ? { portraitHevc: 'portrait-hevc.mp4', mobileHevc: 'mobile-hevc.mp4' } : {}) }, paused: true, calls: 0,
+    canPlayType: type => hevc && type.includes('hvc1') ? 'probably' : '',
     muted: false, defaultMuted: false, playsInline: false, loads: 0, closest: () => hero,
     load() { this.loads++; this.paused = true; }, pause() { this.paused = true; this.emit('pause'); },
     play() {
@@ -41,7 +42,8 @@ function fixture({ mobile = true, portraitMode = mobile, reduced = false, saveDa
   if (legacy) for (const query of [motion, portrait]) { query.addListener = callback => { query.change = callback; }; query.addEventListener = undefined; }
   let intersection;
   window.IntersectionObserver = class { constructor(callback) { intersection = callback; } observe(element) { assert.equal(element, hero); } };
-  vm.runInNewContext(script, { document, window, navigator: { connection: { saveData } },
+  const extra = download ? { fetch: download.fetch, URL: { createObjectURL: blob => 'blob:' + blob.name } } : {};
+  vm.runInNewContext(script, { ...extra, document, window, navigator: { connection: { saveData } },
     matchMedia: query => query.includes('reduced-motion') ? motion : query.includes('orientation: portrait') ? portrait : { matches: mobile },
     IntersectionObserver: window.IntersectionObserver });
   return { video, backdrop, hero, document, window, motion, portrait,
@@ -112,4 +114,40 @@ test('rotating the phone selects the matching framing for video and animation', 
     f.portrait.matches = false; f.portrait.emit('change'); await tick();
     assert.equal(blocked ? f.backdrop.src : f.video.src, 'mobile.mp4');
   }
+});
+
+function downloader() {
+  const requests = [];
+  return { requests, fetch: url => new Promise(resolve => requests.push({ url,
+    finish: (ok = true) => resolve({ ok, status: ok ? 200 : 500, blob: async () => ({ name: url }) }) })) };
+}
+test('phones wait for the whole clip before playing, showing the poster meanwhile', async () => {
+  const download = downloader(); const f = fixture({ download }); await tick();
+  assert.equal(download.requests.length, 1); assert.equal(download.requests[0].url, 'portrait.mp4');
+  assert.equal(f.video.src, undefined); assert.equal(f.video.calls, 0); assert.equal(f.backdrop.src, 'portrait.webp');
+  f.video.emit('canplay'); assert.equal(download.requests.length, 1);
+  download.requests[0].finish(); await tick();
+  assert.equal(f.video.src, 'blob:portrait.mp4'); assert.equal(f.video.paused, false); assert.equal(f.hero.dataset.media, 'video');
+});
+test('a failed download streams the file instead of staying on the poster', async () => {
+  const download = downloader(); const f = fixture({ download }); await tick();
+  download.requests[0].finish(false); await tick();
+  assert.equal(f.video.src, 'portrait.mp4'); assert.equal(f.video.paused, false);
+});
+test('desktop keeps streaming the 4K file without a full download', async () => {
+  const download = downloader(); const f = fixture({ mobile: false, download }); await tick();
+  assert.equal(download.requests.length, 0); assert.equal(f.video.src, 'desktop.mp4');
+});
+test('HEVC-capable phones get the lighter HEVC file and fall back to H.264 on decode errors', async () => {
+  const f = fixture({ hevc: true }); await tick();
+  assert.equal(f.video.src, 'portrait-hevc.mp4');
+  f.video.pause(); f.video.emit('error'); await tick();
+  assert.equal(f.video.src, 'portrait.mp4'); assert.equal(f.video.paused, false); assert.notEqual(f.hero.dataset.media, 'animation');
+});
+test('rotating while the clip downloads drops the stale download', async () => {
+  const download = downloader(); const f = fixture({ download }); await tick();
+  f.portrait.matches = false; f.portrait.emit('change'); await tick();
+  assert.equal(download.requests[1].url, 'mobile.mp4');
+  download.requests[0].finish(); await tick(); assert.equal(f.video.src, undefined);
+  download.requests[1].finish(); await tick(); assert.equal(f.video.src, 'blob:mobile.mp4');
 });

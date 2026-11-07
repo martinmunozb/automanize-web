@@ -16,6 +16,12 @@
   // Safari decodes MP4 inside <img> in hardware, without autoplay rules: smooth and sharp.
   // Browsers that cannot do that fire an image error and fall back to the animated WebP.
   let animationStage = 0;
+  // Phones download the whole short clip before playing it: streaming a high-quality file over
+  // mobile data plays in stop-and-go bursts. Loops then replay from memory with no rebuffering.
+  let current = '';
+  let loading = '';
+  let hevcFailed = false;
+  const downloaded = {};
 
   video.muted = true;
   video.defaultMuted = true;
@@ -27,9 +33,14 @@
   const allowed = () => !document.hidden && visible && !motion.matches && !connection?.saveData;
   const poster = () => portrait.matches ? backdrop.dataset.portraitPoster : landscapePoster;
   const setBackdrop = src => { if (backdrop.getAttribute('src') !== src) backdrop.src = src; };
-  const source = () => portrait.matches ? video.dataset.portrait :
-    matchMedia('(max-width: 800px), (pointer: coarse)').matches || /^(slow-)?2g$|^3g$/.test(connection?.effectiveType || '')
-      ? video.dataset.mobile : video.dataset.desktop;
+  const hevc = () => !hevcFailed && /probably|maybe/.test(video.canPlayType?.('video/mp4; codecs="hvc1.1.6.L120.90"') || '');
+  const handheld = () => portrait.matches || matchMedia('(max-width: 800px), (pointer: coarse)').matches ||
+    /^(slow-)?2g$|^3g$/.test(connection?.effectiveType || '');
+  const source = () => {
+    if (!handheld()) return video.dataset.desktop;
+    const kind = portrait.matches ? 'portrait' : 'mobile';
+    return (hevc() && video.dataset[kind + 'Hevc']) || video.dataset[kind];
+  };
   const animationSources = () => portrait.matches
     ? [video.dataset.portrait, backdrop.dataset.portraitMotion]
     : [video.dataset.mobile, backdrop.dataset.motion];
@@ -38,23 +49,54 @@
     setBackdrop(animate ? animationSources()[animationStage] : poster());
     hero.dataset.media = animate ? 'animation' : video.dataset.playing === 'true' ? 'video' : 'poster';
   };
-  const useAnimation = () => {
-    animationMode = true;
+  const assign = (url, playable) => {
+    current = url;
+    video.src = playable;
+    video.load();
+  };
+  const reset = () => {
     ++attempt;
     pending = false;
-    video.hidden = true;
-    video.autoplay = false;
+    loading = '';
+    current = '';
     video.dataset.playing = 'false';
     video.pause();
     video.removeAttribute('src');
     video.load();
+  };
+  const useAnimation = () => {
+    animationMode = true;
+    reset();
+    video.hidden = true;
+    video.autoplay = false;
     renderBackdrop();
+  };
+  // Resolves with a blob: URL holding the full clip; any failure falls back to streaming the file.
+  const prefetch = url => {
+    if (downloaded[url]) return Promise.resolve(downloaded[url]);
+    if (typeof fetch !== 'function' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return Promise.resolve(url);
+    return fetch(url)
+      .then(response => { if (!response.ok) throw new Error(response.status); return response.blob(); })
+      .then(blob => (downloaded[url] = URL.createObjectURL(blob)))
+      .catch(() => url);
   };
   const play = () => {
     if (animationMode || pending || !allowed() || !video.paused) return;
-    if (!video.getAttribute('src')) {
-      video.src = source();
-      video.load();
+    if (!current) {
+      const url = source();
+      if (!handheld()) assign(url, url);
+      else {
+        if (loading === url) return;
+        loading = url;
+        const currentAttempt = attempt;
+        prefetch(url).then(playable => {
+          if (loading !== url || currentAttempt !== attempt || animationMode) return;
+          loading = '';
+          assign(url, playable);
+          update();
+        });
+        return;
+      }
     }
     video.muted = true;
     pending = true;
@@ -76,7 +118,7 @@
   };
   const update = () => {
     renderBackdrop();
-    video.autoplay = allowed() && !animationMode;
+    video.autoplay = allowed() && !animationMode && !!current;
     if (!allowed()) {
       ++attempt;
       pending = false;
@@ -93,14 +135,14 @@
   video.addEventListener('pause', () => { video.dataset.playing = 'false'; });
   for (const event of ['loadeddata', 'canplay']) video.addEventListener(event, update);
   video.addEventListener('error', () => {
-    if (animationMode) return;
-    ++attempt;
-    pending = false;
-    if (video.getAttribute('src') === video.dataset.desktop) {
-      video.src = video.dataset.mobile;
-      video.load();
-      update();
-    } else useAnimation();
+    if (animationMode || !current) return;
+    const failed = current;
+    const kind = portrait.matches ? 'portrait' : 'mobile';
+    reset();
+    if (failed === video.dataset.desktop) assign(video.dataset.mobile, video.dataset.mobile);
+    else if (failed === video.dataset[kind + 'Hevc']) hevcFailed = true;
+    else { useAnimation(); return; }
+    update();
   });
   backdrop.addEventListener('error', () => {
     if (!animationMode || animationFailed || backdrop.getAttribute('src') !== animationSources()[animationStage]) return;
@@ -113,13 +155,7 @@
   const watch = (query, handler) => query.addEventListener ? query.addEventListener('change', handler) : query.addListener(handler);
   watch(motion, update);
   watch(portrait, () => {
-    if (!animationMode && video.getAttribute('src')) {
-      ++attempt;
-      pending = false;
-      video.dataset.playing = 'false';
-      video.src = source();
-      video.load();
-    }
+    if (!animationMode && (current || loading)) reset();
     update();
   });
   connection?.addEventListener?.('change', update);
