@@ -168,3 +168,28 @@ Publicación autorizada por el usuario. Comprobación previa del recurso móvil
 en producción: HTTP 206 y Content-Range correctos para bytes 0-1. Doce pruebas
 locales (incluida política Caddy) y los 112 archivos de Nize verificados. El
 script usa una nueva versión de caché para que los móviles reciban la corrección.
+
+## Fondo automático sin reproductor ampliable — 07/11/2026
+
+El usuario sigue viendo el control nativo de Safari y una pérdida de nitidez al
+activarlo. Se sustituye la recuperación dependiente de toque por un respaldo
+animado automático cuando play rechaza con NotAllowedError/NotSupportedError.
+La escena de respaldo es WebP animado del mismo metraje, no otro vídeo que vuelva
+a depender de autoplay. El elemento video se oculta y descarga su fuente cuando
+se activa ese respaldo; no acepta eventos de puntero ni ofrece controles o PiP.
+El vídeo solo se hace visible tras el evento playing, evitando mostrar el control
+nativo durante el intento de arranque. No se oculta un control para exigir un toque.
+
+El móvil vertical usa un nuevo MP4 1080x1920 H.264 sin audio, recortado del original
+3840x2160, y un póster con el mismo encuadre. Respaldo vertical 720x1280 a 16 fps
+(2,87 MB), horizontal 1280x720 a 16 fps (4,26 MB); solo se cargan si falla autoplay.
+La animación se sustituye por el póster al ocultar la pestaña, salir de pantalla,
+activar movimiento reducido o ahorro de datos. Girar el móvil adapta el encuadre.
+
+Validación: 10 pruebas de reproducción y respaldo, 3 de portada, 1 de política
+Caddy; manifiesto Nize intacto (112 archivos). Prueba real local con rechazo de
+play simulado: imagen animada cargada, vídeo oculto y dos capturas con fotogramas
+diferentes sin ninguna interacción. Prueba normal: MP4 1080x1920 reproduciéndose,
+inline y sin controles. La simulación no equivale a probar Safari en un iPhone
+físico; queda pendiente confirmar el resultado en el dispositivo del usuario.
+Referencia de compatibilidad: https://developers.google.com/speed/webp/faq.
