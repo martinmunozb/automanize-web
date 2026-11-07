@@ -136,8 +136,12 @@
         }
       </style></noscript
     >
-  </head>
-  <body>
+  <link rel="stylesheet" href="assets/css/home-video.css?v=20261107-1" />
+<script src="assets/js/home-video.js?v=20261107-1" defer></script>
+<link rel="stylesheet" href="assets/css/home-sections.css?v=20261107-1" />
+</head>
+  <body class="video-home">
+    <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true"><defs><filter id="brand-white" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 -1 0 1"/></filter></defs></svg>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <header class="header" id="top">
       <div class="container nav-wrap">
@@ -154,73 +158,34 @@
           <span></span><span></span>
         </button>
         <nav class="main-nav" id="main-nav" aria-label="Navegación principal">
-          <a href="index.html#funcionalidades">Qué puedes gestionar</a
-          ><a href="casos-exito.html">Clientes</a
-          ><a href="crm.html#precios">Planes y precios</a
-          ><a href="index.html#preguntas">Preguntas</a
-          ><a class="nav-login" href="app/">Entrar a Nize ↗</a
-          ><a class="button button-dark" href="que-es-nize.html">Hablemos ↗</a>
+          <div class="nav-links">
+            <a href="index.html#funcionalidades"><span>Soluciones</span></a>
+            <a href="casos-exito.html"><span>Clientes</span></a>
+            <a href="crm.html#precios"><span>Precios</span></a>
+          </div>
+          <div class="nav-actions">
+            <a class="nav-login" href="app/"><span>Entrar a Nize</span><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a class="button brand-button brand-button-compact" href="que-es-nize.html"><span>Hablemos</span><span class="brand-button-icon" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18" fill="none"><path d="M5 15 15 5M5 5h10v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+          </div>
         </nav>
       </div>
     </header>
     <main id="contenido">
-      <section class="hero container" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">
-            <span class="status-dot"></span> NIZE · GESTIÓN DE ALQUILERES
-          </p>
-          <h1 id="hero-title">
-            Tus alquileres.<br />En orden.<br /><em>Tu tiempo, de vuelta.</em>
-          </h1>
-          <p class="hero-description">
-            Pisos y habitaciones. Propios o de terceros.<br />Contratos, cobros
-            e inquilinos conectados en Nize.
-          </p>
+      <section class="cinema-hero" aria-labelledby="hero-title">
+        <video class="cinema-video" id="hero-video" muted loop playsinline preload="none" poster="assets/video/property-tour-poster.webp" aria-hidden="true" tabindex="-1" data-desktop="assets/video/property-tour-4k.mp4" data-mobile="assets/video/property-tour-mobile.mp4"></video>
+        <div class="cinema-shade" aria-hidden="true"></div>
+        <div class="container cinema-content">
+
+          <h1 id="hero-title">Tus alquileres, en orden.<br><em>Tu tiempo, de vuelta.</em></h1>
+          <p class="cinema-description">La gestión de tus pisos y habitaciones, en un solo lugar.</p>
           <div class="brand-cta-row">
-            <a class="button button-dark" href="crm.html"
-              >Ver Nize <span aria-hidden="true">↗</span></a
-            ><a class="text-link" href="crm.html#precios"
-              >Ver planes y precios ↗</a
-            >
-          </div>
-          <div class="audience-tags">
-            <span>Propietarios</span><span>Gestores</span
-            ><span>Rent to rent</span>
+            <a class="button cinema-primary brand-button" href="crm.html"><span>Ver Nize</span><span class="brand-button-icon" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18" fill="none"><path d="M5 15 15 5M5 5h10v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></a>
+
           </div>
         </div>
-        <div class="hero-visual">
-          <div class="visual-top">
-            <span>UN ALQUILER. TODO CONECTADO.</span
-            ><span aria-hidden="true">↗</span>
-          </div>
-          <div class="property-photo">
-            <img
-              src="assets/images/hero-house.jpg"
-              alt="Vivienda luminosa con terraza"
-              width="900"
-              height="700"
-              fetchpriority="high"
-            />
-            <div class="property-label">
-              <span>De las llaves a los cobros.</span
-              ><strong>Todo empieza por tener el control.</strong>
-            </div>
-          </div>
-          <a class="hero-screen" href="crm.html#crm-stories-title"
-            ><div class="screen-bar">
-              <strong>nize<span>.</span></strong
-              ><span>Tu cartera, de un vistazo ↗</span>
-            </div>
-            <img
-              src="assets/images/crm-nize-dashboard-760.webp"
-              alt="Panel real de Nize con el resumen de la gestión de alquileres"
-              width="760"
-              height="450"
-          /></a>
-          <div class="visual-foot">
-            <span>Inmuebles</span><i>→</i><span>Contratos</span><i>→</i
-            ><span>Cobros</span>
-          </div>
+        <div class="container cinema-footer">
+
+          <a class="cinema-scroll" href="#funcionalidades" aria-label="Descubrir cómo funciona Nize"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.5"/></svg></a>
         </div>
       </section>
       <section class="trust container" aria-label="Clientes de Automanize">
@@ -627,7 +592,7 @@
           </details>
         </div>
       </section>
-      <section class="stories-section">
+      <section class="stories-section" id="testimonios">
         <div class="container section">
           <div class="section-heading">
             <div>
@@ -733,7 +698,7 @@
           </p>
         </div>
       </section>
-      <section class="section container pricing-callout">
+      <section class="section container pricing-callout" id="planes">
         <div>
           <p class="eyebrow">UN PLAN PARA TU CARTERA</p>
           <h2>¿Cuántos pisos<br /><em>o habitaciones gestionas?</em></h2>
@@ -919,7 +884,7 @@
           <h2>Hablemos<br />de <em>tus alquileres.</em></h2>
           <div class="contact-bottom">
             <p>Cuéntanos qué gestionas y qué te está quitando tiempo.</p>
-            <a class="button button-dark" href="que-es-nize.html"
+            <a class="button button-dark brand-button" href="que-es-nize.html"
               >Hablar con el equipo ↗</a
             >
           </div>
@@ -937,7 +902,7 @@
         </div>
         <div class="footer-links">
           <a href="crm.html">Nize CRM</a
-          ><a href="crm.html#precios">Planes y precios</a
+          ><a href="crm.html#precios">Precios</a
           ><a href="casos-exito.html">Clientes</a
           ><a href="sobre-nosotros.html">El equipo</a
           ><a href="app/">Acceder a Nize ↗</a>
