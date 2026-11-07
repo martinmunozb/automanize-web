@@ -214,3 +214,22 @@ vista previa social y Caddy, fallan igual sin este cambio). Chrome headless emul
 390x844: MP4 vertical 1080x1920 reproduciéndose inline; con autoplay bloqueado, el
 MP4-en-img da error en Chrome y se muestra el WebP animado. El paso MP4-en-img de
 Safari no se ha podido probar en un iPhone físico en esta sesión.
+
+## Vídeo móvil: descarga completa antes de reproducir — 07/11/2026
+
+Tras publicar la versión anterior el usuario sigue viendo el vídeo mal en móvil.
+Medición con Chrome emulando móvil contra producción: a 4 Mbps (4G normal) el vídeo
+de 4,7 MB se reproducía medio segundo y se paraba a cargar, una y otra vez (decenas
+de eventos `waiting`); a 1,6 Mbps, igual. Servidor correcto (206, Content-Range,
+1,7 MB/s): el problema era que la tasa del vídeo superaba la de la conexión móvil.
+
+Cambio: en móvil el clip (8 s) se descarga entero con fetch y se reproduce desde un
+blob; mientras tanto se ve el póster. El bucle se repite desde memoria sin recargar.
+Si la descarga falla, se reproduce el fichero en streaming. El escritorio sigue con
+el 4K en streaming. Nuevos ficheros: HEVC (hvc1) para quien lo soporte (iPhone):
+vertical 1,6 MB y horizontal 1,9 MB; H.264 para el resto: 3,0 y 3,1 MB, 1080p,
+SSIM ≈0,99 frente al 4K. Un error de decodificación HEVC pasa a H.264.
+
+Validación: 16 pruebas del vídeo correctas (las 2 de `main` que fallan siguen igual).
+Misma emulación sobre la versión nueva: 4 Mbps, póster ~7 s y luego 0 paradas y 0
+fotogramas perdidos de 425; 1,6 Mbps, 0 paradas. Sin iPhone físico en la sesión.
