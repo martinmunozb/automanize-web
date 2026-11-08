@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://backend.automanize.com; base-uri 'self'; form-action 'self'; object-src 'none'" />
+    <title>Crea tu cuenta — Automanize</title>
+    <meta name="description" content="Crea tu cuenta de Nize después de contratar el Plan CRM." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://automanize.com/alta-crm.html" />
+    <meta property="og:title" content="Crea tu cuenta — Automanize" />
+    <meta property="og:description" content="Crea tu cuenta de Nize después de contratar el Plan CRM." />
+    <meta property="og:image" content="https://automanize.com/assets/images/nize.png" />
+    <meta property="og:site_name" content="Automanize" />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Crea tu cuenta — Automanize" />
+    <meta name="twitter:description" content="Crea tu cuenta de Nize después de contratar el Plan CRM." />
+    <meta name="twitter:image" content="https://automanize.com/assets/images/nize.png" />
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 32px 16px; background: linear-gradient(180deg, #fff8e8 0, #fafafa 60%); color: #111; font-family: 'Spline Sans', Arial, sans-serif; }
+        .card { width: min(460px, 100%); padding: 36px 32px; background: #fff; border: 1px solid #ececec; border-radius: 20px; box-shadow: 0 24px 48px -30px rgba(17, 17, 17, .35); }
+        .kicker { margin: 0 0 8px; color: #a86f00; font-size: 13px; font-weight: 700; }
+        h1 { margin: 0 0 8px; font-size: 27px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
+        .lead { margin: 0 0 24px; color: #666; font-size: 15px; line-height: 1.5; }
+        form { display: grid; gap: 15px; }
+        label span { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; }
+        input:not([type=checkbox]) { width: 100%; padding: 11px 12px; border: 1px solid #ddd; border-radius: 10px; color: inherit; font: inherit; font-size: 15px; }
+        input:focus { outline: none; border-color: #ffb300; box-shadow: 0 0 0 3px rgba(255, 179, 0, .25); }
+        .check { display: flex; align-items: flex-start; gap: 9px; color: #666; font-size: 13px; line-height: 1.45; }
+        .check input { margin-top: 3px; accent-color: #ffb300; }
+        .check a { color: #111; }
+        .error { margin: 0; color: #c62828; font-size: 13.5px; }
+        .error:empty { display: none; }
+        .btn { display: block; width: 100%; min-height: 48px; padding: 13px 20px; border: 0; border-radius: 999px; background: #ffb300; color: #111; font: inherit; font-size: 15px; font-weight: 700; text-align: center; text-decoration: none; cursor: pointer; }
+        .btn:hover { background: #e69900; }
+        .btn:disabled { opacity: .6; cursor: wait; }
+        .btn.sec { margin-top: 10px; background: #111; color: #fff; }
+        .btn.sec:hover { background: #333; }
+        [hidden] { display: none !important; }
+    </style>
+</head>
+
+<body>
+    <main class="card">
+        <section id="cargando"><p class="lead" style="margin:0">Comprobando tu pago...</p></section>
+
+        <section id="sinPago" hidden>
+            <h1>No encontramos tu pago</h1>
+            <p class="lead" id="sinPagoTexto">Abre el enlace del correo que te hemos enviado o escríbenos a soporte@automanize.com.</p>
+            <a class="btn" href="crm.html#precios">Ver planes</a>
+        </section>
+
+        <section id="alta" hidden>
+            <p class="kicker">Pago confirmado · <span id="plan"></span></p>
+            <h1>Crea tu cuenta</h1>
+            <p class="lead">Solo falta esto para entrar en Nize.</p>
+            <form id="altaForm" novalidate>
+                <label><span>Nombre de tu empresa</span><input name="empresa" required maxlength="120" autocomplete="organization" /></label>
+                <label><span>Correo electrónico</span><input name="email" type="email" required maxlength="254" autocomplete="email" /></label>
+                <label><span>Teléfono</span><input name="telefono" type="tel" required autocomplete="tel" placeholder="+34 600 00 00 00" /></label>
+                <label><span>Contraseña</span><input name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" /></label>
+                <label><span>Repite la contraseña</span><input name="repetir" type="password" required minlength="8" maxlength="72" autocomplete="new-password" /></label>
+                <label class="check"><input type="checkbox" name="privacidad_aceptada" required /><span style="margin:0;font-weight:400">He leído y acepto la <a href="nize-privacy.html" target="_blank" rel="noopener">política de privacidad</a>.</span></label>
+                <p class="error" id="error" role="alert"></p>
+                <button class="btn" type="submit">Crear cuenta</button>
+            </form>
+        </section>
+
+        <section id="lista" hidden>
+            <p class="kicker">Plan CRM activo</p>
+            <h1>Tu cuenta está lista</h1>
+            <p class="lead">Inicia sesión con tu correo y tu contraseña.</p>
+            <a class="btn" href="https://automanize.com/app/">Iniciar sesión</a>
+            <a class="btn sec" href="https://github.com/NitramX7/Nize-Releases/releases/latest" rel="noopener">Descargar Nize para Windows</a>
+        </section>
+    </main>
+
+    <script>
+        (() => {
+            const API = 'https://backend.automanize.com/webhook/crm-alta';
+            const sessionId = new URLSearchParams(location.search).get('session_id') || '';
+            const form = document.getElementById('altaForm');
+            const error = document.getElementById('error');
+            const mostrar = (id) => ['cargando', 'sinPago', 'alta', 'lista'].forEach((s) => { document.getElementById(s).hidden = s !== id; });
+
+            fetch(API + '?session_id=' + encodeURIComponent(sessionId))
+                .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok) return mostrar('sinPago');
+                    if (data.ya_creada) return mostrar('lista');
+                    document.getElementById('plan').textContent = 'hasta ' + data.inmuebles + ' inmuebles';
+                    form.empresa.value = data.empresa || '';
+                    form.email.value = data.email || '';
+                    form.telefono.value = data.telefono || '';
+                    mostrar('alta');
+                })
+                .catch(() => {
+                    document.getElementById('sinPagoTexto').textContent = 'No hemos podido comprobar tu pago. Recarga la página o escríbenos a soporte@automanize.com.';
+                    mostrar('sinPago');
+                });
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                error.textContent = '';
+                if (!form.checkValidity()) return form.reportValidity();
+                const datos = Object.fromEntries(new FormData(form).entries());
+                if (datos.password !== datos.repetir) { error.textContent = 'Las contraseñas no coinciden.'; return; }
+                const boton = form.querySelector('button');
+                boton.disabled = true;
+                boton.textContent = 'Creando tu cuenta...';
+                try {
+                    const res = await fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: sessionId,
+                            empresa: datos.empresa,
+                            email: datos.email,
+                            telefono: datos.telefono,
+                            password: datos.password,
+                            privacidad_aceptada: datos.privacidad_aceptada === 'on',
+                        }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.error || 'No hemos podido crear tu cuenta.');
+                    mostrar('lista');
+                } catch (err) {
+                    error.textContent = err.message;
+                    boton.disabled = false;
+                    boton.textContent = 'Crear cuenta';
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
