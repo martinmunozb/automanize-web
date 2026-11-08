@@ -36,7 +36,7 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 ├── alta-agencia-admin.html — Panel interno: ver fichas recibidas y generar tokens
 ├── pago-nize.html          — Página de pago/confirmación Nize
 ├── captador-nize.html      — Landing captador de inmuebles
-├── crm.html                — Landing CRM. Incluye la sección de precios (Basic + Plus/Pro/Elite);
+├── crm.html                — Landing CRM. Incluye la sección de precios (Plan CRM por tramos + Elite Gold);
 │                             todos los botones de pago llevan a la prueba de 7 días, no cobran al
 │                             alta (assets/js/crm-pricing.js, ver docs/REGLAS_NEGOCIO.md del repo
 │                             padre) — nize.html es solo la landing del embudo, sin precios

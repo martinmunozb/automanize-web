@@ -951,113 +951,57 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-3 block">Precios</span>
                         <h2 class="text-3xl md:text-4xl font-black text-[#111] leading-tight tracking-tight">Paga según el volumen que gestionas.</h2>
                     </div>
-                    <div class="inline-flex p-1 border border-[#e5e5e5] rounded-xl bg-white">
-                        <button type="button" id="priceToggleMensual" class="price-toggle-btn px-4 py-2 rounded-lg text-[13px] font-bold bg-[#FFB300] text-black" data-periodo="mensual">Mensual</button>
-                        <button type="button" id="priceToggleAnual" class="price-toggle-btn px-4 py-2 rounded-lg text-[13px] font-bold text-[#888]" data-periodo="anual">Anual <span class="text-[10px] font-black bg-[#111] text-[#ffd98a] px-1.5 py-0.5 rounded-full ml-1">2 meses gratis</span></button>
-                    </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
                     <div class="flex flex-col border border-[#e8e8e8] rounded-2xl p-6 bg-white">
-                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">CRM completo</p>
-                        <h3 class="text-xl font-black text-[#111] mb-1">Basic</h3>
-                        <p class="text-[12px] text-[#999] mb-4">Hasta 3 pisos · 17 habitaciones</p>
-                        <p class="mb-5"><span class="text-3xl font-black text-[#111]">0€</span></p>
-                        <details class="rental-plan-features" open><summary>Ver qué incluye <span aria-hidden="true">+</span></summary><ul class="text-[13px] text-[#444] space-y-2.5 mb-6 flex-1">
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Cobros y gastos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Interesados e inquilinos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inmuebles</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Contabilidad, prorrateo y facturación</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Propietarios</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestores en equipo</li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Plantillas de contrato y firma digital</span></li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Disponibilidad de visitas</span></li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Automatizaciones</span></li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Drive</span></li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Asistente de IA</span></li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Importación con IA</span></li>
-                        </ul></details>
-                        <div class="flex flex-wrap gap-1 mb-4">
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Tutoriales</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Exportable</span>
-                        </div>
-                        <a href="solicitar-demo.html" class="block text-center border border-[#e0e0e0] hover:border-[#FFB300] text-[#111] font-bold text-[13px] px-5 py-3 rounded-full transition-colors">Probar gratis</a>
+                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">Plan CRM</p>
+                        <h3 class="text-xl font-black text-[#111] mb-1">0–15 inmuebles</h3>
+                        <p class="mb-5 mt-3 flex-1"><span class="text-3xl font-black text-[#111]">27€</span><span class="text-[#888] text-[13px]">/mes + IVA</span></p>
+                        <button type="button" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-inmuebles="15">Contratar</button>
                     </div>
                     <div class="flex flex-col border border-[#e8e8e8] rounded-2xl p-6 bg-white">
-                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">CRM completo</p>
-                        <h3 class="text-xl font-black text-[#111] mb-1">Plus</h3>
-                        <p class="text-[12px] text-[#999] mb-4">Hasta 50 habitaciones</p>
-                        <p class="mb-5"><span class="price-amount text-3xl font-black text-[#111]" data-mensual="75€" data-anual="750€">75€</span><span class="price-period text-[#888] text-[13px]" data-mensual="/mes" data-anual="/año">/mes</span></p>
-                        <details class="rental-plan-features" open><summary>Ver qué incluye <span aria-hidden="true">+</span></summary><ul class="text-[13px] text-[#444] space-y-2.5 mb-6 flex-1">
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Cobros y gastos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Interesados e inquilinos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inmuebles</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Contabilidad, prorrateo y facturación</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Propietarios</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestores en equipo</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Plantillas de contrato y firma digital</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Disponibilidad de visitas</li>
-                            <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>Drive</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Asistente de IA</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Importación con IA</li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Automatizaciones</span></li>
-                        </ul></details>
-                        <div class="flex flex-wrap gap-1 mb-4">
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Tutoriales</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Exportable</span>
-                        </div>
-                        <button type="button" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-tier="tier1">Prueba 7 días gratis</button>
+                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">Plan CRM</p>
+                        <h3 class="text-xl font-black text-[#111] mb-1">15–30 inmuebles</h3>
+                        <p class="mb-5 mt-3 flex-1"><span class="text-3xl font-black text-[#111]">54€</span><span class="text-[#888] text-[13px]">/mes + IVA</span></p>
+                        <button type="button" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-inmuebles="30">Contratar</button>
                     </div>
                     <div class="flex flex-col border border-[#e8e8e8] rounded-2xl p-6 bg-white">
-                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">CRM completo</p>
-                        <h3 class="text-xl font-black text-[#111] mb-1">Pro</h3>
-                        <p class="text-[12px] text-[#999] mb-4">Hasta 200 habitaciones</p>
-                        <p class="mb-5"><span class="price-amount text-3xl font-black text-[#111]" data-mensual="135€" data-anual="1.350€">135€</span><span class="price-period text-[#888] text-[13px]" data-mensual="/mes" data-anual="/año">/mes</span></p>
-                        <details class="rental-plan-features" open><summary>Ver qué incluye <span aria-hidden="true">+</span></summary><ul class="text-[13px] text-[#444] space-y-2.5 mb-6 flex-1">
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Cobros y gastos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Interesados e inquilinos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inmuebles</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Contabilidad, prorrateo y facturación</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Propietarios</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestores en equipo</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Plantillas de contrato y firma digital</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Disponibilidad de visitas</li>
-                            <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>Drive</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Asistente de IA</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Importación con IA</li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Automatizaciones</span></li>
-                        </ul></details>
-                        <div class="flex flex-wrap gap-1 mb-4">
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Tutoriales</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Exportable</span>
-                        </div>
-                        <button type="button" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-tier="tier2">Prueba 7 días gratis</button>
+                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">Plan CRM</p>
+                        <h3 class="text-xl font-black text-[#111] mb-1">30–60 inmuebles</h3>
+                        <p class="mb-5 mt-3 flex-1"><span class="text-3xl font-black text-[#111]">81€</span><span class="text-[#888] text-[13px]">/mes + IVA</span></p>
+                        <button type="button" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-inmuebles="60">Contratar</button>
                     </div>
-                    <div class="flex flex-col border-2 border-[#FFB300] rounded-2xl p-6 bg-white relative">
-                        <span class="absolute -top-3 right-6 bg-[#FFB300] text-black text-[10px] font-black uppercase tracking-wide px-3 py-1 rounded-full">Más volumen</span>
-                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">CRM completo</p>
-                        <h3 class="text-xl font-black text-[#111] mb-1">Elite</h3>
-                        <p class="text-[12px] text-[#999] mb-4">Hasta 400 habitaciones</p>
-                        <p class="mb-5"><span class="price-amount text-3xl font-black text-[#111]" data-mensual="207€" data-anual="2.070€">207€</span><span class="price-period text-[#888] text-[13px]" data-mensual="/mes" data-anual="/año">/mes</span></p>
-                        <details class="rental-plan-features" open><summary>Ver qué incluye <span aria-hidden="true">+</span></summary><ul class="text-[13px] text-[#444] space-y-2.5 mb-6 flex-1">
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Cobros y gastos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Interesados e inquilinos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inmuebles</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Contabilidad, prorrateo y facturación</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Propietarios</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestores en equipo</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Plantillas de contrato y firma digital</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Disponibilidad de visitas</li>
-                            <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>Drive</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Asistente de IA</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Importación con IA</li>
-                            <li class="flex items-start gap-2 text-[#bbb]"><span class="material-symbols-outlined text-[16px] text-[#ccc] mt-0.5">close</span><span class="line-through decoration-[#ccc]">Automatizaciones</span></li>
-                        </ul></details>
-                        <div class="flex flex-wrap gap-1 mb-4">
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Tutoriales</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#7a5410] bg-[#fff9e8] border border-[#c9973a] rounded px-1.5 py-0.5">✓ Exportable</span>
+                    <div class="flex flex-col border-2 border-[#FFB300] rounded-2xl p-6 bg-white">
+                        <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-2">Más de 60 inmuebles</p>
+                        <h3 class="text-xl font-black text-[#111] mb-1">Pack extra 30</h3>
+                        <p class="mt-3"><span class="text-3xl font-black text-[#111]">+27€</span><span class="text-[#888] text-[13px]">/mes + IVA</span></p>
+                        <div class="flex items-center gap-3 my-4">
+                            <button type="button" id="crmPackMenos" aria-label="Quitar un pack" class="w-9 h-9 rounded-lg border border-[#e0e0e0] font-bold">−</button>
+                            <span class="text-[13px] font-bold text-[#111]"><span id="crmPackCantidad">1 pack</span></span>
+                            <button type="button" id="crmPackMas" aria-label="Añadir un pack" class="w-9 h-9 rounded-lg border border-[#e0e0e0] font-bold">+</button>
                         </div>
-                        <button type="button" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-tier="tier3">Prueba 7 días gratis</button>
+                        <p id="crmPackResumen" class="text-[12px] text-[#666] mb-5 flex-1">Hasta 90 inmuebles · 108€/mes + IVA</p>
+                        <button type="button" id="crmPackContratar" class="js-open-pricing-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors" data-inmuebles="90">Contratar</button>
                     </div>
+                </div>
+                <div class="mt-5 border border-[#e8e8e8] rounded-2xl p-6 bg-white">
+                    <p class="text-[11px] font-bold text-[#999] uppercase tracking-wide mb-3">Incluido en todos los planes</p>
+                    <ul class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-x-4 gap-y-2 text-[13px] text-[#444]">
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Panel de control</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inmuebles</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Interesados</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Propietarios</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Calendario</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inquilinos</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Cobros</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gastos</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Resumen propio</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Facturación</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Renovaciones</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Logs</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Acceso a Drive</li>
+                        <li class="flex items-start gap-1.5"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Ayuda</li>
+                    </ul>
                 </div>
 
                 <div class="relative mt-9">
@@ -1107,23 +1051,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button type="button" id="pricingModalClose" aria-label="Cerrar" class="absolute top-4 right-4 w-9 h-9 rounded-lg border border-[#eee] flex items-center justify-center">
                     <span class="material-symbols-outlined text-[18px]">close</span>
                 </button>
-                <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block" id="pricingModalKicker">Prueba de 7 días</span>
+                <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block" id="pricingModalKicker">Plan CRM</span>
 
-                <!-- Paso 1: upsell — llamada guiada o prueba por su cuenta -->
-                <div class="pricing-screen" data-screen="upsell">
-                    <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">¿Cómo prefieres empezar?</h2>
-                    <p class="text-[13px] text-[#888] mb-6 leading-relaxed">Podemos configurarte el CRM en una llamada guiada, o puedes empezar tu prueba gratis ahora mismo por tu cuenta.</p>
-                    <div class="grid gap-3">
-                        <a id="pricingUpsellCall" href="que-es-nize.html" class="block text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Agendar llamada gratuita</a>
-                        <button type="button" id="pricingUpsellSelf" class="w-full text-center border border-[#e0e0e0] hover:border-[#FFB300] text-[#111] font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Prefiero probarlo yo mismo</button>
-                    </div>
-                    <p class="text-[12px] text-[#888] mt-4 leading-relaxed"><strong class="text-[#111]">Consejo:</strong> si contratas el plan completo dentro de los 3 primeros días de tu prueba, te llevas <strong class="text-[#111]">1 mes gratis</strong>.</p>
-                </div>
-
-                <!-- Paso 2: formulario de la prueba gratis -->
-                <div class="pricing-screen hidden" data-screen="form">
-                    <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">Empieza tu prueba gratis.</h2>
-                    <p class="text-[13px] text-[#888] mb-6 leading-relaxed">7 días con todo el CRM, sin tarjeta ni cobro. Si al terminar tu inmobiliaria no cabe en el plan gratuito, te avisamos para que elijas cómo seguir — contrátalo antes de los 3 primeros días y te llevas 1 mes gratis.</p>
+                <div>
+                    <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">Contrata tu Plan CRM.</h2>
+                    <p class="text-[13px] text-[#888] mb-6 leading-relaxed">Pagas de forma segura con Stripe y, en cuanto se confirme el pago, te enviamos el acceso a tu correo.</p>
                     <form id="pricingForm" class="grid gap-4" novalidate>
                         <label class="block">
                             <span class="text-[12px] font-bold text-[#333] block mb-1">Nombre y apellidos</span>
@@ -1147,16 +1079,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </label>
                         <div style="position:absolute;left:-9999px" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
                         <p id="pricingError" class="text-[13px] text-red-600"></p>
-                        <button type="submit" class="w-full bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Empezar prueba gratis</button>
+                        <button type="submit" class="w-full bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Continuar al pago</button>
                     </form>
                 </div>
 
-                <div id="pricingSuccess" class="hidden">
-                    <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight" id="pricingSuccessTitulo">¡Listo!</h2>
-                    <p class="text-[13px] text-[#666] leading-relaxed">Tu cuenta ya está creada. <strong>Revisa tu correo</strong>: te hemos enviado el instalador, tus credenciales de acceso y el código de activación. Tienes <strong>7 días de prueba gratis</strong> con todo el CRM. Contrátalo antes de los 3 primeros días y te llevas <strong>1 mes gratis</strong>.</p>
-                    <button type="button" id="pricingBuyNow" class="hidden w-full bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors mt-5">Contratar ahora y llevarme 1 mes gratis</button>
-                    <p id="pricingBuyNowError" class="text-[13px] text-red-600 mt-2"></p>
-                </div>
             </div>
         </div>
 
@@ -1295,7 +1221,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </footer>
     <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
     <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
-    <script src="assets/js/crm-pricing.js?v=6" defer></script>
+    <script src="assets/js/crm-pricing.js?v=20261108" defer></script>
     <script>
         // Brillo especular del botón "Usar el CRM en el navegador": sigue al
         // puntero y se apaga al alejarse. Mismo mecanismo que solicitar-demo.html.

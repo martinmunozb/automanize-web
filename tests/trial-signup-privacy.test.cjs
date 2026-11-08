@@ -9,7 +9,7 @@ function read(file) {
   return fs.readFileSync(path.join(rootDir, file), 'utf8');
 }
 
-test('los formularios publicos de prueba gratis exigen privacidad', () => {
+test('el formulario publico del Plan CRM exige privacidad', () => {
   const crm = read('crm.html');
   const crmPricing = read('assets/js/crm-pricing.js');
 

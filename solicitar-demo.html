@@ -335,11 +335,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             // Stripe vuelve aquí tras un pago (pantalla de bloqueo del trial en la
             // app de escritorio): quien ya es cliente de pago no debe ver la reserva.
-            if (new URLSearchParams(window.location.search).get('pago') === 'exitoso') {
+            const retornoStripe = new URLSearchParams(window.location.search);
+            if (retornoStripe.get('pago') === 'exitoso') {
                 document.getElementById('demoExtras').remove();
                 card.innerHTML = '<div style="text-align:center"><h2>¡Pago confirmado!</h2>' +
                     '<p style="margin-top:.7rem;color:var(--muted);font-size:.93rem;line-height:1.6">' +
-                    'Ya puedes volver a abrir la aplicación Nize — tu cuenta está activa.</p></div>';
+                    (retornoStripe.get('alta') === 'crm'
+                        ? 'En unos minutos recibirás en tu correo el acceso a tu Plan CRM.'
+                        : 'Ya puedes volver a abrir la aplicación Nize — tu cuenta está activa.') + '</p></div>';
             }
 
             // --- Brillo especular: sigue al puntero y se apaga al alejarse.

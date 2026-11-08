@@ -1,71 +1,46 @@
-// crm-pricing.js — Sección de precios de crm.html: toggle mensual/anual y
-// modal que crea la cuenta con 7 días de prueba gratis (misma Edge Function
-// que solicitar-demo.html). Antes del formulario, el modal ofrece un upsell
-// (agendar llamada vs. probarlo por su cuenta) — ver docs/REGLAS_NEGOCIO.md.
-// No cobra nada al alta: si al terminar el trial el tenant no cabe en el
-// plan gratuito, se bloquea y ahí se le ofrece pagar (flujo ya existente de
-// trial-checkout, ver docs/REGLAS_NEGOCIO.md).
+// crm-pricing.js — Sección de precios de crm.html. El modal del Plan CRM manda
+// los datos al backend y redirige a Stripe: la cuenta se crea al confirmarse el
+// pago (ver docs/REGLAS_NEGOCIO.md).
 (() => {
-  const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
-  const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
-  const CHECKOUT_DIRECTO_URL = 'https://backend.automanize.com/webhook/checkout-directo';
+  const CRM_CHECKOUT_URL = 'https://backend.automanize.com/webhook/crm-checkout';
+  const MAX_PACKS = 20;
+  // Importes sin IVA: la fuente de verdad del cobro es src/trial/reglas.js del backend.
+  const PRECIOS = { 15: 27, 30: 54, 60: 81 };
+  const precioDe = (inmuebles) => PRECIOS[inmuebles] ?? 81 + ((inmuebles - 60) / 30) * 27;
 
-  const TIER_NOMBRES = { tier1: 'Plus', tier2: 'Pro', tier3: 'Elite' };
-  let periodoActual = 'mensual';
-  let tierSeleccionado = null;
-  let tenantIdCreado = null;
+  let inmueblesSeleccionados = null;
 
-  // --- Toggle mensual/anual ---
-  const btnMensual = document.getElementById('priceToggleMensual');
-  const btnAnual = document.getElementById('priceToggleAnual');
-  const setToggleActivo = (btnActivo, btnInactivo) => {
-    btnActivo.classList.add('bg-[#FFB300]', 'text-black');
-    btnActivo.classList.remove('text-[#888]');
-    btnInactivo.classList.remove('bg-[#FFB300]', 'text-black');
-    btnInactivo.classList.add('text-[#888]');
+  // --- Selector de packs ---
+  let packs = 1;
+  const packCantidad = document.getElementById('crmPackCantidad');
+  const packResumen = document.getElementById('crmPackResumen');
+  const packContratar = document.getElementById('crmPackContratar');
+  const pintarPacks = () => {
+    const inmuebles = 60 + packs * 30;
+    packCantidad.textContent = packs === 1 ? '1 pack' : `${packs} packs`;
+    packResumen.textContent = `Hasta ${inmuebles} inmuebles · ${precioDe(inmuebles)}€/mes + IVA`;
+    packContratar.dataset.inmuebles = String(inmuebles);
   };
-  const aplicarPeriodo = (periodo) => {
-    periodoActual = periodo;
-    document.querySelectorAll('.price-amount[data-mensual]').forEach((el) => { el.textContent = el.dataset[periodo]; });
-    document.querySelectorAll('.price-period[data-mensual]').forEach((el) => { el.textContent = el.dataset[periodo]; });
-  };
-  btnMensual?.addEventListener('click', () => { setToggleActivo(btnMensual, btnAnual); aplicarPeriodo('mensual'); });
-  btnAnual?.addEventListener('click', () => { setToggleActivo(btnAnual, btnMensual); aplicarPeriodo('anual'); });
+  document.getElementById('crmPackMenos')?.addEventListener('click', () => { packs = Math.max(1, packs - 1); pintarPacks(); });
+  document.getElementById('crmPackMas')?.addEventListener('click', () => { packs = Math.min(MAX_PACKS, packs + 1); pintarPacks(); });
 
   // --- Modal de contratación ---
   const modal = document.getElementById('pricingModal');
   const modalKicker = document.getElementById('pricingModalKicker');
-  const pricingScreens = modal ? [...modal.querySelectorAll('.pricing-screen')] : [];
-  const upsellCallLink = document.getElementById('pricingUpsellCall');
-  const upsellSelfBtn = document.getElementById('pricingUpsellSelf');
   const form = document.getElementById('pricingForm');
   const formError = document.getElementById('pricingError');
-  const success = document.getElementById('pricingSuccess');
-  const successTitulo = document.getElementById('pricingSuccessTitulo');
-  const buyNowBtn = document.getElementById('pricingBuyNow');
-  const buyNowError = document.getElementById('pricingBuyNowError');
   let lastFocus = null;
 
-  const showPricingScreen = (name) => {
-    pricingScreens.forEach((screen) => { screen.classList.toggle('hidden', screen.dataset.screen !== name); });
-  };
-
-  const openModal = (tier) => {
-    tierSeleccionado = tier;
-    tenantIdCreado = null;
-    modalKicker.textContent = `Prueba de 7 días — ${TIER_NOMBRES[tier] || ''}`;
+  const openModal = (inmuebles) => {
+    inmueblesSeleccionados = inmuebles;
+    modalKicker.textContent = `Hasta ${inmuebles} inmuebles · ${precioDe(inmuebles)}€/mes + IVA`;
     formError.textContent = '';
-    buyNowError.textContent = '';
     form.reset();
-    success.classList.add('hidden');
-    buyNowBtn.classList.add('hidden');
-    showPricingScreen('upsell');
     lastFocus = document.activeElement;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     document.body.style.overflow = 'hidden';
-    window.setTimeout(() => upsellCallLink?.focus(), 100);
+    window.setTimeout(() => form.querySelector('input')?.focus(), 100);
   };
   const closeModal = () => {
     modal.classList.add('hidden');
@@ -75,11 +50,7 @@
   };
 
   document.querySelectorAll('.js-open-pricing-modal').forEach((btn) => {
-    btn.addEventListener('click', () => openModal(btn.dataset.tier));
-  });
-  upsellSelfBtn?.addEventListener('click', () => {
-    showPricingScreen('form');
-    window.setTimeout(() => form.querySelector('input')?.focus(), 100);
+    btn.addEventListener('click', () => openModal(Number(btn.dataset.inmuebles)));
   });
   document.getElementById('pricingModalClose')?.addEventListener('click', closeModal);
   modal?.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
@@ -95,73 +66,34 @@
       form.reportValidity();
       return;
     }
-    if (!tierSeleccionado) {
-      formError.textContent = 'Elige un plan antes de continuar.';
-      return;
-    }
 
     const datos = Object.fromEntries(new FormData(form).entries());
     const submitButton = form.querySelector('button[type="submit"]');
     const textoOriginal = submitButton.textContent;
     submitButton.disabled = true;
-    submitButton.textContent = 'Creando tu cuenta...';
-
-    const meta = window.AutomanizeMeta;
-    const eventId = meta ? meta.newEventId() : undefined;
+    submitButton.textContent = 'Preparando el pago...';
 
     try {
-      const resSignup = await fetch(TRIAL_SIGNUP_URL, {
+      const res = await fetch(CRM_CHECKOUT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          inmuebles: inmueblesSeleccionados,
           empresa: datos.nombre,
           telefono: datos.telefono,
           email: datos.email,
           nif: datos.nif,
           website: datos.website,
           privacidad_aceptada: datos.privacidad_aceptada === 'on',
-          event_source_url: window.location.href,
-          event_id: eventId,
-          ...(meta ? meta.ids() : {}),
         }),
-      });
-      const dataSignup = await resSignup.json().catch(() => ({}));
-      if (!resSignup.ok || dataSignup.error) throw new Error(dataSignup.error || 'No se pudo crear tu cuenta.');
-
-      if (meta) meta.track('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
-      tenantIdCreado = dataSignup.tenant_id || null;
-      const primero = String(datos.nombre || '').trim().split(/\s+/)[0];
-      successTitulo.textContent = primero ? `¡Gracias, ${primero}!` : '¡Listo!';
-      form.classList.add('hidden');
-      success.classList.remove('hidden');
-      buyNowBtn.classList.toggle('hidden', !tenantIdCreado);
-    } catch (err) {
-      formError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
-      submitButton.disabled = false;
-      submitButton.textContent = textoOriginal;
-    }
-  });
-
-  buyNowBtn?.addEventListener('click', async () => {
-    if (!tenantIdCreado || !tierSeleccionado) return;
-    buyNowError.textContent = '';
-    const textoOriginal = buyNowBtn.textContent;
-    buyNowBtn.disabled = true;
-    buyNowBtn.textContent = 'Preparando el pago...';
-
-    try {
-      const res = await fetch(CHECKOUT_DIRECTO_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenant_id: tenantIdCreado, tier: tierSeleccionado, periodo: periodoActual }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error || !data.url) throw new Error(data.error || 'No se pudo iniciar el pago.');
       window.location.href = data.url;
     } catch (err) {
-      buyNowError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
-      buyNowBtn.disabled = false;
-      buyNowBtn.textContent = textoOriginal;
+      formError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
+      submitButton.disabled = false;
+      submitButton.textContent = textoOriginal;
     }
   });
 
