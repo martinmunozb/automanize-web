@@ -295,7 +295,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SQ2QT5PJTL"></script>
   <script src="/assets/js/cookie-consent.js?v=9" defer></script>
-<link rel="stylesheet" href="assets/css/rental-subpages.css?v=20261108">
+<link rel="stylesheet" href="assets/css/rental-subpages.css?v=20261108-2">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
 </head>
 <body class="bg-white text-[#111] overflow-x-hidden rental-marketing">
@@ -946,167 +946,111 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- PRECIOS -->
         <section id="precios" class="py-20 md:py-28 bg-[#fafafa] border-y border-[#eee]">
             <div class="max-w-[1200px] mx-auto px-6 md:px-10">
-                <div class="flex flex-wrap items-end justify-between gap-6 mb-12">
-                    <div>
-                        <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-3 block">Precios</span>
-                        <h2 class="text-3xl md:text-4xl font-black text-[#111] leading-tight tracking-tight">Paga según el volumen que gestionas.</h2>
-                        <p class="text-[15px] text-[#777] mt-3">Todos los tramos incluyen lo mismo. Solo cambia el número de inmuebles.</p>
-                    </div>
+                <div class="mb-14">
+                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-3 block">Precios</span>
+                    <h2 class="text-3xl md:text-4xl font-black text-[#111] leading-tight tracking-tight">Elige cómo quieres trabajar.</h2>
+                    <p class="text-[15px] text-[#777] mt-3">Empieza con el CRM o deja que WhatsApp trabaje por ti.</p>
                 </div>
                 <div class="crm-plans">
                     <article class="crm-plan">
-                        <span class="crm-plan__icon material-symbols-outlined" aria-hidden="true">cottage</span>
-                        <p class="crm-plan__eyebrow">Ideal para empezar</p>
-                        <h3 class="crm-plan__title">0–15 inmuebles</h3>
-                        <p class="crm-plan__price"><span class="crm-plan__amount">27€</span><span class="crm-plan__period">/mes + IVA</span></p>
-                        <div class="crm-plan__detail"><p>Todo el CRM para ordenar tu primera cartera.</p></div>
-                        <button type="button" class="js-open-pricing-modal crm-plan__cta" data-inmuebles="15">Contratar</button>
-                        <p class="crm-plan__includes">Incluye</p>
-                        <ul class="crm-plan__list">
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Panel de control</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inmuebles</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Interesados</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Propietarios</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Calendario</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inquilinos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Cobros</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Gastos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Resumen propio</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Facturación</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Renovaciones</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Logs</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Acceso a Drive</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Ayuda</li>
-                        </ul>
-                    </article>
-                    <article class="crm-plan">
                         <span class="crm-plan__icon material-symbols-outlined" aria-hidden="true">apartment</span>
-                        <p class="crm-plan__eyebrow">Cartera en crecimiento</p>
-                        <h3 class="crm-plan__title">15–30 inmuebles</h3>
-                        <p class="crm-plan__price"><span class="crm-plan__amount">54€</span><span class="crm-plan__period">/mes + IVA</span></p>
-                        <div class="crm-plan__detail"><p>Más inmuebles con la misma forma de trabajar.</p></div>
-                        <button type="button" class="js-open-pricing-modal crm-plan__cta" data-inmuebles="30">Contratar</button>
+                        <p class="crm-plan__eyebrow">Para ordenar tu cartera</p>
+                        <h3 class="crm-plan__title">Plan CRM</h3>
+                        <p class="crm-plan__price"><span class="crm-plan__amount" id="crmPrecio" aria-live="polite">27€</span><span class="crm-plan__period">/mes + IVA</span></p>
+                        <div class="crm-plan__detail">
+                            <label class="crm-plan__slider-label" for="crmInmuebles"><span>¿Cuántos inmuebles gestionas?</span><strong>Hasta <span id="crmInmueblesTexto">15</span></strong></label>
+                            <input type="range" id="crmInmuebles" class="crm-plan__slider" min="0" max="22" step="1" value="0">
+                            <p class="crm-plan__note">Cuentan las habitaciones y los pisos enteros que alquilas.</p>
+                        </div>
+                        <button type="button" id="crmContratar" class="js-open-pricing-modal crm-plan__cta" data-inmuebles="15">Contratar</button>
                         <p class="crm-plan__includes">Incluye</p>
                         <ul class="crm-plan__list">
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Panel de control</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inmuebles</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Interesados</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Propietarios</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Calendario</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inquilinos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Cobros</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Gastos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Resumen propio</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Facturación</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Renovaciones</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Logs</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Acceso a Drive</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Ayuda</li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Hasta <span id="crmInmueblesLista">15</span> inmuebles</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>2 usuarios</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Panel de control y calendario</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Inmuebles, interesados, propietarios e inquilinos</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Cobros, gastos y resumen propio</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Facturación y renovaciones</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Acceso a Drive, logs y ayuda</span></li>
+                        </ul>
+                        <p class="crm-plan__includes crm-plan__includes--no">No incluye</p>
+                        <ul class="crm-plan__list">
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Contratos</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Disponibilidad de visitas</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Seendy, tu WhatsApp dentro de Nize</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Automatizaciones por WhatsApp</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Gestores ilimitados</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Importación con IA</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Captación</span></li>
                         </ul>
                     </article>
                     <article class="crm-plan crm-plan--featured">
-                        <span class="crm-plan__badge">Recomendado</span>
-                        <span class="crm-plan__icon material-symbols-outlined" aria-hidden="true">location_city</span>
-                        <p class="crm-plan__eyebrow">Agencias consolidadas</p>
-                        <h3 class="crm-plan__title">30–60 inmuebles</h3>
-                        <p class="crm-plan__price"><span class="crm-plan__amount">81€</span><span class="crm-plan__period">/mes + IVA</span></p>
-                        <div class="crm-plan__detail"><p>Toda tu gestión de alquileres en un solo sitio.</p></div>
-                        <button type="button" class="js-open-pricing-modal crm-plan__cta" data-inmuebles="60">Contratar</button>
+                        <span class="crm-plan__icon material-symbols-outlined" aria-hidden="true">bolt</span>
+                        <p class="crm-plan__eyebrow">Automatiza lo que más te pesa</p>
+                        <h3 class="crm-plan__title">Plan Gold</h3>
+                        <p class="crm-plan__price"><span class="crm-plan__amount">A medida</span></p>
+                        <div class="crm-plan__detail"><p>Suma contratos, Seendy y la automatización de WhatsApp que elijas. Lo vemos contigo en una llamada.</p></div>
+                        <button type="button" class="js-open-elite-modal crm-plan__cta" data-plan="Gold">Agendar llamada</button>
                         <p class="crm-plan__includes">Incluye</p>
                         <ul class="crm-plan__list">
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Panel de control</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inmuebles</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Interesados</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Propietarios</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Calendario</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inquilinos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Cobros</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Gastos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Resumen propio</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Facturación</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Renovaciones</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Logs</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Acceso a Drive</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Ayuda</li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span><strong>Todo lo del Plan CRM</strong></span></li>
+                        </ul>
+                        <div class="crm-plan__choice">
+                            <p>1 automatización a elegir</p>
+                            <ul>
+                                <li><span class="material-symbols-outlined" aria-hidden="true">payments</span><span><strong>Cobros y gastos</strong>Cobros de inquilinos, gastos y facturación de tu empresa.</span></li>
+                                <li><span class="material-symbols-outlined" aria-hidden="true">engineering</span><span><strong>Incidencias y gestores</strong>Incidencias por WhatsApp y gestores ilimitados, cada uno con sus apartados.</span></li>
+                                <li><span class="material-symbols-outlined" aria-hidden="true">person_search</span><span><strong>Filtrado de interesados</strong>Interesados filtrados por WhatsApp, con disponibilidad de visitas.</span></li>
+                            </ul>
+                        </div>
+                        <ul class="crm-plan__list">
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Contratos</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Seendy, tu WhatsApp dentro de Nize</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>3 usuarios</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Importación con IA</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Captación</span></li>
+                        </ul>
+                        <p class="crm-plan__includes crm-plan__includes--no">No incluye</p>
+                        <ul class="crm-plan__list">
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Las otras 2 automatizaciones</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Integración de tu número de WhatsApp</span></li>
+                            <li class="is-no"><span class="material-symbols-outlined" aria-hidden="true">close</span><span>Contabilidad</span></li>
                         </ul>
                     </article>
-                    <article class="crm-plan crm-plan--scale">
-                        <span class="crm-plan__icon material-symbols-outlined" aria-hidden="true">domain_add</span>
-                        <p class="crm-plan__eyebrow">Grandes carteras</p>
-                        <h3 class="crm-plan__title">Más de 60 inmuebles</h3>
-                        <p class="crm-plan__price"><span class="crm-plan__amount" id="crmVolPrecio" aria-live="polite">108€</span><span class="crm-plan__period">/mes + IVA</span></p>
-                        <div class="crm-plan__detail">
-                            <div class="crm-plan__stepper">
-                                <button type="button" id="crmVolMenos" aria-label="30 inmuebles menos"><span class="material-symbols-outlined" aria-hidden="true">remove</span></button>
-                                <span><strong id="crmVolInmuebles">90</strong> inmuebles</span>
-                                <button type="button" id="crmVolMas" aria-label="30 inmuebles más"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
-                            </div>
-                            <p>+27€ al mes por cada 30 inmuebles más.</p>
-                        </div>
-                        <button type="button" id="crmVolContratar" class="js-open-pricing-modal crm-plan__cta" data-inmuebles="90">Contratar</button>
+                    <article class="crm-plan crm-plan--elite">
+                        <span class="crm-plan__badge">Todo incluido</span>
+                        <span class="crm-plan__icon material-symbols-outlined" aria-hidden="true">workspace_premium</span>
+                        <p class="crm-plan__eyebrow">La implantación completa</p>
+                        <h3 class="crm-plan__title">Elite Gold</h3>
+                        <p class="crm-plan__price"><span class="crm-plan__amount">A medida</span></p>
+                        <div class="crm-plan__detail"><p>Absolutamente todo Nize, con tu número de WhatsApp integrado por nuestro equipo.</p></div>
+                        <button type="button" class="js-open-elite-modal crm-plan__cta" data-plan="Elite Gold">Agendar llamada</button>
                         <p class="crm-plan__includes">Incluye</p>
                         <ul class="crm-plan__list">
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Panel de control</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inmuebles</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Interesados</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Propietarios</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Calendario</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Inquilinos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Cobros</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Gastos</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Resumen propio</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Facturación</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Renovaciones</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Logs</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Acceso a Drive</li>
-                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span>Ayuda</li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span><strong>Todo lo del Plan Gold</strong></span></li>
+                        </ul>
+                        <div class="crm-plan__choice">
+                            <p>Las 3 automatizaciones</p>
+                            <ul>
+                                <li><span class="material-symbols-outlined" aria-hidden="true">payments</span><span><strong>Cobros y gastos</strong>Cobros de inquilinos, gastos y facturación de tu empresa.</span></li>
+                                <li><span class="material-symbols-outlined" aria-hidden="true">engineering</span><span><strong>Incidencias y gestores</strong>Incidencias por WhatsApp y gestores ilimitados, cada uno con sus apartados.</span></li>
+                                <li><span class="material-symbols-outlined" aria-hidden="true">person_search</span><span><strong>Filtrado de interesados</strong>Interesados filtrados por WhatsApp, con disponibilidad de visitas.</span></li>
+                            </ul>
+                        </div>
+                        <ul class="crm-plan__list">
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Usuarios y gestores ilimitados</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Integración de tu número de WhatsApp por nuestra parte</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Contabilidad y prorrateo</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Tutorial 1 a 1 de implantación</span></li>
+                            <li><span class="material-symbols-outlined" aria-hidden="true">check</span><span>Soporte y feedback</span></li>
                         </ul>
                     </article>
                 </div>
                 <p id="crmCheckoutError" role="alert" class="text-[13px] text-red-600 mt-4"></p>
-
-                <div class="relative mt-9">
-                    <span class="absolute -top-3.5 left-6 md:left-8 z-10 flex items-center gap-1 bg-[#FFB300] text-black text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(255,179,0,0.45)]">
-                        <span class="material-symbols-outlined text-[13px]">workspace_premium</span>La implantación completa
-                    </span>
-                    <div class="rental-elite-card flex flex-col lg:flex-row gap-6 items-stretch rounded-2xl p-6 md:p-8 pt-8 bg-gradient-to-br from-[#181818] to-[#0a0a0a] border border-white/10 shadow-[0_0_0_1px_rgba(255,179,0,0.15),0_20px_50px_rgba(0,0,0,0.35)]">
-                    <div class="lg:w-[34%] flex flex-col justify-center">
-                        <p class="text-[11px] font-bold text-[#FFB300] uppercase tracking-wide mb-2">CRM + Asistente de WhatsApp</p>
-                        <h3 class="text-2xl font-black text-white mb-1">Nize Elite Gold</h3>
-                        <p class="mb-4"><span class="text-3xl font-black text-white">A medida</span></p>
-                        <p class="text-[13px] text-[#bbb] leading-relaxed mb-6">El sistema completo, implantado y acompañado por nuestro equipo. Sin límite de habitaciones.</p>
-                        <button type="button" class="js-open-elite-modal block w-full text-center bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[13px] px-5 py-3 rounded-full transition-colors">Quiero Elite Gold</button>
-                    </div>
-                    <div class="lg:w-[66%] pt-4 lg:pt-0 lg:pl-8 lg:border-l lg:border-white/10">
-                        <p class="text-[11px] font-bold text-white/60 uppercase tracking-wide mb-3">Todo esto, dentro de Nize Elite Gold</p>
-                        <details class="rental-plan-features" open><summary>Ver qué incluye <span aria-hidden="true">+</span></summary><ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-[13px] text-[#ddd] mb-6">
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Cobros y gastos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Interesados e inquilinos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Inmuebles y contratos</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Contabilidad, prorrateo y facturación</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Propietarios</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestores en equipo</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Automatizaciones</li>
-                            <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>Drive</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Importación con IA</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Asistente de WhatsApp</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestión de incidencias desde WhatsApp</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestión de pagos desde WhatsApp</li>
-                            <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-[#FFB300] mt-0.5">check</span>Gestión de interesados desde WhatsApp</li>
-                        </ul></details>
-                        <div class="flex flex-wrap gap-1">
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#ffd98a] bg-white/5 border border-[#c9973a] rounded px-1.5 py-0.5">✓ Tutoriales para ti y tus inquilinos</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#ffd98a] bg-white/5 border border-[#c9973a] rounded px-1.5 py-0.5">✓ Exportable</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#ffd98a] bg-white/5 border border-[#c9973a] rounded px-1.5 py-0.5">✓ Soporte y feedback</span>
-                            <span class="text-[9px] font-black uppercase tracking-wide text-[#ffd98a] bg-white/5 border border-[#c9973a] rounded px-1.5 py-0.5">✓ Tutorial 1 a 1 de implantación</span>
-                        </div>
-                    </div>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- MODAL: Elite Gold (datos -> situación -> agenda en Cal.com) -->
+        <!-- MODAL: Gold y Elite Gold (datos -> situación -> agenda en Cal.com) -->
         <div id="eliteModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background:rgba(10,10,10,.58);backdrop-filter:blur(6px)">
             <div class="relative w-full max-w-[480px] bg-white rounded-2xl shadow-2xl p-8 max-h-[calc(100dvh-40px)] overflow-y-auto">
                 <button type="button" id="eliteModalBack" aria-label="Atrás" class="hidden absolute top-4 left-4 w-9 h-9 rounded-lg border border-[#eee] items-center justify-center">
@@ -1117,7 +1061,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </button>
 
                 <div class="elite-screen" data-screen="elite-1">
-                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block">Paso 1 de 3 · Elite Gold</span>
+                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block">Paso 1 de 3 · <span class="js-elite-plan">Elite Gold</span></span>
                     <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">Cuéntanos quién eres.</h2>
                     <form id="eliteForm1" class="grid gap-4 mt-4" novalidate>
                         <label class="block">
@@ -1137,7 +1081,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
 
                 <div class="elite-screen hidden" data-screen="elite-2">
-                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block">Paso 2 de 3 · Elite Gold</span>
+                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block">Paso 2 de 3 · <span class="js-elite-plan">Elite Gold</span></span>
                     <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">Tu situación ahora mismo.</h2>
                     <form id="eliteForm2" class="grid gap-4 mt-4" novalidate>
                         <label class="block">
@@ -1153,7 +1097,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
 
                 <div class="elite-screen hidden" data-screen="elite-calcom">
-                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block">Paso 3 de 3 · Elite Gold</span>
+                    <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block">Paso 3 de 3 · <span class="js-elite-plan">Elite Gold</span></span>
                     <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">Elige el hueco que mejor te venga.</h2>
                     <p class="text-[13px] text-[#888] mb-4 leading-relaxed">Agenda una llamada con nuestro equipo para implantar el sistema completo.</p>
                     <div class="w-full rounded-xl border border-[#e0e0e0] overflow-hidden" style="height:min(520px,60vh)">
@@ -1241,7 +1185,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </footer>
     <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
     <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
-    <script src="assets/js/crm-pricing.js?v=20261108-3" defer></script>
+    <script src="assets/js/crm-pricing.js?v=20261108-4" defer></script>
     <script>
         // Brillo especular del botón "Usar el CRM en el navegador": sigue al
         // puntero y se apaga al alejarse. Mismo mecanismo que solicitar-demo.html.

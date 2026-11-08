@@ -6,16 +6,19 @@ const test = require('node:test');
 const rootDir = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(rootDir, file), 'utf8');
 
-test('crm.html vende el Plan CRM mensual con IVA aparte y mantiene Elite Gold', () => {
+test('crm.html vende 3 planes: CRM por Stripe, Gold y Elite Gold por llamada', () => {
   const crm = read('crm.html');
-  for (const [precio, inmuebles] of [['27', '15'], ['54', '30'], ['81', '60'], ['108', '90']]) {
-    assert.match(crm, new RegExp(`crm-plan__amount[^>]*>${precio}€</span><span class="crm-plan__period">/mes \\+ IVA`));
-    assert.match(crm, new RegExp(`data-inmuebles="${inmuebles}"`));
-  }
-  assert.match(crm, /\+27€ al mes por cada 30 inmuebles más/);
-  assert.doesNotMatch(crm, /[Pp]ack/);
+  const js = read('assets/js/crm-pricing.js');
+  assert.match(js, /PRECIOS = \{ 15: 27, 30: 54, 60: 81 \}/);
+  assert.match(js, /81 \+ \(\(inmuebles - 60\) \/ 30\) \* 27/);
+  assert.equal((crm.match(/<article class="crm-plan[ "]/g) || []).length, 3);
+  assert.match(crm, /id="crmContratar"[^>]*data-inmuebles="15"/);
+  assert.match(crm, /data-plan="Gold"/);
+  assert.match(crm, /data-plan="Elite Gold"/);
+  assert.match(crm, /2 usuarios/);
+  assert.match(crm, /3 usuarios/);
+  assert.doesNotMatch(crm, /[Pp]ack|[Ss]in l[ií]mite de/);
   assert.doesNotMatch(crm, /data-tier=|priceToggle|Hasta 3 pisos|7 días/);
-  assert.match(crm, /js-open-elite-modal/);
 });
 
 test('Contratar va directo a Stripe y la cuenta se crea despues', () => {

@@ -2,29 +2,26 @@
 // directamente; la cuenta se crea después del pago, en alta-crm.html.
 (() => {
   const CRM_CHECKOUT_URL = 'https://backend.automanize.com/webhook/crm-checkout';
-  const MIN_INMUEBLES_ESCALA = 90;
-  const MAX_INMUEBLES_ESCALA = 660;
   // Importes sin IVA: la fuente de verdad del cobro es src/trial/reglas.js del backend.
   const PRECIOS = { 15: 27, 30: 54, 60: 81 };
   const precioDe = (inmuebles) => PRECIOS[inmuebles] ?? 81 + ((inmuebles - 60) / 30) * 27;
+  // Topes que se venden: 15, 30, 60 y de 30 en 30 hasta 660.
+  const TOPES = [15, 30, ...Array.from({ length: 21 }, (_, i) => 60 + i * 30)];
 
-  // --- Selector de más de 60 inmuebles: el precio sube 27 € cada 30 inmuebles ---
-  let inmueblesEscala = MIN_INMUEBLES_ESCALA;
-  const volInmuebles = document.getElementById('crmVolInmuebles');
-  const volPrecio = document.getElementById('crmVolPrecio');
-  const volContratar = document.getElementById('crmVolContratar');
-  const volMenos = document.getElementById('crmVolMenos');
-  const volMas = document.getElementById('crmVolMas');
-  const pintarEscala = () => {
-    volInmuebles.textContent = String(inmueblesEscala);
-    volPrecio.textContent = `${precioDe(inmueblesEscala)}€`;
-    volContratar.dataset.inmuebles = String(inmueblesEscala);
-    volMenos.disabled = inmueblesEscala <= MIN_INMUEBLES_ESCALA;
-    volMas.disabled = inmueblesEscala >= MAX_INMUEBLES_ESCALA;
+  // --- Selector de inmuebles del Plan CRM ---
+  const slider = document.getElementById('crmInmuebles');
+  const pintarPlanCrm = () => {
+    const inmuebles = TOPES[Number(slider.value)];
+    const precio = precioDe(inmuebles);
+    document.getElementById('crmInmueblesTexto').textContent = String(inmuebles);
+    document.getElementById('crmInmueblesLista').textContent = String(inmuebles);
+    document.getElementById('crmPrecio').textContent = `${precio}€`;
+    document.getElementById('crmContratar').dataset.inmuebles = String(inmuebles);
+    slider.setAttribute('aria-valuetext', `Hasta ${inmuebles} inmuebles, ${precio} euros al mes`);
+    slider.style.setProperty('--avance', `${(Number(slider.value) / (TOPES.length - 1)) * 100}%`);
   };
-  volMenos?.addEventListener('click', () => { inmueblesEscala -= 30; pintarEscala(); });
-  volMas?.addEventListener('click', () => { inmueblesEscala += 30; pintarEscala(); });
-  if (volInmuebles) pintarEscala();
+  slider?.addEventListener('input', pintarPlanCrm);
+  if (slider) pintarPlanCrm();
 
   // --- Contratar: directo a Stripe ---
   const checkoutError = document.getElementById('crmCheckoutError');
@@ -51,7 +48,7 @@
     });
   });
 
-  // --- Modal Elite Gold: datos -> situación -> agenda en Cal.com ---
+  // --- Modal Gold y Elite Gold: datos -> situación -> agenda en Cal.com ---
   const eliteModal = document.getElementById('eliteModal');
   const eliteScreens = eliteModal ? [...eliteModal.querySelectorAll('.elite-screen')] : [];
   const eliteBackBtn = document.getElementById('eliteModalBack');
@@ -59,6 +56,7 @@
   let eliteData = {};
   let eliteIndex = 0;
   let eliteLastFocus = null;
+  let elitePlan = 'Elite Gold';
 
   const showEliteScreen = (name) => {
     eliteIndex = eliteOrder.indexOf(name);
@@ -66,7 +64,9 @@
     eliteBackBtn?.classList.toggle('hidden', eliteIndex === 0);
     eliteBackBtn?.classList.toggle('flex', eliteIndex !== 0);
   };
-  const openEliteModal = () => {
+  const openEliteModal = (plan) => {
+    elitePlan = plan;
+    eliteModal.querySelectorAll('.js-elite-plan').forEach((el) => { el.textContent = plan; });
     eliteData = {};
     document.getElementById('eliteForm1')?.reset();
     document.getElementById('eliteForm2')?.reset();
@@ -85,7 +85,7 @@
   };
 
   document.querySelectorAll('.js-open-elite-modal').forEach((btn) => {
-    btn.addEventListener('click', openEliteModal);
+    btn.addEventListener('click', () => openEliteModal(btn.dataset.plan));
   });
   document.getElementById('eliteModalClose')?.addEventListener('click', closeEliteModal);
   eliteBackBtn?.addEventListener('click', () => { if (eliteIndex > 0) showEliteScreen(eliteOrder[eliteIndex - 1]); });
@@ -107,7 +107,7 @@
     const eliteForm2 = event.target;
     if (!eliteForm2.checkValidity()) { eliteForm2.reportValidity(); return; }
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(eliteForm2).entries()) };
-    const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
+    const notas = `Plan: ${elitePlan}. Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     // Cal.com pide el teléfono: se rellena solo para no preguntarlo otra vez. Exige
     // formato internacional; si no lo cumple, lo escribe la persona en el calendario.
