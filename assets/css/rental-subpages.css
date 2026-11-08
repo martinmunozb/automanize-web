@@ -228,6 +228,12 @@ body.rental-marketing.am-page {
 .crm-plan--elite .crm-plan__choice > p, .crm-plan--elite .crm-plan__choice strong { color: #fff; }
 .crm-plan--elite .crm-plan__choice ul { color: #bbb; }
 .crm-plan--elite .crm-plan__choice .material-symbols-outlined { color: #ffb300; }
+.crm-plan__bonus { display: flex; align-items: center; gap: 8px; margin: 0 0 9px; padding: 7px 10px 7px 11px; border: 1.5px dashed #ffb300; border-radius: 12px; background: #fffdf6; color: #111; font-size: 13px; font-weight: 800; }
+.crm-plan__bonus > .material-symbols-outlined { flex: none; color: #a86f00; font-size: 18px; }
+.crm-plan__seal { display: inline-flex; flex: none; align-items: center; gap: 3px; margin-left: auto; padding: 3px 9px 3px 6px; border-radius: 999px; background: #ffb300; color: #111; font-size: 10.5px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; transform: rotate(-4deg); box-shadow: 0 2px 8px rgba(255, 179, 0, .45); }
+.crm-plan__seal .material-symbols-outlined { color: #111; font-size: 13px; }
+.crm-plan--elite .crm-plan__bonus { background: rgba(255, 179, 0, .08); color: #fff; }
+.crm-plan--elite .crm-plan__bonus > .material-symbols-outlined { color: #ffb300; }
 @media (max-width: 1023px) {
   .crm-plans { grid-template-columns: minmax(0, 560px); justify-content: center; row-gap: 30px; }
   .crm-plan__detail { min-height: 0; }
