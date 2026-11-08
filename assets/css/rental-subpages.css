@@ -160,3 +160,54 @@ body.rental-marketing.am-page {
     padding: 12px 0;
   }
 }
+
+/* Tarjetas del Plan CRM (crm.html) */
+.crm-plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.crm-plan {
+  position: relative; display: flex; flex-direction: column; padding: 28px 24px 26px;
+  background: #fff; border: 1px solid #ececec; border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(17, 17, 17, .04), 0 18px 36px -28px rgba(17, 17, 17, .28);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.crm-plan:hover { transform: translateY(-4px); border-color: #ffd98a; box-shadow: 0 1px 2px rgba(17, 17, 17, .04), 0 26px 44px -26px rgba(17, 17, 17, .36); }
+.crm-plan--featured { border: 2px solid #ffb300; padding: 27px 23px 25px; box-shadow: 0 24px 48px -26px rgba(255, 179, 0, .6); }
+.crm-plan--featured:hover { border-color: #ffb300; box-shadow: 0 30px 54px -24px rgba(255, 179, 0, .68); }
+.crm-plan--scale { background: linear-gradient(180deg, #fff8e8 0, #fff 46%); }
+.crm-plan__badge {
+  position: absolute; top: -13px; left: 23px; padding: 5px 12px; border-radius: 999px;
+  background: #ffb300; color: #111; font-size: 11px; font-weight: 800; letter-spacing: .02em;
+}
+.crm-plan__icon {
+  display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-bottom: 18px;
+  border-radius: 13px; background: #fff3d1; color: #a86f00; font-size: 23px;
+}
+.crm-plan--scale .crm-plan__icon { background: #111; color: #ffb300; }
+.crm-plan__eyebrow { margin: 0 0 4px; color: #8a8a8a; font-size: 12.5px; font-weight: 600; }
+.crm-plan__title { margin: 0; color: #111; font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+.crm-plan__price { display: flex; align-items: baseline; gap: 5px; margin: 18px 0 8px; }
+.crm-plan__amount { color: #111; font-size: 44px; font-weight: 800; letter-spacing: -.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.crm-plan__period { color: #7a7a7a; font-size: 13px; font-weight: 500; }
+.crm-plan__detail { min-height: 96px; margin-bottom: 18px; color: #666; font-size: 13.5px; line-height: 1.5; }
+.crm-plan__detail p { margin: 0; }
+.crm-plan__stepper { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; padding: 4px; background: #fff; border: 1px solid #ecdcb6; border-radius: 12px; color: #111; font-size: 13.5px; }
+.crm-plan__stepper strong { font-weight: 800; font-variant-numeric: tabular-nums; }
+.crm-plan__stepper button { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9px; background: #fff3d1; color: #111; transition: background .2s ease, opacity .2s ease; }
+.crm-plan__stepper button:hover:not(:disabled) { background: #ffb300; }
+.crm-plan__stepper button:disabled { opacity: .35; cursor: not-allowed; }
+.crm-plan__stepper .material-symbols-outlined { font-size: 18px; }
+.crm-plan__cta { width: 100%; min-height: 46px; padding: 12px 20px; border-radius: 999px; background: #111; color: #fff; font-size: 14px; font-weight: 700; transition: background .2s ease, color .2s ease; }
+.crm-plan__cta:hover { background: #ffb300; color: #111; }
+.crm-plan--featured .crm-plan__cta { background: #ffb300; color: #111; }
+.crm-plan--featured .crm-plan__cta:hover { background: #e69900; }
+.crm-plan__cta:focus-visible, .crm-plan__stepper button:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+.crm-plan__includes { margin: 22px 0 12px; padding-top: 20px; border-top: 1px solid #efefef; color: #111; font-size: 13px; font-weight: 700; }
+.crm-plan__list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; color: #444; font-size: 13.5px; line-height: 1.3; }
+.crm-plan__list li { display: flex; align-items: center; gap: 9px; }
+.crm-plan__list .material-symbols-outlined { display: flex; align-items: center; justify-content: center; flex: none; width: 18px; height: 18px; border-radius: 50%; background: #fff3d1; color: #a86f00; font-size: 13px; font-weight: 700; }
+@media (max-width: 1023px) { .crm-plans { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; } }
+@media (max-width: 639px) {
+  .crm-plans { grid-template-columns: minmax(0, 1fr); }
+  .crm-plan__detail { min-height: 0; }
+  .crm-plan__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .crm-plan { transition: none; } .crm-plan:hover { transform: none; } }

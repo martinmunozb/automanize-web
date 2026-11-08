@@ -3,26 +3,31 @@
 // pago (ver docs/REGLAS_NEGOCIO.md).
 (() => {
   const CRM_CHECKOUT_URL = 'https://backend.automanize.com/webhook/crm-checkout';
-  const MAX_PACKS = 20;
+  const MIN_INMUEBLES_ESCALA = 90;
+  const MAX_INMUEBLES_ESCALA = 660;
   // Importes sin IVA: la fuente de verdad del cobro es src/trial/reglas.js del backend.
   const PRECIOS = { 15: 27, 30: 54, 60: 81 };
   const precioDe = (inmuebles) => PRECIOS[inmuebles] ?? 81 + ((inmuebles - 60) / 30) * 27;
 
   let inmueblesSeleccionados = null;
 
-  // --- Selector de packs ---
-  let packs = 1;
-  const packCantidad = document.getElementById('crmPackCantidad');
-  const packResumen = document.getElementById('crmPackResumen');
-  const packContratar = document.getElementById('crmPackContratar');
-  const pintarPacks = () => {
-    const inmuebles = 60 + packs * 30;
-    packCantidad.textContent = packs === 1 ? '1 pack' : `${packs} packs`;
-    packResumen.textContent = `Hasta ${inmuebles} inmuebles · ${precioDe(inmuebles)}€/mes + IVA`;
-    packContratar.dataset.inmuebles = String(inmuebles);
+  // --- Selector de más de 60 inmuebles: el precio sube 27 € cada 30 inmuebles ---
+  let inmueblesEscala = MIN_INMUEBLES_ESCALA;
+  const volInmuebles = document.getElementById('crmVolInmuebles');
+  const volPrecio = document.getElementById('crmVolPrecio');
+  const volContratar = document.getElementById('crmVolContratar');
+  const volMenos = document.getElementById('crmVolMenos');
+  const volMas = document.getElementById('crmVolMas');
+  const pintarEscala = () => {
+    volInmuebles.textContent = String(inmueblesEscala);
+    volPrecio.textContent = `${precioDe(inmueblesEscala)}€`;
+    volContratar.dataset.inmuebles = String(inmueblesEscala);
+    volMenos.disabled = inmueblesEscala <= MIN_INMUEBLES_ESCALA;
+    volMas.disabled = inmueblesEscala >= MAX_INMUEBLES_ESCALA;
   };
-  document.getElementById('crmPackMenos')?.addEventListener('click', () => { packs = Math.max(1, packs - 1); pintarPacks(); });
-  document.getElementById('crmPackMas')?.addEventListener('click', () => { packs = Math.min(MAX_PACKS, packs + 1); pintarPacks(); });
+  volMenos?.addEventListener('click', () => { inmueblesEscala -= 30; pintarEscala(); });
+  volMas?.addEventListener('click', () => { inmueblesEscala += 30; pintarEscala(); });
+  if (volInmuebles) pintarEscala();
 
   // --- Modal de contratación ---
   const modal = document.getElementById('pricingModal');
