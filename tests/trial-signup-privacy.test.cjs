@@ -10,10 +10,9 @@ function read(file) {
 }
 
 test('el formulario publico del Plan CRM exige privacidad', () => {
-  const crm = read('crm.html');
-  const crmPricing = read('assets/js/crm-pricing.js');
+  const alta = read('alta-crm.html');
 
-  assert.match(crm, /id="pricingForm"[\s\S]*name="privacidad_aceptada" required/);
-  assert.match(crm, /id="pricingForm"[\s\S]*nize-privacy\.html/);
-  assert.match(crmPricing, /privacidad_aceptada:\s*datos\.privacidad_aceptada === 'on'/);
+  assert.match(alta, /id="altaForm"[\s\S]*name="privacidad_aceptada" required/);
+  assert.match(alta, /id="altaForm"[\s\S]*nize-privacy\.html/);
+  assert.match(alta, /privacidad_aceptada:\s*datos\.privacidad_aceptada === 'on'/);
 });

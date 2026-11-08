@@ -1,6 +1,5 @@
-// crm-pricing.js — Sección de precios de crm.html. El modal del Plan CRM manda
-// los datos al backend y redirige a Stripe: la cuenta se crea al confirmarse el
-// pago (ver docs/REGLAS_NEGOCIO.md).
+// crm-pricing.js — Sección de precios de crm.html. "Contratar" abre Stripe
+// directamente; la cuenta se crea después del pago, en alta-crm.html.
 (() => {
   const CRM_CHECKOUT_URL = 'https://backend.automanize.com/webhook/crm-checkout';
   const MIN_INMUEBLES_ESCALA = 90;
@@ -8,8 +7,6 @@
   // Importes sin IVA: la fuente de verdad del cobro es src/trial/reglas.js del backend.
   const PRECIOS = { 15: 27, 30: 54, 60: 81 };
   const precioDe = (inmuebles) => PRECIOS[inmuebles] ?? 81 + ((inmuebles - 60) / 30) * 27;
-
-  let inmueblesSeleccionados = null;
 
   // --- Selector de más de 60 inmuebles: el precio sube 27 € cada 30 inmuebles ---
   let inmueblesEscala = MIN_INMUEBLES_ESCALA;
@@ -29,77 +26,29 @@
   volMas?.addEventListener('click', () => { inmueblesEscala += 30; pintarEscala(); });
   if (volInmuebles) pintarEscala();
 
-  // --- Modal de contratación ---
-  const modal = document.getElementById('pricingModal');
-  const modalKicker = document.getElementById('pricingModalKicker');
-  const form = document.getElementById('pricingForm');
-  const formError = document.getElementById('pricingError');
-  let lastFocus = null;
-
-  const openModal = (inmuebles) => {
-    inmueblesSeleccionados = inmuebles;
-    modalKicker.textContent = `Hasta ${inmuebles} inmuebles · ${precioDe(inmuebles)}€/mes + IVA`;
-    formError.textContent = '';
-    form.reset();
-    lastFocus = document.activeElement;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-    window.setTimeout(() => form.querySelector('input')?.focus(), 100);
-  };
-  const closeModal = () => {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
-    lastFocus?.focus();
-  };
-
+  // --- Contratar: directo a Stripe ---
+  const checkoutError = document.getElementById('crmCheckoutError');
   document.querySelectorAll('.js-open-pricing-modal').forEach((btn) => {
-    btn.addEventListener('click', () => openModal(Number(btn.dataset.inmuebles)));
-  });
-  document.getElementById('pricingModalClose')?.addEventListener('click', closeModal);
-  modal?.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
-  });
-
-  form?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    formError.textContent = '';
-
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const datos = Object.fromEntries(new FormData(form).entries());
-    const submitButton = form.querySelector('button[type="submit"]');
-    const textoOriginal = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Preparando el pago...';
-
-    try {
-      const res = await fetch(CRM_CHECKOUT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          inmuebles: inmueblesSeleccionados,
-          empresa: datos.nombre,
-          telefono: datos.telefono,
-          email: datos.email,
-          nif: datos.nif,
-          website: datos.website,
-          privacidad_aceptada: datos.privacidad_aceptada === 'on',
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.error || !data.url) throw new Error(data.error || 'No se pudo iniciar el pago.');
-      window.location.href = data.url;
-    } catch (err) {
-      formError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
-      submitButton.disabled = false;
-      submitButton.textContent = textoOriginal;
-    }
+    btn.addEventListener('click', async () => {
+      const textoOriginal = btn.textContent;
+      checkoutError.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Abriendo Stripe...';
+      try {
+        const res = await fetch(CRM_CHECKOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inmuebles: Number(btn.dataset.inmuebles) }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.url) throw new Error(data.error || 'No se pudo abrir el pago.');
+        window.location.href = data.url;
+      } catch (err) {
+        checkoutError.textContent = `${err.message} Inténtalo de nuevo o escríbenos por WhatsApp.`;
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      }
+    });
   });
 
   // --- Modal Elite Gold: datos -> situación -> agenda en Cal.com ---

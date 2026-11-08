@@ -18,8 +18,11 @@ test('crm.html vende el Plan CRM mensual con IVA aparte y mantiene Elite Gold', 
   assert.match(crm, /js-open-elite-modal/);
 });
 
-test('el modal paga en Stripe y no crea pruebas gratis', () => {
+test('Contratar va directo a Stripe y la cuenta se crea despues', () => {
   const js = read('assets/js/crm-pricing.js');
+  const crm = read('crm.html');
   assert.match(js, /webhook\/crm-checkout/);
   assert.doesNotMatch(js, /trial-signup|checkout-directo/);
+  assert.doesNotMatch(crm, /pricingForm|pricingModal/);
+  assert.match(read('alta-crm.html'), /webhook\/crm-alta/);
 });

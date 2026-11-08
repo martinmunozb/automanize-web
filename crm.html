@@ -1063,6 +1063,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </ul>
                     </article>
                 </div>
+                <p id="crmCheckoutError" role="alert" class="text-[13px] text-red-600 mt-4"></p>
 
                 <div class="relative mt-9">
                     <span class="absolute -top-3.5 left-6 md:left-8 z-10 flex items-center gap-1 bg-[#FFB300] text-black text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-[0_4px_14px_rgba(255,179,0,0.45)]">
@@ -1104,47 +1105,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
         </section>
-
-        <!-- MODAL: contratar plan de pago -->
-        <div id="pricingModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background:rgba(10,10,10,.58);backdrop-filter:blur(6px)">
-            <div class="relative w-full max-w-[440px] bg-white rounded-2xl shadow-2xl p-8 max-h-[calc(100dvh-40px)] overflow-y-auto">
-                <button type="button" id="pricingModalClose" aria-label="Cerrar" class="absolute top-4 right-4 w-9 h-9 rounded-lg border border-[#eee] flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-                <span class="text-[10px] font-black text-[#FFB300] tracking-[0.25em] uppercase mb-2 block" id="pricingModalKicker">Plan CRM</span>
-
-                <div>
-                    <h2 class="text-2xl font-black text-[#111] mb-2 tracking-tight">Contrata tu Plan CRM.</h2>
-                    <p class="text-[13px] text-[#888] mb-6 leading-relaxed">Pagas de forma segura con Stripe y, en cuanto se confirme el pago, te enviamos el acceso a tu correo.</p>
-                    <form id="pricingForm" class="grid gap-4" novalidate>
-                        <label class="block">
-                            <span class="text-[12px] font-bold text-[#333] block mb-1">Nombre y apellidos</span>
-                            <input type="text" name="nombre" required autocomplete="name" maxlength="80" placeholder="Tu nombre" class="w-full border border-[#e0e0e0] rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-[#FFB300]" />
-                        </label>
-                        <label class="block">
-                            <span class="text-[12px] font-bold text-[#333] block mb-1">Correo electrónico</span>
-                            <input type="email" name="email" required autocomplete="email" maxlength="120" placeholder="tucorreo@ejemplo.com" class="w-full border border-[#e0e0e0] rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-[#FFB300]" />
-                        </label>
-                        <label class="block">
-                            <span class="text-[12px] font-bold text-[#333] block mb-1">Teléfono</span>
-                            <input type="tel" name="telefono" required autocomplete="tel" inputmode="tel" placeholder="+34 600 00 00 00" class="w-full border border-[#e0e0e0] rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-[#FFB300]" />
-                        </label>
-                        <label class="block">
-                            <span class="text-[12px] font-bold text-[#333] block mb-1">NIF / CIF / NIE</span>
-                            <input type="text" name="nif" required maxlength="12" autocomplete="off" placeholder="B12345678" class="w-full border border-[#e0e0e0] rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:border-[#FFB300]" />
-                        </label>
-                        <label class="flex items-start gap-2 text-[12px] text-[#666] leading-relaxed">
-                            <input type="checkbox" name="privacidad_aceptada" required class="mt-1" />
-                            <span>He leído y acepto la <a href="nize-privacy.html" target="_blank" rel="noopener" class="underline text-[#111]">política de privacidad</a>.</span>
-                        </label>
-                        <div style="position:absolute;left:-9999px" aria-hidden="true"><label>No rellenar<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
-                        <p id="pricingError" class="text-[13px] text-red-600"></p>
-                        <button type="submit" class="w-full bg-[#FFB300] hover:bg-[#E69900] text-black font-bold text-[14px] px-5 py-3.5 rounded-full transition-colors">Continuar al pago</button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
 
         <!-- MODAL: Elite Gold (datos -> situación -> agenda en Cal.com) -->
         <div id="eliteModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background:rgba(10,10,10,.58);backdrop-filter:blur(6px)">
@@ -1281,7 +1241,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </footer>
     <script src="assets/js/embla-carousel.umd.js?v=8.6.0" defer></script>
     <script src="assets/js/crm-embla-carousel.js?v=20260818" defer></script>
-    <script src="assets/js/crm-pricing.js?v=20261108-2" defer></script>
+    <script src="assets/js/crm-pricing.js?v=20261108-3" defer></script>
     <script>
         // Brillo especular del botón "Usar el CRM en el navegador": sigue al
         // puntero y se apaga al alejarse. Mismo mecanismo que solicitar-demo.html.

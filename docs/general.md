@@ -30,6 +30,7 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 /
 ├── index.html              — Landing principal Automanize
 ├── solicitar-demo.html     — Reserva de la llamada Elite Gold en popup de Cal.com, enlazada desde el sitio
+├── alta-crm.html           — Crear la cuenta después de pagar el Plan CRM en Stripe
 ├── gracias-demo.html       — Agradecimiento tras reservar desde solicitar-demo.html
 ├── formulario.html         — Formulario dinámico de leads por token (WhatsApp)
 ├── alta-agencia.html       — Ficha de alta para agencias ya contratadas, por token
