@@ -58,7 +58,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <script src="assets/js/automanize-ui.js?v=20260830" defer></script>
 
     <style>
-        /* Una sola acción en el centro de la pantalla. */
+        /* El calendario de reserva en el centro de la pantalla. */
         .demo-wrap {
             position: relative;
             z-index: 4;
@@ -73,13 +73,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
         .demo-card {
             box-sizing: border-box;
-            width: min(620px, 100%);
+            --demo-pad: clamp(1.25rem, 4vw, 2.5rem);
+            width: min(1080px, 100%);
             border-radius: 1.75rem;
             border: 1px solid rgba(0, 0, 0, .08);
             background: #fff;
             box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .14);
-            padding: clamp(1.75rem, 5vw, 3rem);
+            padding: var(--demo-pad);
             text-align: center;
+        }
+        /* Reserva el alto para que la página no salte al llegar el calendario. */
+        .demo-calendario { min-height: 520px; margin-top: 1.25rem; }
+        /* En móvil el calendario necesita todo el ancho de la tarjeta. */
+        @media (max-width: 640px) {
+            .demo-calendario { margin-inline: calc(var(--demo-pad) * -1); }
         }
         .demo-card h1 {
             font-size: clamp(2rem, 5vw, 3rem);
@@ -220,13 +227,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <section class="demo-wrap">
         <div class="demo-card" id="demoCard">
             <h1 data-split>Reserva tu <span class="shiny-gold">demo de Nize</span></h1>
-            <p class="demo-sub">Pulsa el botón y elige el día y la hora que mejor te vengan.</p>
+            <p class="demo-sub">Elige el día y la hora que mejor te vengan.</p>
 
-            <!-- El href es la salida si el calendario no llega a abrirse aquí. -->
-            <a class="specular-btn demo-cta" id="demoReservar" href="https://cal.com/automanize/elitegold">
-                <span>Elegir día y hora</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
-            </a>
+            <div class="demo-calendario" id="demoCalendario">
+                <noscript><a class="specular-btn demo-cta" href="https://cal.com/automanize/elitegold">Abrir el calendario</a></noscript>
+            </div>
 
             <ol class="demo-pasos">
                 <li><span class="demo-num">1</span>Elige día y hora</li>
@@ -293,20 +298,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <script>
         (function () {
             const card = document.getElementById('demoCard');
-            const reservar = document.getElementById('demoReservar');
+            const calendario = document.getElementById('demoCalendario');
 
             // Cargador oficial de Cal.com. embed.js no se descarga hasta la primera
-            // llamada a Cal(): nada sale hacia Cal.com hasta que se pulsa el botón.
+            // llamada a Cal().
             (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
 
-            let calIniciado = false;
-            function iniciarCal() {
-                if (calIniciado) return;
-                calIniciado = true;
+            // Vuelven en el webhook de calcom-booking: con ellos Meta atribuye
+            // la reserva (Schedule) al anuncio. Sin consentimiento van vacíos.
+            function idsAnuncio() {
+                const ids = window.AutomanizeMeta ? window.AutomanizeMeta.ids() : {};
+                const metadata = {};
+                if (ids.fbp) metadata['metadata[fbp]'] = ids.fbp;
+                if (ids.fbc) metadata['metadata[fbc]'] = ids.fbc;
+                return metadata;
+            }
+
+            function mostrarCalendario() {
                 Cal('init', { origin: 'https://app.cal.com' });
-                // Si un bloqueador impide cargar el calendario, se abre su página.
+                // Si un bloqueador impide cargar el calendario, queda un enlace a su página.
                 document.querySelector('script[src="https://app.cal.com/embed/embed.js"]')
-                    .addEventListener('error', () => { window.location.href = reservar.href; });
+                    .addEventListener('error', () => {
+                        calendario.style.minHeight = '0';
+                        calendario.innerHTML = '<a class="specular-btn demo-cta" href="https://cal.com/automanize/elitegold">Abrir el calendario</a>';
+                    });
+                Cal('inline', {
+                    elementOrSelector: '#demoCalendario',
+                    calLink: 'automanize/elitegold',
+                    config: {
+                        layout: 'month_view',
+                        'metadata[ua]': navigator.userAgent.slice(0, 400),
+                        // Conserva los UTM.
+                        'metadata[url]': window.location.href.slice(0, 400),
+                        ...idsAnuncio(),
+                    },
+                });
                 Cal('ui', {
                     theme: 'light',
                     cssVarsPerTheme: { light: { 'cal-brand': '#FFAB00', 'cal-brand-text': '#171717' } },
@@ -317,20 +343,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 });
             }
 
-            reservar.addEventListener('click', (e) => {
-                e.preventDefault();
-                iniciarCal();
-                // Vuelven en el webhook de calcom-booking: con ellos Meta atribuye
-                // la reserva (Schedule) al anuncio y la URL conserva los UTM.
-                const ids = window.AutomanizeMeta ? window.AutomanizeMeta.ids() : {};
-                const config = {
-                    layout: 'month_view',
-                    'metadata[ua]': navigator.userAgent.slice(0, 400),
-                    'metadata[url]': window.location.href.slice(0, 400),
-                };
-                if (ids.fbp) config['metadata[fbp]'] = ids.fbp;
-                if (ids.fbc) config['metadata[fbc]'] = ids.fbc;
-                Cal('modal', { calLink: 'automanize/elitegold', config });
+            // Quien acepta las cookies con el calendario ya abierto: se recarga con
+            // sus identificadores para no perder la atribución de esa reserva.
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#acb-accept, #acb-save')) return;
+                const iframe = calendario.querySelector('iframe');
+                const metadata = Object.entries(idsAnuncio());
+                if (!iframe || !metadata.length) return;
+                const url = new URL(iframe.src);
+                metadata.forEach(([clave, valor]) => url.searchParams.set(clave, valor));
+                iframe.src = url.href;
             });
 
             // Stripe vuelve aquí tras un pago (pantalla de bloqueo del trial en la
@@ -340,6 +362,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 card.innerHTML = '<div style="text-align:center"><h2>¡Pago confirmado!</h2>' +
                     '<p style="margin-top:.7rem;color:var(--muted);font-size:.93rem;line-height:1.6">' +
                     'Ya puedes volver a abrir la aplicación Nize — tu cuenta está activa.</p></div>';
+            } else {
+                // Tras los scripts defer: AutomanizeMeta lo define cookie-consent.js.
+                document.addEventListener('DOMContentLoaded', mostrarCalendario);
             }
 
             // --- Brillo especular: sigue al puntero y se apaga al alejarse.
