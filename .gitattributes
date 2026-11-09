@@ -1,5 +1,6 @@
 # Generated CRM assets must keep their published bytes on every platform.
 app/index.html text eol=lf
+app/renderer-web.html text eol=lf
 app/seendy.html text eol=lf
 app/seendy/*.css text eol=lf
 app/seendy/*.svg text eol=lf
