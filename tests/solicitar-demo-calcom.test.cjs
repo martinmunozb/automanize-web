@@ -10,6 +10,8 @@ test('solicitar-demo reserva por Cal.com y lleva a la pagina de gracias', () => 
   const csp = html.match(/http-equiv="Content-Security-Policy"\s+content="([^"]+)"/)[1];
 
   assert.match(html, /calLink: 'automanize\/elitegold'/);
+  assert.match(html, /Cal\('inline'/);
+  assert.doesNotMatch(html, /Cal\('modal'/);
   assert.match(html, /bookingSuccessfulV2[\s\S]*gracias-demo\.html/);
   for (const directiva of ['script-src', 'frame-src', 'connect-src']) {
     assert.match(csp, new RegExp(`${directiva}[^;]*https://app\\.cal\\.com`), directiva);
