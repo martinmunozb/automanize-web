@@ -11,7 +11,8 @@
 ## Para qué sirve
 
 Desde el 5 de noviembre de 2026, `solicitar-demo.html` ya no crea cuentas: sirve
-para reservar la llamada Elite Gold (`automanize/elitegold`) en un popup de Cal.com.
+para reservar la llamada Elite Gold (`automanize/elitegold`) en el calendario de
+Cal.com, incrustado directamente en la página.
 La prueba por cuenta propia sigue disponible en el formulario de `crm.html`, que
 usa `trial-signup` como se describe más abajo.
 
@@ -22,16 +23,19 @@ usa `trial-signup` como se describe más abajo.
 ## Flujo
 
 ```
-1. El usuario pulsa "Elegir día y hora"
-2. Se carga embed.js de Cal.com y se abre el popup (antes del clic no se contacta con Cal.com)
+1. Al abrir la página se carga embed.js de Cal.com y se muestra el calendario
+   (se contacta con Cal.com desde la carga, sin esperar a ninguna acción)
+2. El usuario elige día y hora y deja sus datos
 3. Reserva. Cal.com avisa con el evento bookingSuccessfulV2 y la web va a gracias-demo.html
 4. Cal.com dispara BOOKING_CREATED contra calcom-booking, que envía la invitación
    a usar-demo.html y el evento Schedule a Meta
 ```
 
 Con la reserva viajan `metadata[ua]`, `metadata[url]` (conserva los UTM) y, si
-existen, `metadata[fbp]` y `metadata[fbc]`. Si embed.js no carga, el botón abre
-`cal.com/automanize/elitegold`; ese camino no pasa por `gracias-demo.html`.
+existen, `metadata[fbp]` y `metadata[fbc]`. Si se aceptan las cookies con el
+calendario ya abierto, este se recarga con esos dos identificadores. Si embed.js no
+carga, queda un enlace a `cal.com/automanize/elitegold`; ese camino no pasa por
+`gracias-demo.html`.
 
 Si Stripe redirige aquí tras un pago (pantalla de bloqueo del trial en la app de
 escritorio, `?pago=exitoso`), la tarjeta se sustituye por un aviso de "pago
