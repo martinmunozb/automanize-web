@@ -1,6 +1,6 @@
 {
   "id": "seendy-nize-20261109",
-  "createdAt": "2026-11-09T10:43:24.039711+00:00",
+  "createdAt": "2026-11-09T10:48:22.723239+00:00",
   "sourceCommit": "75be3213acb448e0bff7fbd15b9664cdd747d36a",
   "entry": "assets/renderer-web-BtLM-ZEo.js",
   "documents": [
@@ -406,7 +406,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "0e16608241f510524e0865fc3acb23239966b1b4e34a93808012bf21efe847f3"
+      "sha256": "6c83036b88c5dda2845032e07df07ab6199de192ac29f201543ddeed7455d879"
     },
     {
       "path": "leads/internal-leads.css",
@@ -422,11 +422,11 @@
     },
     {
       "path": "renderer-web.html",
-      "sha256": "0e16608241f510524e0865fc3acb23239966b1b4e34a93808012bf21efe847f3"
+      "sha256": "6c83036b88c5dda2845032e07df07ab6199de192ac29f201543ddeed7455d879"
     },
     {
       "path": "seendy.html",
-      "sha256": "925e39b2d18a60b9fa55d79618288c8edb86e80f059c1c8e0ad2c898eed6041d"
+      "sha256": "f9f69813ea80e02043d59d141b5f892be30cdfa1c8f2ba0c1419e17f65f4cf8c"
     },
     {
       "path": "seendy/chat-doodles.svg",
