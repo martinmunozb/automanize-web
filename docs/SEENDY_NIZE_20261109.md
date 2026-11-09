@@ -24,3 +24,19 @@ Los nombres comerciales se publican por separado en backend PR #79. No cambia
 ningún permiso o esquema, ni hay nuevas rutas de acceso. Se mantienen las familias
 Supabase documentadas y la limitación de cobertura HTTP del backend ya descrita.
 Esta publicación no distribuye instaladores de escritorio.
+
+## Revisión de espacio y aviso plegable
+
+Release `seendy-spacious-20261109`, fuente app `84b5358` (PR #108), preparada
+para sustituir la anterior manteniendo sus funciones. Lista más ancha, filas
+y paneles con mayor separación, mensajes de 15 px y ancho de lectura limitado.
+En móvil se conserva la navegación y los campos de escritura de 16 px.
+
+El aviso global de WhatsApp se puede plegar y recuperar en modo normal, y no
+se muestra en la vista ampliada. No cambia el estado del bot ni se remonta el
+iframe; conserva el borrador y recupera altura al plegar. El iframe se versiona
+con `v=inbox-20261109-spacious`. El manifiesto vuelve a cubrir 113 recursos.
+
+Pasaron las auditorías del CRM compilado y componentes (plegado, altura,
+ampliación, borrador, temas y nueve anchos), builds web/renderer y seguridad.
+No se modifica backend, nombres comerciales, datos, rutas ni permisos.
