@@ -426,7 +426,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "2b48249296b800f1dd0b6b7c8d9631325890764574b6959b98b8d7f962618630"
+      "sha256": "6866d048004c46722a393b79cf8ec86035179d0305446c14ddad7fef4a164344"
     },
     {
       "path": "leads/internal-leads.css",
@@ -442,11 +442,11 @@
     },
     {
       "path": "renderer-web.html",
-      "sha256": "2b48249296b800f1dd0b6b7c8d9631325890764574b6959b98b8d7f962618630"
+      "sha256": "6866d048004c46722a393b79cf8ec86035179d0305446c14ddad7fef4a164344"
     },
     {
       "path": "seendy.html",
-      "sha256": "b60b09dca9dd8ce6e778352569ae013f8e6e049c1f70e8163535a3d8d0c4b516"
+      "sha256": "5cf25c7b5f94516107ebfa52890748a37d29e47460c167bb41289a71f7ed729a"
     },
     {
       "path": "seendy/chat-doodles.svg",
