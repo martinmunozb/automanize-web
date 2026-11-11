@@ -2,7 +2,8 @@
 
 ## Complete visual expense register — 2026-11-11
 
-Prepared release `crm-gastos-registro-20261111` presents all scoped expense rows
+Published release `crm-gastos-registro-20261111`, source
+`504e62207472671bc8ac04694e85b1e1ba99470a`, presents all scoped expense rows
 as cards without nested property/room disclosures. Imported Gmail invoices have
 a source filter and direct document link. Historical references remain visible;
 the all-month view counts each stored row once, while month views retain invoice
@@ -14,6 +15,13 @@ queries, database migrations or permissions are included. Existing scoped inputs
 and Drive permissions remain authoritative. The browser fixture covers viewing
 without writes, Gmail, historic references, search, month/history views, mobile,
 dark mode, monthly editing/deletion and allocation with notification failures.
+
+All 116 origin files were verified after activation. The public domain verifies
+112 exact resource hashes and four HTML documents after accounting for the
+existing Cloudflare challenge injection. Internal files remain 404, GPTBot is
+blocked from the CRM, privacy is public and the manifest retains no-cache.
+Previous-release backup:
+`/var/backups/automanize/crm-before-registro-20261111T222157Z.tar.gz`.
 
 
 ## Visual expense cards — 2026-11-11
