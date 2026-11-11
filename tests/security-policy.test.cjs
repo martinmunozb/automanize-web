@@ -45,6 +45,9 @@ test('Caddy denies internal files and declared AI crawlers, preserving UI and pu
   }
   for (const agent of ['GPTBot/1.0', 'ClaudeBot', 'ChatGPT-User', 'PerplexityBot', 'CCBot/2.0', 'Amazonbot']) {
     assert.equal((await request('/app/', agent)).status, 403, `must deny ${agent}`);
+    for (const url of ['/nize', '/nize.html', '/nize-privacy', '/nize-privacy.html', '/contactus', '/contactus.html', '/terms', '/terms.html']) {
+      assert.equal((await request(url, agent)).status, 200, `must preserve directory page ${url} for ${agent}`);
+    }
   }
   assert.equal((await request('/crm.html', 'Googlebot')).status, 200);
   for (const url of ['/app', '/app/', '/usar-demo.html', '/solicitar-demo.html', '/panel-interno.html', '/solicitar-demo', '/usar-demo', '/panel-interno', '/oauth-drive', '/onboarding-cliente']) {

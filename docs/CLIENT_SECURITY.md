@@ -26,7 +26,10 @@ Procedimiento de despliegue:
 3. Validar desde `caddy_main` con `caddy validate --config <ruta> --adapter caddyfile`.
 4. Recargar Caddy con su procedimiento habitual solo si valida.
 5. Comprobar en el dominio público: `/docs/general.md`, `/.git/config` y un `.map`
-   devuelven 404; una petición a `/app/` con `User-Agent: GPTBot` devuelve 403.
+   devuelven 404; una petición a `/app/` con `User-Agent: GPTBot` devuelve 403. Las
+   páginas necesarias para los directorios (`/nize`, `/nize-privacy`, `/contactus`
+   y `/terms`) deben devolver 200 también a `ChatGPT-User`, `OAI-SearchBot` y
+   `Claude-User`. Los rastreadores masivos pueden seguir bloqueados aguas arriba.
 6. Comprobar login, demo/trial, formularios por token, pagos y OAuth. Un navegador
    normal debe recibir el CRM y sus recursos, y `/app/` debe llevar
    `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet`.
