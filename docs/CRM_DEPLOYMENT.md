@@ -1,5 +1,21 @@
 # CRM releases
 
+## Financial overview and room context — 2026-11-11
+
+Release `crm-resumen-visual-20261111` uses app source
+`90c0f10555e04d21d9281ef832fa16ea0aeccca4`. It retains the deployed MCP consent
+and connection controls (`b7f1b57`) and Gmail monthly allocation (`8de2b89`).
+Accounting is a disclosure inside the financial overview. Property results,
+payment history, guarantees and notes open on demand. Room payment cards and
+their dialogs use the selected room, and Back restores the expanded property.
+
+The source passes 37 functional checks, its browser fixture covers room totals,
+Back/focus, disclosures, Excel, permissions and mobile/dark layouts, and the web
+artifact passes security and the release manifest check. The deployment uploads
+assets before atomically switching documents, retains previous hashed assets and
+backs up the preceding release. No database changes, new routes or permission
+changes are part of this publication.
+
 The live CRM is served from `app/`. Its HTML, all generated assets, and
 `app/release.json` form one versioned release. A website update must preserve
 these files unless it intentionally publishes another complete CRM release.
