@@ -9,6 +9,13 @@ Accounting is a disclosure inside the financial overview. Property results,
 payment history, guarantees and notes open on demand. Room payment cards and
 their dialogs use the selected room, and Back restores the expanded property.
 
+Activated on the public web on 2026-11-11. All 118 origin files match the
+manifest. Public verification confirms 114 exact resource hashes and the four
+HTML documents after accounting for Cloudflare's existing challenge injection.
+Internal files remain 404, GPTBot remains blocked from the CRM, privacy remains
+public, and the MCP health endpoint remains healthy. The previous release is
+backed up at `/var/backups/automanize/crm-before-resumen-20261111T212927Z.tar.gz`.
+
 The source passes 37 functional checks, its browser fixture covers room totals,
 Back/focus, disclosures, Excel, permissions and mobile/dark layouts, and the web
 artifact passes security and the release manifest check. The deployment uploads
