@@ -1,5 +1,21 @@
 # CRM releases
 
+## Complete visual expense register — 2026-11-11
+
+Prepared release `crm-gastos-registro-20261111` presents all scoped expense rows
+as cards without nested property/room disclosures. Imported Gmail invoices have
+a source filter and direct document link. Historical references remain visible;
+the all-month view counts each stored row once, while month views retain invoice
+allocation. Search includes supplier and invoice number. Details open in one
+accessible native dialog; property settings and analysis are separate dialogs.
+
+Cobros and Resumen propio runtime are unchanged by this release. No new routes,
+queries, database migrations or permissions are included. Existing scoped inputs
+and Drive permissions remain authoritative. The browser fixture covers viewing
+without writes, Gmail, historic references, search, month/history views, mobile,
+dark mode, monthly editing/deletion and allocation with notification failures.
+
+
 ## Visual expense cards — 2026-11-11
 
 Activated and publicly verified on 2026-11-11: all 118 origin files match;
