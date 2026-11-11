@@ -2,6 +2,12 @@
 
 ## Visual expense cards — 2026-11-11
 
+Activated and publicly verified on 2026-11-11: all 118 origin files match;
+114 public resources match exact hashes and the four HTML documents match after
+the existing Cloudflare challenge injection is accounted for. The CRM/internal
+file protections remain active. Recovery archive:
+`/var/backups/automanize/crm-before-gastos-20261111T214734Z.tar.gz`.
+
 Release `crm-gastos-visual-20261111` uses source
 `62911e7` and applies the visual redesign to Gastos. The expense page now has
 property and room cards, with movements, graphs, categories and allocation
