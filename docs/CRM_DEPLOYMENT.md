@@ -1,5 +1,17 @@
 # CRM releases
 
+## Visual expense filters — 2026-11-11
+
+Prepared release `crm-gastos-filtros-20261111` improves only the expense filters.
+Property, zone and owner have visual triggers and searchable card pickers;
+property cards include code, zone, period count and total. Status/type use
+buttons, and selected filters can be removed individually. Native dialogs keep
+focus, support Escape and adapt to mobile. The ledger, Gmail documents, payment
+actions and Cobros retain their behavior. No new queries, routes or permissions.
+The browser fixture exercises combined filters, history references, search,
+individual clearing, focus restoration and mobile/dark layouts, as well as the
+existing editing and allocation flows with simulated data.
+
 ## Complete visual expense register — 2026-11-11
 
 Published release `crm-gastos-registro-20261111`, source
