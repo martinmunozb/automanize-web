@@ -1,5 +1,23 @@
 # CRM releases
 
+## Visual expense cards — 2026-11-11
+
+Release `crm-gastos-visual-20261111` uses source
+`62911e7` and applies the visual redesign to Gastos. The expense page now has
+property and room cards, with movements, graphs, categories and allocation
+settings disclosed on demand. Its month selector stays visible. Monthly totals
+reuse the filtered rows and allocated amounts already used by the existing list.
+
+Cobros retains its original property cards, circular summary, chart and full
+table. Its functional fixes remain: room-specific metric cards/dialogs and Back
+restoring the expanded property. Accounting remains inside Resumen propio.
+
+Validation covers expense editing and deletion, monthly recurrence, allocation
+with/without notifications, double-click protection, notification failures,
+mobile layouts, room details and filters. Cobros room context and navigation
+pass their real-component browser regression. Web and desktop compile with the
+security hooks enabled. No API, database or permission changes are included.
+
 ## Financial overview and room context — 2026-11-11
 
 Release `crm-resumen-visual-20261111` uses app source
