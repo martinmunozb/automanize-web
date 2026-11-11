@@ -2,7 +2,8 @@
 
 ## Visual expense filters — 2026-11-11
 
-Prepared release `crm-gastos-filtros-20261111` improves only the expense filters.
+Published release `crm-gastos-filtros-20261111`, source
+`d1ecb7af2cea420843aa4d6ca794ad5a0d82e5fc`, improves only the expense filters.
 Property, zone and owner have visual triggers and searchable card pickers;
 property cards include code, zone, period count and total. Status/type use
 buttons, and selected filters can be removed individually. Native dialogs keep
@@ -11,6 +12,12 @@ actions and Cobros retain their behavior. No new queries, routes or permissions.
 The browser fixture exercises combined filters, history references, search,
 individual clearing, focus restoration and mobile/dark layouts, as well as the
 existing editing and allocation flows with simulated data.
+
+All 116 origin files verified; the public domain verifies 112 exact hashes and
+four HTML documents with the existing Cloudflare challenge injection accounted
+for. Internal files remain blocked, CRM crawler restrictions and no-cache remain
+active, and the privacy page is public. Previous-release backup:
+`/var/backups/automanize/crm-before-filtros-20261111T224526Z.tar.gz`.
 
 ## Complete visual expense register — 2026-11-11
 
