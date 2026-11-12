@@ -2,7 +2,8 @@
 
 ## Visual allocation and expense categories — 2026-11-12
 
-Prepared release `crm-gastos-repartos-20261112` presents compact property supply
+Published release `crm-gastos-repartos-20261112`, source
+`0c2d723f4a0a7441d262d9b4403d40e3f166d2ae`, presents compact property supply
 cards, allocation overview/search, breakdowns on demand and review by tenant
 before explicit save/notification. Category editing separates property/general
 scope, inheritance, selected cards and pending changes. It writes only changed
@@ -15,6 +16,12 @@ Validation covers 40 functional tests plus real-component Chromium with
 scope/inheritance/empty-list/reset, save failures, category creation, mobile,
 dark mode, invalid shares, editing/deletion and notification failures/double
 click. Web and desktop builds include their security hooks.
+
+All 116 files verified at origin and over the public domain (112 exact hashes
+and four HTML documents after accounting for Cloudflare's existing injection).
+Internal resources remain 404, GPTBot is blocked from the CRM and privacy stays
+public; no-cache remains active. Previous-release backup:
+`/var/backups/automanize/crm-before-repartos-20261112T174140Z.tar.gz`.
 
 
 ## Visual expense filters — 2026-11-11
