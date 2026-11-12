@@ -1,5 +1,22 @@
 # CRM releases
 
+## Visual allocation and expense categories — 2026-11-12
+
+Prepared release `crm-gastos-repartos-20261112` presents compact property supply
+cards, allocation overview/search, breakdowns on demand and review by tenant
+before explicit save/notification. Category editing separates property/general
+scope, inheritance, selected cards and pending changes. It writes only changed
+rules and displays save errors. Closing categories returns to the same property.
+Dialogs support focus/Escape, mobile and dark mode. Existing eligibility,
+budget, daily allocation, Gmail monthly allocation and notification idempotency
+remain unchanged. No database migration, permission change or new route.
+
+Validation covers 40 functional tests plus real-component Chromium with
+scope/inheritance/empty-list/reset, save failures, category creation, mobile,
+dark mode, invalid shares, editing/deletion and notification failures/double
+click. Web and desktop builds include their security hooks.
+
+
 ## Visual expense filters — 2026-11-11
 
 Published release `crm-gastos-filtros-20261111`, source
