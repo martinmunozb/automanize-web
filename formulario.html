@@ -142,6 +142,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       letter-spacing: .04em; white-space: nowrap; flex-shrink: 0;
       font-variant-numeric: tabular-nums;
     }
+    .inmueble-tag {
+      display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+      margin-bottom: 12px; padding: 10px 12px;
+      background: var(--accent-dim); border: 1px solid var(--accent-ring); border-radius: 10px;
+      font-size: 13px; color: var(--text); line-height: 1.4;
+    }
+    .inmueble-tag b { font-weight: 700; }
+    .inmueble-tag span { color: var(--muted); }
     .wizard-progress-track { height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; }
     .wizard-progress-fill {
       height: 100%; background: var(--accent); border-radius: 999px;
@@ -477,6 +485,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     submitting: false,
     fieldErr:   '',
     privacyAccepted: false,
+    inmueble:   null,      // piso/habitación del enlace /f/<slug>?i=<id_inmueble>
   };
 
   // ─── Render ──────────────────────────────────────────────────────────────────
@@ -547,6 +556,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>`;
   }
 
+  function renderInmuebleTag() {
+    const i = S.inmueble;
+    const precio = Number(i.precio) > 0 ? `${new Intl.NumberFormat('es-ES').format(Number(i.precio))} €/mes` : '';
+    const detalle = [i.zona || i.localidad, precio].filter(Boolean).join(' · ');
+    return `<div class="inmueble-tag">Solicitas: <b>${esc(i.nombre || (i.tipo === 'habitacion' ? 'Habitación' : 'Vivienda'))}</b>${detalle ? `<span>${esc(detalle)}</span>` : ''}</div>`;
+  }
+
   function visibleSteps() {
     return S.steps.filter(s => {
       if (s.clave === 'aval_ingreso' && S.answers['tieneAval'] === 'false') return false;
@@ -581,6 +597,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="wizard-brand">${esc(S.tenantName)} <span>·</span> Solicitud</div>
             <div class="wizard-step-label">${S.step + 1} / ${total}</div>
           </div>
+          ${S.inmueble ? renderInmuebleTag() : ''}
           <div class="wizard-progress-track"><div class="wizard-progress-fill" style="width:${pct}%"></div></div>
         </div>
 
@@ -836,6 +853,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         clienteId = S.clienteId;
       }
 
+      // Inmueble del enlace: se guarda antes del aviso al backend para que la
+      // selección de viviendas ya lo tenga marcado.
+      if (S.inmueble && formToken) {
+        try {
+          await sbRpc('set_inmueble_interes', { p_form_token: formToken, p_inmueble_id: S.inmueble.id_inmueble });
+        } catch (err) { console.error('No se pudo guardar el inmueble de interés:', err); }
+      }
+
       // Aviso al backend (WhatsApp al tenant + matching de propiedades).
       // El endpoint exige el token del cliente para autenticar la llamada;
       // sin él responde 401 y no se envía nada. Es best-effort respecto al
@@ -887,6 +912,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     // que leerlo también de la ruta visible).
     const pathMatch = window.location.pathname.match(/^\/f\/([^/]+)\/?$/);
     const slug = params.get('t') || (pathMatch ? pathMatch[1] : null);
+    const inmuebleId = (params.get('i') || '').trim();
 
     let tenantId;
     let tenantInfo = null;
@@ -985,6 +1011,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           { pregunta_id: null, clave: 'telefono_publico',  campo_clientes: '__telefonoNum',  textoMostrar: '¿Cuál es tu número de teléfono?',  subtext: 'Te avisaremos por WhatsApp en cuanto tengamos opciones para ti. Nunca lo compartimos con terceros.', tipo_input: 'phone_prefix', opciones: [] },
           { pregunta_id: null, clave: 'email_publico',     campo_clientes: '__email',        textoMostrar: '¿Cuál es tu email?',               subtext: 'Te enviaremos las opciones disponibles a este correo. Nunca lo compartimos con terceros.',           tipo_input: 'email',        opciones: [] },
         );
+      }
+
+      // Enlace de un inmueble concreto: se muestra arriba y sobran las
+      // preguntas de zona y calle. Si ya no está disponible, formulario normal.
+      if (inmuebleId) {
+        try {
+          const rows = await sbRpc('get_inmueble_publico', { p_tenant_id: tenantId, p_id: inmuebleId });
+          S.inmueble = (Array.isArray(rows) ? rows[0] : rows) || null;
+        } catch { S.inmueble = null; }
+        if (S.inmueble) {
+          S.steps = S.steps.filter(s => !['dynamic_zone_multi_select', 'dynamic_street_multi_select'].includes(s.tipo_input));
+        }
       }
 
       // Zonas dinámicas para dynamic_zone_multi_select
