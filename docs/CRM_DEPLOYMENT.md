@@ -13,9 +13,19 @@ Build security, Caddy HTTP policy, previous CRM forms and the complete manifest
 passed locally. A read-only real GoRoom form check and a simulated selection
 check cover the property label, fallback and all filters. Database definitions,
 permissions and tenant isolation were verified in production with test writes
-rolled back. RPC calls use the existing monitored Supabase family. Activation
-and public resource verification are pending; no backend or installer is
-published here. Property-interest persistence and API details: `formulario.md`.
+rolled back. RPC calls use the existing monitored Supabase family.
+
+Activated 2026-11-17 at approximately 00:52 Europe/Madrid, runtime commit
+`05685883a688bbfebaa9245cadd3cb45f7289cf4`. All 117 origin files match the
+manifest. Public verification confirms 113 exact hashes and four HTML files
+after removing only Cloudflare's existing challenge injection; both public
+portal sources also match. CRM no-cache/noindex, internal-file 404 responses,
+GPTBot 403 and legitimate OAuth/payment/privacy routes are preserved. The
+previous version is backed up in
+`/var/backups/automanize/crm-enlace-inmueble-before-20261116T235148Z.tar.gz`.
+Historical assets and unrelated VPS files remain in place. No backend or
+installer is published here. Property-interest persistence and API details:
+`formulario.md`.
 
 ## Contract templates: more gap markers detected — 2026-11-16
 
