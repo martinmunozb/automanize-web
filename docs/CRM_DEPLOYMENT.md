@@ -1,9 +1,9 @@
 # CRM releases
 
-## Visual people directory candidate — 2026-11-16
+## Visual people directory published — 2026-11-16
 
 Prepared on `release/crm-personas-visual-20261116`, based on the complete
-`crm-calendario-20261116` web release. Not published or activated yet.
+`crm-calendario-20261116` web release. Activated on 2026-11-16. All 117 release files verified on the public domain.
 Its source is the `release/personas-source-20261116` app branch, which applies
 the directory cards to source `382d6b7` while retaining the calendar, payment
 method and question-editor improvements. The source passes 38 functional checks
@@ -20,7 +20,7 @@ then imports the build using `scripts/import-crm-build.mjs`, checks the complete
 manifest and web security policy, and pushes the two branches to their own
 repositories. It does not bypass npm security hooks or alter production access.
 The generated web manifest includes every current build resource and retains
-old hashed assets. No deployment is claimed until the validated web branch has
+old hashed assets. The validated web branch has
 been pushed, pulled on the VPS and checked there.
 
 ## Full-screen form questions editor — 2026-11-16
