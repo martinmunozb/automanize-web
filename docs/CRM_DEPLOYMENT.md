@@ -169,3 +169,11 @@ On 2026-10-17, release `crm-restored-20261017` restores the tested renderer from
 2026-10-16: compact forms, property workspace, contract attachments, visits,
 responsive diagram connections, and room-expense proration rules. The previous
 published entry had been replaced by a reset to an older version in `origin/main`.
+
+## Payment method in the payment detail — 2026-11-16
+
+Release `crm-forma-pago-20261116`, source automanize-app branch
+`chore/crm-forma-pago-20261116` (previous release `b85cb96` + "Forma de pago"
+field). Cobros → expanded payment → Contexto shows "Forma de pago": Efectivo when
+`pagos.es_efectivo`, otherwise "No efectivo" once collected. Separate from the AI
+verdict. No data, route or permission changes.
