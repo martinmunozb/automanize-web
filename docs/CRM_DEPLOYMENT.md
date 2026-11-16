@@ -1,5 +1,28 @@
 # CRM releases
 
+## Visual people directory candidate — 2026-11-16
+
+Prepared on `release/crm-personas-visual-20261116`, based on the complete
+`crm-calendario-20261116` web release. Not published or activated yet.
+Its source is the `release/personas-source-20261116` app branch, which applies
+the directory cards to source `382d6b7` while retaining the calendar, payment
+method and question-editor improvements. The source passes 38 functional checks
+and real-component Chromium checks at 390/768/1440px in light and dark themes.
+
+The app source repository and this web repository have different remotes.
+`/var/www/automanize` is the **WebAutomanize** checkout: pulling the app's
+`feat/visual-inquilinos-propietarios` branch from its `origin` fails because that
+branch belongs to another repository. Do not change the web checkout's remote.
+
+The app's `inmuebles/scripts/publish-people-web.ps1` performs the complete
+security checks and normal npm builds on the configured Windows machine,
+then imports the build using `scripts/import-crm-build.mjs`, checks the complete
+manifest and web security policy, and pushes the two branches to their own
+repositories. It does not bypass npm security hooks or alter production access.
+The generated web manifest includes every current build resource and retains
+old hashed assets. No deployment is claimed until the validated web branch has
+been pushed, pulled on the VPS and checked there.
+
 ## Full-screen form questions editor — 2026-11-16
 
 Release `crm-editor-preguntas-20261116`, source `b85cb967cf0067325719d357947f87578b90a44b`
