@@ -1,5 +1,13 @@
 # CRM releases
 
+## Contract templates: more gap markers detected — 2026-11-16
+
+Release `crm-contratos-huecos-20261116`, source `27f50c51f5122cc3c32dc72d38823eae048ba07e`
+(`crm-gestor-pausa-20261116` + automanize-app#116). Importing a contract template
+now turns underscore, dotted and Word en/em-dash gaps into variables, not only
+`---`. Tenant data is not assigned inside the landlord section. Only the
+Contratos chunk changes; no UI text, route or data changes.
+
 ## Manager contact: 24 h automation pause — 2026-11-16
 
 Release `crm-gestor-pausa-20261116`, source `5c62a46d12340c74867efd9668a1df27dab127fb`
