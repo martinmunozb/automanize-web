@@ -1,5 +1,14 @@
 # CRM releases
 
+## Manager contact: 24 h automation pause — 2026-11-16
+
+Release `crm-gestor-pausa-20261116`, source `5c62a46d12340c74867efd9668a1df27dab127fb`
+(`crm-personas-compacto-20261116` source `cdb1530` + automanize-app#115). Configuración →
+Contacto con el gestor: the WhatsApp channel chooses between sending the phone
+number or pausing automatic replies for 24 h (`tenants.contacto_gestor_modo`).
+Requires backend `sql/027_contacto_gestor_pausa.sql` (applied 2026-11-16) and
+backend#87 (deployed). No other UI text changes versus the previous release.
+
 ## Visual people directory published — 2026-11-16
 
 Prepared on `release/crm-personas-visual-20261116`, based on the complete
