@@ -1,5 +1,14 @@
 # CRM releases
 
+## Form disqualification rules — 2026-11-16
+
+Release `crm-reglas-descarte-20261116`, source `bb419e1a98cf8bec39dc8632f55545d8318f01f8`
+(`0c2d723` + automanize-app#112). Adds the "Descartar candidato si…" editor to
+Interesados → Preguntas del formulario and the red disqualification notice in the
+lead record. Requires the `sql_formulario_reglas_descarte.sql` migration
+(applied 2026-11-16). The public `formulario.html` applies the rules (web#103).
+No other CRM behaviour changes; Seendy only changes asset hashes.
+
 ## Visual allocation and expense categories — 2026-11-12
 
 Published release `crm-gastos-repartos-20261112`, source
