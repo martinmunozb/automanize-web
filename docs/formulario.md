@@ -115,6 +115,23 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 - Si `clave === 'aval_ingreso'` y `answers['tieneAval'] === 'false'` → el paso se oculta y se salta.
 - El payload de submit solo incluye los pasos visibles.
 
+## Reglas de descarte (desde el 16 de noviembre de 2026)
+
+Cada fila de `tenant_preguntas` puede llevar `reglas_descarte` (las edita el tenant desde Nize → Preguntas del formulario):
+
+```js
+[{ op: 'es',    valor: ['No tengo contrato'], y: [], mensaje: '' },
+ { op: 'es',    valor: ['Temporal'],
+   y: [{ pregunta: '<tenant_preguntas.id de ingresos>', op: 'menor', valor: 1200 }],
+   mensaje: 'Texto que ve el candidato' }]
+```
+
+- `op`: `es` (alguna de las opciones de `valor`; en preguntas de varias opciones basta con que marque una) o `menor`/`mayor` (números).
+- Al pulsar Continuar/Enviar, `reglaQueDescarta()` revisa todas las reglas de los pasos visibles: se cumple cuando la pregunta de la regla y todas las de `y` están respondidas y cumplen. Una regla con algún valor vacío o que usa una pregunta oculta no se aplica.
+- Si se cumple → pantalla `rejected`: mensaje de la regla (o uno genérico), botón "Cambiar mi respuesta" (vuelve al paso) y, tras aceptar la privacidad, "Enviar mis respuestas". Ese envío pasa `p_descartado_motivo` (texto `pregunta → respuesta · …`) a `crear_lead_publico`/`submit_formulario`, que dejan al lead en `seguimiento = 'Archivado'` con `descartado_motivo`/`descartado_en`. **No** se llama al webhook del backend (ni matching ni aviso al gestor). Si después vuelve a enviar y pasa, el motivo se limpia.
+- Si el candidato cierra la pantalla sin enviar, no se guarda nada.
+- Es un filtro de experiencia, evaluado en el navegador: el servidor no recalcula las reglas.
+
 ---
 
 ## Payload de submit
