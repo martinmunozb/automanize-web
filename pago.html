@@ -339,6 +339,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
     .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
 
+    /* ── EFECTIVO ── */
+    .cash-toggle {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; margin: 0;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); cursor: pointer;
+      text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 600; color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .cash-toggle:hover { border-color: var(--accent); background: var(--surface-soft); }
+    .cash-toggle input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+    .cash-toggle small { display: block; font-size: 12px; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+    .cash-toggle.checked { border-color: var(--accent); background: var(--accent-dim); }
+
     /* ── FILE DROP ── */
     .file-drop {
       border: 1.5px dashed var(--border-dash); border-radius: 12px;
@@ -583,7 +597,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
 
       <div class="field">
-        <label>Justificante de pago</label>
+        <label class="cash-toggle" id="cashToggle">
+          <input type="checkbox" id="efectivoCheck" />
+          <span>Lo he pagado en efectivo
+            <small>Se avisará al gestor de que es en efectivo. El justificante es opcional.</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label id="fileLabel">Justificante de pago</label>
         <div class="file-drop" id="fileDrop">
           <input type="file" id="fileInput" accept="image/*,.pdf,.png,.jpg,.jpeg,.webp,.gif,.bmp,.tif,.tiff,.heic,.heif,.avif,.jfif,application/pdf" />
           <div class="upload-icon">
@@ -611,8 +634,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="success-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
       </div>
-      <h2>¡Justificante enviado!</h2>
-      <p>Lo revisaremos y recibirás confirmación por WhatsApp en breve. ¡Gracias! Te hemos escrito por WhatsApp para confirmar el importe.</p>
+      <h2 id="successTitle">¡Justificante enviado!</h2>
+      <p id="successText">Lo revisaremos y recibirás confirmación por WhatsApp en breve. ¡Gracias! Te hemos escrito por WhatsApp para confirmar el importe.</p>
     </div>
 
     </div>
@@ -682,6 +705,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const modalLista        = document.getElementById('modalLista');
   const btnModalConfirm   = document.getElementById('btnModalConfirm');
   const btnModalCancel    = document.getElementById('btnModalCancel');
+  const efectivoCheck     = document.getElementById('efectivoCheck');
+  const cashToggle        = document.getElementById('cashToggle');
+  const fileLabel         = document.getElementById('fileLabel');
   const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
   const MAX_PAGOS_SELECCIONADOS = 10;
   const ACCEPTED_EXTENSIONS = new Set(['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'heic', 'heif', 'avif', 'jfif']);
@@ -991,11 +1017,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
 
   function validarFormulario() {
-    btnSubmit.disabled = !(selectedPagos.size > 0 && selectedFile);
+    btnSubmit.disabled = !(selectedPagos.size > 0 && (selectedFile || efectivoCheck.checked));
   }
 
+  efectivoCheck.addEventListener('change', () => {
+    const efectivo = efectivoCheck.checked;
+    cashToggle.classList.toggle('checked', efectivo);
+    fileLabel.textContent = efectivo ? 'Justificante de pago (opcional)' : 'Justificante de pago';
+    btnSubmit.textContent = efectivo ? 'Avisar pago en efectivo' : 'Enviar justificante';
+    validarFormulario();
+  });
+
   btnSubmit.addEventListener('click', () => {
-    if (!selectedPagos.size || !selectedFile) return;
+    if (!selectedPagos.size || (!selectedFile && !efectivoCheck.checked)) return;
 
     if (selectedPagos.size > 1) {
       abrirModalConfirmacion();
@@ -1036,17 +1070,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (tenantParam) form.append('tenant', tenantParam);
     form.append('pago_ids', JSON.stringify(seleccionados.map(m => m.id)));
     form.append('importe', totalSeleccionado);
-    form.append('archivo', selectedFile, selectedFile.name);
+    const efectivo = efectivoCheck.checked;
+    if (efectivo) form.append('efectivo', '1');
+    if (selectedFile) form.append('archivo', selectedFile, selectedFile.name);
 
     try {
       const res = await fetch(WEBHOOK_POST, { method: 'POST', body: form });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || body.ok === false) throw new Error(body.error || `HTTP ${res.status}`);
+      if (efectivo) {
+        document.getElementById('successTitle').textContent = '¡Pago en efectivo avisado!';
+        document.getElementById('successText').textContent = 'Hemos avisado al gestor de que lo has pagado en efectivo. Te confirmará el pago cuando lo revise. ¡Gracias!';
+      }
       formState.style.display    = 'none';
       successState.style.display = 'block';
       setStep(3);
-    } catch {
+    } catch (err) {
       btnSubmit.classList.remove('loading'); btnSubmit.disabled = false;
-      alert('Hubo un error al enviar. Inténtalo de nuevo o escríbenos por WhatsApp.');
+      const detalle = err?.message && !/^HTTP \d+$|fetch/i.test(err.message) ? `${err.message}\n\n` : '';
+      alert(`${detalle}Hubo un error al enviar. Inténtalo de nuevo o escríbenos por WhatsApp.`);
     }
   }
 </script>
