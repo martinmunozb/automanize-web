@@ -1,5 +1,22 @@
 # CRM releases
 
+## Candidate property link — 2026-11-17
+
+Release `crm-enlace-inmueble-20261117`, app source `0980399` on top of
+`crm-contratos-huecos-20261116` source `27f50c5`. Prepared with the public
+property form and selection filters (web#106), and the CRM copy-link menu
+(app#117). The menu uses the documented property/room relationship and the
+existing floating-menu positioning for mobile; its browser regression covers
+general/property/room links, URL encoding, search, clipboard errors and Escape.
+
+Build security, Caddy HTTP policy, previous CRM forms and the complete manifest
+passed locally. A read-only real GoRoom form check and a simulated selection
+check cover the property label, fallback and all filters. Database definitions,
+permissions and tenant isolation were verified in production with test writes
+rolled back. RPC calls use the existing monitored Supabase family. Activation
+and public resource verification are pending; no backend or installer is
+published here. Property-interest persistence and API details: `formulario.md`.
+
 ## Contract templates: more gap markers detected — 2026-11-16
 
 Release `crm-contratos-huecos-20261116`, source `27f50c51f5122cc3c32dc72d38823eae048ba07e`
