@@ -1,5 +1,15 @@
 # CRM releases
 
+## Full-screen form questions editor — 2026-11-16
+
+Release `crm-editor-preguntas-20261116`, source `b85cb967cf0067325719d357947f87578b90a44b`
+(previous release + automanize-app `e717d62`). Interesados → Preguntas del
+formulario becomes a near full-screen window: question order on the left,
+editor on the right, filters summarised in a sentence with a candidate preview,
+and a "Cómo funciona" panel with examples. Selected filter answers are now
+visible (styles.css forced the card background on bordered buttons). No data,
+route or permission changes.
+
 ## Form disqualification rules — 2026-11-16
 
 Release `crm-reglas-descarte-20261116`, source `bb419e1a98cf8bec39dc8632f55545d8318f01f8`
