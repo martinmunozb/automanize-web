@@ -237,8 +237,6 @@ On 2026-10-17, release `crm-restored-20261017` restores the tested renderer from
 responsive diagram connections, and room-expense proration rules. The previous
 published entry had been replaced by a reset to an older version in `origin/main`.
 
-## Payment method in the payment detail — 2026-11-16
-
 ## Drive supervision and visual folder map — 2026-11-17
 
 Active release `crm-drive-map-20261117`, app source
@@ -263,7 +261,7 @@ or move folders. See backend `docs/drive-supervision.md` for effective grants,
 migrations, interval/caps, coverage and deployment backups. No Caddy, OAuth,
 portal or unrelated app permission changes were needed.
 
-## Payment method in the payment detail — 2026-11-16 (continued)
+## Payment method in the payment detail — 2026-11-16
 
 Release `crm-forma-pago-20261116`, source automanize-app branch
 `chore/crm-forma-pago-20261116` (previous release `b85cb96` + "Forma de pago"
