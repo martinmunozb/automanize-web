@@ -1,5 +1,16 @@
 # CRM releases
 
+## Shared contracts: "Finalizar" no longer archives everyone silently — 2026-11-17
+
+Release `crm-finalizar-compartido-20261117`, app source `71853b3` (branch
+`chore/crm-finalizar-compartido-20261117` = `crm-drive-status-20261117` source
+`96e2843` + automanize-app#121). On a contract with secondary occupants,
+"Finalizar" lists every person, offers "Dar de baja a un ocupante" first and asks
+a second confirmation before archiving all of them. In Interesados, "Reiniciar y
+quitar inquilino" is not offered when the holder shares the contract. Only the
+Inquilinos and Clientes chunks change in behaviour; no data, route or permission
+changes. Web build security hooks passed; all 117 manifest files verified.
+
 ## Candidate property link — 2026-11-17
 
 Release `crm-enlace-inmueble-20261117`, app source `0980399` on top of
