@@ -239,7 +239,20 @@ published entry had been replaced by a reset to an older version in `origin/main
 
 ## Drive supervision and visual folder map — 2026-11-17
 
-Active release `crm-drive-map-20261117`, app source
+Current release is `crm-drive-status-20261117`, app source
+`96e28430178df47ac9cdeae1e4ca2e60d1065137`, web code
+`fdec2d400b8bd3c4d43ceb97149ad403113591b4`. It separates accounts that have never
+configured Drive, shows healthy record counts/proportions and labels unlinked
+folders explicitly. The backend/monitor/broker now use the web's canonical OAuth
+client through a private server-only function; the prior fallback to shared
+OAuth generated false reconnection alerts for all three connected accounts.
+All three own roots are accessible without reconnecting or altering tokens.
+Corrected audit: 455 healthy records, 121 pending configuration, 10 location/access
+issues, 70 records across 35 unconfigured accounts. No open reconnection alerts.
+All 117 public resources, entry, precise-state strings and privacy headers passed
+verification. Backup: `/tmp/nize-drive-status-20261117T200913Z`.
+
+Initial visual map release `crm-drive-map-20261117`, app source
 `6572d97f557dc03c20eb95758f3d53b8db7b5c40`, web code
 `f1d3bc7b95d8ef6405ce159672a8c72c27d75f60`. Superadmin → Drive defaults to a
 hierarchical account/folder map, with affected branches, per-folder check status,
