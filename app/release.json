@@ -1,200 +1,200 @@
 {
-  "id": "crm-drive-progress-20261117",
-  "createdAt": "2026-11-17T12:03:19.178Z",
-  "sourceCommit": "ede054fc296991f9d19ae9573a43e1456ed8b429",
-  "entry": "assets/renderer-web-BJ5FplvX.js",
+  "id": "crm-drive-supervision-20261117",
+  "createdAt": "2026-11-17T19:09:46.042Z",
+  "sourceCommit": "e71cd5d9b30fbce85573e62c4fc23b18076299e6",
+  "entry": "assets/renderer-web-DGrbehY9.js",
   "documents": [
     "renderer-web.html",
     "seendy.html"
   ],
   "files": [
     {
-      "path": "assets/AutomatizacionesPanel-yJkjJCYn.js",
-      "sha256": "cca6fb24156af4a01edf21c510af65e93a427a421cd7699316de82a49dca64e3"
+      "path": "assets/AutomatizacionesPanel-CymIdhqc.js",
+      "sha256": "5b29b02f4ec929dfc11d7aeba2c941da4e02294fad576850af325deb7b677412"
     },
     {
-      "path": "assets/AyudaPanel-J1-F-3QK.js",
-      "sha256": "b3836663b24061e5ebdb260f910d1229541cb1d589a46f1d42164e62199e0c7c"
+      "path": "assets/AyudaPanel-CFQfDP6-.js",
+      "sha256": "958cf8da73174d94f8f3899d7998ae36bf10796b0ce99c1305f2aff1312a3e17"
     },
     {
-      "path": "assets/BotActivoSwitch-Br0mYYX9.js",
-      "sha256": "01e1d9c7dd060f533ba871dd705eb88a05f98552fdc028d37ebf4eec32c21484"
-    },
-    {
-      "path": "assets/CalendarioPanel-CHXn4tBF.js",
-      "sha256": "5134fb520e3092a107558dcb34e381670f39deab56ba9c06decd3c87a0c38bf3"
+      "path": "assets/BotActivoSwitch-DKcm4UAU.js",
+      "sha256": "bd2ddb0f03e3b9971f70425b0a0addb6f3c9cafe6e4cf0efc5b1c61a082ed8ba"
     },
     {
       "path": "assets/CalendarioPanel-CoSjiApf.css",
       "sha256": "a37c812011b51f2f90a6f636abc1521f784a49a421203e6a11eb0abec83c2ef9"
     },
     {
+      "path": "assets/CalendarioPanel-YJfWo8je.js",
+      "sha256": "1bc1b44bd1df048098596a4bf1f1be51c068c49bd499b7c23f1f2dc2ee77fa49"
+    },
+    {
+      "path": "assets/CaptacionPanel-BPB1AJIT.js",
+      "sha256": "2ac0c47aa3c8e0cc2c12c02c68507d00347cd3d65ab4e0a419f413548c5debac"
+    },
+    {
       "path": "assets/CaptacionPanel-C_sLF_LD.css",
       "sha256": "7cc2e240211b54b2492e0d448c5a9f063f9f303c9f938c7a0a7d2189a46db6db"
     },
     {
-      "path": "assets/CaptacionPanel-avWxtzGa.js",
-      "sha256": "2eb19bf57374284c9e6e623959bb38744919e1daf6dcd127f4eaf24e6cb13d62"
+      "path": "assets/ClientesPanel-DGsqL2QX.js",
+      "sha256": "03d9a442f2626755789a1d1d862778df13077bf65d15ce8048f84ca769cb4581"
     },
     {
-      "path": "assets/ClientesPanel-WX3hhBel.js",
-      "sha256": "17def17da63ab0dd52a38ead32ae90f240a5cb72c2621dd63cfffa6d85e0adbc"
+      "path": "assets/ContabilidadFiscalPanel-BJ_Pkfk2.js",
+      "sha256": "029f107095467eef8833d6f18817ddaf7ddb18a53cac5a775eedc9d457f7bcba"
     },
     {
-      "path": "assets/ContabilidadFiscalPanel-O44yEd2P.js",
-      "sha256": "575943b5595b6ceaa284e6f0827e2e3d1407c86f9bc0e3ca554953947cbb071d"
-    },
-    {
-      "path": "assets/ContratosPanel-C6ptCBfR.js",
-      "sha256": "70939da05ac2a61092be39a9ecf9aa3fb6e104a4d1d8a7efb262027a94bd2a34"
+      "path": "assets/ContratosPanel-DgVdsx0V.js",
+      "sha256": "419c40132b9115bba9136f3758165ed182959f84c9254fc77055f7357ca660c7"
     },
     {
       "path": "assets/DisponibilidadPanel-BT7Fs3qa.css",
       "sha256": "eb0c4a0c91a018e44ef39a34107d661b9644d6302ff476fe8ed9ee38120003de"
     },
     {
-      "path": "assets/DisponibilidadPanel-Rbii3Q-B.js",
-      "sha256": "ab847c2833ee553e1a48bcbc949a92452ac8dbffba05ed11161e31194c32e27a"
+      "path": "assets/DisponibilidadPanel-Dy01E7Xs.js",
+      "sha256": "3192c9c169ec5603ff54ec1ff714a8918252e6c2f573c0086752db088153de08"
     },
     {
-      "path": "assets/DriveExplorer-BsX2D0dS.js",
-      "sha256": "6a05fd5afec344674180b68614bfa164947d2a62018df5006ad3525d2473c39c"
+      "path": "assets/DriveExplorer-BEdXgGvU.js",
+      "sha256": "c6e75c6108ad5405bfd356ced1db548ef62c1699f6fb4aa64509940efa43a30c"
     },
     {
-      "path": "assets/DrivePermisosPanel-C3reQ65p.js",
-      "sha256": "107ddec523ddf26baa1c87914e2d3dd84f86ae43f23fe34b129bb971e764068e"
+      "path": "assets/DrivePermisosPanel-DGVc4cst.js",
+      "sha256": "fa1867c267bbe0dcfb8466305e383520bba1edb803f5c774e10adeb850504c4b"
     },
     {
-      "path": "assets/FacturaGastoCampos-CkOYjP9l.js",
-      "sha256": "4a22a2e1a90e0da2fe38e839f3cd505e14861c34f2813e2feac779959ffee6b1"
+      "path": "assets/FacturaGastoCampos-BBfQKN5B.js",
+      "sha256": "23d3a47219819a036ed627c9a206c7c118ecbb06ae00104ecae2896cfe05d0c3"
     },
     {
-      "path": "assets/GarantiasSaldoWidget-D-Q3JzlX.js",
-      "sha256": "26293d3503f6211817e19df883921f6f82cd199f617bbc1fdfb1b5ba8809cfa7"
+      "path": "assets/GarantiasSaldoWidget-DwPEbm09.js",
+      "sha256": "96368031b24abc59f76e0c1264b433696e3ec3f87a9e0db26a52f98ccf0ffe0e"
     },
     {
-      "path": "assets/GmailGastosPanel-Hfj6HRHr.js",
-      "sha256": "4e5e5ba996af70810ae4554c2bc5ae026d368a2f0e650f70961e3904cb9d8818"
+      "path": "assets/GmailGastosPanel-9-Pmg9Ju.js",
+      "sha256": "ce423fe06b67d1860ebee63f0cca85d0335b0987f7dc54eaf858be11d7ef8396"
     },
     {
-      "path": "assets/ImportarPanel-Ccj7fQAY.js",
-      "sha256": "941ac617a5aa252cd288d6b1ca934bffb5ce3943823f074f1877ae7556a3d958"
+      "path": "assets/ImportarPanel-BcFq0WYc.js",
+      "sha256": "7ad483e77ce408be9e365a49e45902e687727ed1d5e0ad0804a676facf9ae219"
     },
     {
-      "path": "assets/IncidenciasPanel-CHf5IH-C.js",
-      "sha256": "c527e0935065132043a171def1b851c6b0e9f77ea7090514459f0b2e41151985"
+      "path": "assets/IncidenciasPanel-DWa4_jWG.js",
+      "sha256": "69c006b4e062dbe2e111684b3209a6ded1a2039141ff37b36ed38336913bfcf3"
     },
     {
       "path": "assets/InmueblesPanel-CTyH8_rq.css",
       "sha256": "b4ef7bd4b8e1bd879a010820adadf102201b26537c1fea57e424f030467006ba"
     },
     {
-      "path": "assets/InmueblesPanel-CkU6NzrN.js",
-      "sha256": "3b5a20ee4baa09e9f2d027efbb50bd065f39de6b17e3ebe696f1ef5d5e571aa3"
+      "path": "assets/InmueblesPanel-D0QPyTua.js",
+      "sha256": "1f20b84b7aa979d9f284bcf6f717b6dc99b6070bbf705ef3d47b9b78ca22d773"
     },
     {
-      "path": "assets/InquilinosPanel-CD7z9PWj.js",
-      "sha256": "0867d68186aaced261a9f9bdd556590cc041d5784dc4cf35ac070b3e587242cf"
+      "path": "assets/InquilinosPanel-DeXv-uPS.js",
+      "sha256": "69314635be56a3ebade5eaaf63c6a5e9da0314f765919f7aa63076bbcdb971ad"
     },
     {
-      "path": "assets/LeadsFrame-BrLcFQwN.js",
+      "path": "assets/LeadsFrame-CW04bfs1.js",
       "sha256": "e6b06b9d815ae6cc8290cbfc345aafcf20d77cefe6fcdca6c7b8211d91cec2f4"
     },
     {
-      "path": "assets/LogsPanel-BafjBS0n.js",
-      "sha256": "78c97b36d162774ea464ec3187b89e467c4f8fcbd788b4962ec669d871e154c7"
+      "path": "assets/LogsPanel-CelX9T0d.js",
+      "sha256": "ce6d81b75a80d3c97d277d28ac16441eb24186e3e777e5f462b350c50f94c853"
     },
     {
       "path": "assets/PagosInmueblePanel-65nAzWBW.css",
       "sha256": "970ce59a77beac2e41dd4049e830df8945a7bcbc026fdd4362c9f4aed50eec75"
     },
     {
-      "path": "assets/PagosInmueblePanel-LSk4D4i-.js",
-      "sha256": "4cf8d3fdfc36fa6e5105d53c1d4e93cd1bc2bc91ff602b20571fdff53b4d1240"
+      "path": "assets/PagosInmueblePanel-X0fE7h_H.js",
+      "sha256": "6cda31302d8a317a6922db48305f8d0bc47aae24aa398981b597a5c6c029724c"
     },
     {
-      "path": "assets/PagosPanel-DV9-KxBw.js",
-      "sha256": "e13c3a8af6be6b9ca52b0f6960d95742b19329fd440eef14ad90aaac65beca92"
+      "path": "assets/PagosPanel-ByFDOuzC.js",
+      "sha256": "66555b72555d19723e9cd99c1452b74e916703aa9a062cb26ae892e6db89dfea"
     },
     {
-      "path": "assets/PropertyHubWorkspace-DSxh7aAs.js",
-      "sha256": "926e5190473359a485a6b15025478df0dd30f1f830b6c4cdb70ef8341f328a8a"
+      "path": "assets/PropertyHubWorkspace-DSXoBUDe.js",
+      "sha256": "aeceaf695a672c143820f1c8d374fb396f746f4164648944a00fbfb8bfa11e32"
     },
     {
-      "path": "assets/PropertyOperations-BEZ18T8w.js",
-      "sha256": "faf914edbee2eb45f7bb8ce5f38552d122c3ca62fe5a3a4dd7e4797ee3f8dae9"
+      "path": "assets/PropertyOperations-CVS0JcyP.js",
+      "sha256": "34745d4e118e9dfba6b563aee63de3623d89945e79f9fec9196f7fae4201445b"
     },
     {
       "path": "assets/PropertyOperations-Dm7CxEom.css",
       "sha256": "1f1c016148db08a7133242a0e115b5a3232c8c20a8e5aed2184e0e3184dd419c"
     },
     {
-      "path": "assets/PropietariosPanel-DRDoGM6O.js",
-      "sha256": "e4868a21e077cf1c8d12ebc35a77e0eb3cbb6f7870fe8eebe9811af2a0f931ba"
+      "path": "assets/PropietariosPanel-7MUY2xya.js",
+      "sha256": "098d79d90b955339fae9a8634c829891a95a4e2858685a8e23be37cb0585a8da"
     },
     {
       "path": "assets/PropietariosPanel-Dlvd87UC.css",
       "sha256": "aa961541658089e3a4316bde741c8ac72c8d57ae987ff0a2172d747c194b7ae8"
     },
     {
-      "path": "assets/RenovacionesPanel-C06ItTfY.js",
-      "sha256": "b9b9a709953c5c3a4234923f415ba70981f72681bf9c07e4676f0ff5e669a476"
+      "path": "assets/RenovacionesPanel-Aq_VNlvC.js",
+      "sha256": "59ed550f265b07de35c4c0d9e9b9ab84c34697472c4d02a80d8f9a050358a436"
     },
     {
-      "path": "assets/ReporteMensualPanel-DaPeBZV_.js",
-      "sha256": "e48067b06cf150f29f6a79c71b8172d2cdab8ea0bd06ca0df7ddf9e7d6a601c2"
+      "path": "assets/ReporteMensualPanel-DVwHMrZJ.js",
+      "sha256": "84f88d27f65a4c3e6d289f819f0ddb7d041953a6c4d586b91eddd8baef7b0a76"
     },
     {
-      "path": "assets/ResumenPropioPanel-CKqprbk-.js",
-      "sha256": "7d7b42f6ddf3f2be4ef318b2ce2f3c3cd72beb76e55e17774fbd99f4b897c93a"
+      "path": "assets/ResumenPropioPanel-B8HOaIO1.js",
+      "sha256": "c121965aa6110f4e138becdaf8a9d8cf67cd3e6bef20fa81aff12fa16386f022"
     },
     {
       "path": "assets/ResumenPropioPanel-DS3jm0yV.css",
       "sha256": "bb067224801f226a76aff1a043884e2acfce29a37d6196ec7338d8c0302da263"
     },
     {
-      "path": "assets/SeendyFrame-DtWDC3Dz.js",
-      "sha256": "b922b9beb19e9be5f71b1616f87f66226400ef928c8229d29606ca349c59818f"
+      "path": "assets/SeendyFrame-CWU1pmVm.js",
+      "sha256": "1ee1bd9202177b1271487dff5ab47eb13fb020bff5fbf2f5163ae999fdd8afdf"
     },
     {
       "path": "assets/SuperadminPanel-B96VXmBd.css",
       "sha256": "2e39620353c56e6bdd3d2d7c86d776a719666c9aab0c81092a8b2324b2bdf77d"
     },
     {
-      "path": "assets/SuperadminPanel-BUJgv5tK.js",
-      "sha256": "f5f0f6465f69b5fa7430b6a11500d13508ba84630de784819ff72f3540d93ffe"
+      "path": "assets/SuperadminPanel-BTKOTvUi.js",
+      "sha256": "8e5a2aefdb25da42568404a05906357254d15dd9bcaf6c82ff020ff9a8699aa3"
     },
     {
-      "path": "assets/WhatsAppPanel-DiJf53go.js",
-      "sha256": "36ab104c68856c6c05b3dfb07eb51cbb8d4561e32b0102bbccae531004ee5889"
+      "path": "assets/WhatsAppPanel-CErGaci2.js",
+      "sha256": "dcea6ebaa5a1b34ae23c86866a80642e6bd450020f484ec961f4fef47bf9165f"
     },
     {
-      "path": "assets/adjuntarContratoPdf-DzTg58zX.js",
-      "sha256": "a6b1b538bf32fd638527a43c8a659df84f97419a27287ea5b6a70c77d5445c97"
+      "path": "assets/adjuntarContratoPdf-CX2QzREK.js",
+      "sha256": "2eb277b24bfbd09419c6c6006b94fae147edaf471e63db9ebfec60b9720549ec"
     },
     {
-      "path": "assets/avisosProrrateo-mTMSfwE6.js",
+      "path": "assets/avisosProrrateo-DbX6EXNL.js",
       "sha256": "8c3cab9d7ca0c637d16d1669d823097d1e2a9e05417413aa677f17be19bd92a4"
     },
     {
-      "path": "assets/badgeTones-Cr-ZDjX8.js",
+      "path": "assets/badgeTones-D1StzZpB.js",
       "sha256": "bfb10f6b0239c2a97bf737700c1a7d88cfb1af19e0fe55e864dea0071519da33"
     },
     {
-      "path": "assets/clientLifecycle-DZyVopOw.js",
+      "path": "assets/clientLifecycle-wyGDzLcK.js",
       "sha256": "1424b1c4beba1935f6287de2c872454c264ee6e1ec6ba4a63b59355e3223cdbb"
     },
     {
-      "path": "assets/combo-input-BiAokgnc.js",
-      "sha256": "eba0770eb64d5e19f3e9876a1a3199ddf2b9fc4dcf20427aa636f2b362b8d236"
+      "path": "assets/combo-input-CFtdk2v3.js",
+      "sha256": "621145043d0a5af542ba12a1a5a11cbec645f732f4480a56e3deec1526b5189a"
     },
     {
-      "path": "assets/contractTemplate-Cija3-2U.js",
+      "path": "assets/contractTemplate-BndEvqbG.js",
       "sha256": "43f81d7ff3a5f612c5556431c8cac741e390e8f3ee63cb2296516797c554de2b"
     },
     {
-      "path": "assets/contratoServicioDrive-iBSMRfg4.js",
-      "sha256": "60dd1b83489deb94324f03b5d536559be3e21bdc10d64794f98eb839343979f0"
+      "path": "assets/contratoServicioDrive-_IWwyQIu.js",
+      "sha256": "7f244969499d7ac17c21ca181595aebfe8852d74050418e080848864b422ad47"
     },
     {
       "path": "assets/dm-sans-latin-Xz1IZZA0.woff2",
@@ -205,12 +205,12 @@
       "sha256": "e744bbcb062c0c422fdaef2ba03fb2007a596a03d6c17c801a0fa6c6aeac7f7d"
     },
     {
-      "path": "assets/garantiaLedger-3VzSpdUQ.js",
+      "path": "assets/garantiaLedger-BxJciKZ_.js",
       "sha256": "3acaee737e7522d6322c8e9f2a34f172cc9da9474df21676ee68d2d4fb2e7469"
     },
     {
-      "path": "assets/gastosProrrateables-DmY5UoHY.js",
-      "sha256": "2aa8bd1a5d3bb1b77d7d33ae6d279f0412fc1fc18f10144b19ba2cec185a62c4"
+      "path": "assets/gastosProrrateables-9yulxRHt.js",
+      "sha256": "75e92486627a3fbb75e3ffe4b17ac421aa76e437ac92d93055d8b45543203a3e"
     },
     {
       "path": "assets/geist-7xtaDkoJ.css",
@@ -241,23 +241,23 @@
       "sha256": "d38c10de0c6960f9f605f1bc942249c9e38b962b1dab9cee50cfa5d4fb49d7b9"
     },
     {
-      "path": "assets/incidenciaEstado-Cw3a11T6.js",
+      "path": "assets/incidenciaEstado-Czj7sh07.js",
       "sha256": "e5ce4d4f835f501584b8847f4d717f16070f0d596aa78e2c3b2c68b5365292a0"
     },
     {
-      "path": "assets/index.es-DSau7kCH.js",
-      "sha256": "61ec9c3660ff1c21c8fc97ed91efa67e024b76d562a8264480a4973014714771"
+      "path": "assets/index.es-C6lWW_4m.js",
+      "sha256": "67518d95908ba327004886708398f2fa325443644d4d9835a1c33e8a8fa1bc18"
     },
     {
-      "path": "assets/inquilinoDrive-6wwFKkb-.js",
-      "sha256": "63c8714c5756b25d0a1e172dc7cfb1d8c733ce3fdd8b788bc18185e29c9394e2"
+      "path": "assets/inquilinoDrive-BgtM53tD.js",
+      "sha256": "9200b3f241329a55e952e0377af607a4b7b2882a07f0bad1620c0d96f4449e94"
     },
     {
       "path": "assets/interesados-hero-CNrro_K5.png",
       "sha256": "d453ea167ecb21afacc89a49e8bb1e3c2da4cfdef2452eadee8342a20c65b205"
     },
     {
-      "path": "assets/justificantePago-BRhqPJBd.js",
+      "path": "assets/justificantePago-Dhcg1FMx.js",
       "sha256": "41e5e4b03f632c65bb8437bc381e5b1c4bbcf9d2cb7b8ff80b0747bcb3ff88ed"
     },
     {
@@ -265,7 +265,7 @@
       "sha256": "5fc2eb80f26b797b3b75b85d242ef688550b73ab0ef29e7cdf0d25e180cd5573"
     },
     {
-      "path": "assets/mammoth.browser-BxyOenE7.js",
+      "path": "assets/mammoth.browser-CFgCVRHW.js",
       "sha256": "a9c3413cad7291224f99a13e6ae96d5c009cbb04ef8b47b7df9ed6a46f9a0400"
     },
     {
@@ -285,27 +285,27 @@
       "sha256": "fe1c456345ea9537e6630e44dd9f9ffc49afa36e7c957b5750e10507b82f9331"
     },
     {
-      "path": "assets/pagosContrato-BchjQ2lS.js",
+      "path": "assets/pagosContrato-CtgDuc3m.js",
       "sha256": "25965f9328b4263ce03ed0e648fc779337d7b9e41849d8849e6b456fb39cf5c7"
     },
     {
-      "path": "assets/pagosInmueble-D7rWawMy.js",
-      "sha256": "277e70255f940eec3a9b2f24c2328c614af7d1710f5e77387a76485c28e9d182"
+      "path": "assets/pagosInmueble-DkKMEYgV.js",
+      "sha256": "7f0faa2841908711b94dfb80a800138ed6db25e4db304c73603080c66a92f02b"
     },
     {
       "path": "assets/paidFeatures-DbNI3xnz.js",
       "sha256": "8587324c05e86aaaec4fa6fee69ed48d423d7193b9b4dac818a9be87b0de23da"
     },
     {
-      "path": "assets/papaparse.min-Cx_vG_Tu.js",
+      "path": "assets/papaparse.min-BxpdDko5.js",
       "sha256": "03eda02925b31f2b4b22bf00ab283fb63cc81e732402f4b04d6c02c14f33ac31"
     },
     {
-      "path": "assets/pdf-DJPdVAb3.js",
-      "sha256": "11989b090fae2b22f44f0caaf389a6b624cb502eabb35d812555087ed417a585"
+      "path": "assets/pdf-CsUCeGaR.js",
+      "sha256": "119e00abcabce74b176a2a9a5bfa8fdb9ede9ec0934beaed9d3589780918d584"
     },
     {
-      "path": "assets/pdf.worker.min-CnlFO2s6.js",
+      "path": "assets/pdf.worker.min-vx6vKHGy.js",
       "sha256": "50acaa9a02bb74cabea25607606e3b597c8f8e33bb43fff7567ed2959d0e914d"
     },
     {
@@ -313,35 +313,35 @@
       "sha256": "06c93f0ccabe2156de9adc45691743c934e7b862327c924cdd1a0f929b7efb3e"
     },
     {
-      "path": "assets/pisosEnviados-Cn7lkENQ.js",
+      "path": "assets/pisosEnviados-Cnj3KpMS.js",
       "sha256": "cfc48eabaebd51fe85fcccbafb49ec595bf9cc790e962e4fadb5d80d9daf3770"
     },
     {
-      "path": "assets/planLimits-CXeDwbw8.js",
+      "path": "assets/planLimits-CEUovu4N.js",
       "sha256": "585c2e2fa6c3515eb96709af782308e312236253f434dd03fc7c0aad119f3c0b"
     },
     {
-      "path": "assets/platform-CuWlsobG.js",
-      "sha256": "861ec4157b20d856cad6bca0f2f8be458985c1443b8ab947cfac11b9b1a54b1f"
+      "path": "assets/platform-s_sWNq6R.js",
+      "sha256": "615cd17bd969e1d59d3a80e8ee5a136d93ab8aa18c6a19f2f3c26aa6b994cc11"
     },
     {
-      "path": "assets/purify.es-wj06PqL1.js",
+      "path": "assets/purify.es-BBvUncvx.js",
       "sha256": "a7506ef2f21feed3e11876477b7a2e21a0e8c4872c5cf5cd46a0b8baa8258856"
     },
     {
-      "path": "assets/renderer-web-BJ5FplvX.js",
-      "sha256": "55067f95246ea5df3864a3dfe60d434533bcdf00ff76cf6619dd487f90a15cea"
+      "path": "assets/renderer-web-DGrbehY9.js",
+      "sha256": "0d389fa80c1d456ad9b1eb9246de0d0eb6cb655323c4606f7087222d32e52e7a"
     },
     {
-      "path": "assets/renderer-web-CiU7AXCt.css",
-      "sha256": "919210fd50bd0b6e4afe7d5e263c8116e77e9542ed75ea3ebc6d16c4577f8b04"
+      "path": "assets/renderer-web-DsV62EjH.css",
+      "sha256": "c465e0908328db7d547636abef265cdb7b029481f5658b6f8187e99c8f88dd61"
     },
     {
       "path": "assets/rent-to-rent-DZHuH1_2.jpg",
       "sha256": "cc790861fe0f734165b31db45e578b2860fac0b6f3b9d3f41b95684e7e1b4576"
     },
     {
-      "path": "assets/repartoMensualGastos-BOfNqSWL.js",
+      "path": "assets/repartoMensualGastos-bqGMlBux.js",
       "sha256": "685351dcc9c6126e80e857acd5e7d765f030a7b3b381a016bd5573db979c94ad"
     },
     {
@@ -365,8 +365,8 @@
       "sha256": "9f1628add261ca5193221af292f2b9bd80cd89b328a4d5812cb73a320a80d912"
     },
     {
-      "path": "assets/seendy-DErcDIRM.js",
-      "sha256": "f6876d6309982fd685e7d854dc36d9157ffe011e6aef86c1417e41f9dd659e82"
+      "path": "assets/seendy-fMs4G0wS.js",
+      "sha256": "704654d5a766be0eb9258251d95ce548e554d7d0042c1135f0147215058793f7"
     },
     {
       "path": "assets/supabase-3lT_Rb4s.js",
@@ -377,12 +377,12 @@
       "sha256": "87da558cbea3464e6b2688090313e51c3695d5e75ca71fd6dddab4058273a58f"
     },
     {
-      "path": "assets/tiposHabitacion-PUztvtzI.js",
+      "path": "assets/tiposHabitacion-buIQxqZQ.js",
       "sha256": "3d8ba5d5e00a78dda0d642cae360bc84e248d7018a35c3af71c3531c4603cf51"
     },
     {
-      "path": "assets/useUnsavedChangesGuard-B_spLYPW.js",
-      "sha256": "02c48a147a6a535008df90df851286da01c33fc85f771e65bad1d92c883ff7d2"
+      "path": "assets/useUnsavedChangesGuard-xxeNqeFM.js",
+      "sha256": "9c3b31711f6ef87268c203cecc8487987e9508a5ddcd0da1135ec6f955dd46b5"
     },
     {
       "path": "assets/utils-BbnU7nV6.js",
@@ -397,8 +397,8 @@
       "sha256": "15cf7ba19031d2bbdce5acd828c5eed5350bdc0e14149c981dd3db5b5871d00b"
     },
     {
-      "path": "assets/vendor-pdf-ClKVjD3B.js",
-      "sha256": "d5e60c45f61f0b195a4be639384ef4212917c7abe60e289afc936c920275e215"
+      "path": "assets/vendor-pdf-U2O_dsfj.js",
+      "sha256": "85b117f52526b8fe0893238e41638b2506dbbfe14483eaf65765eb6994251b0a"
     },
     {
       "path": "assets/vendor-radix-5o7TuWOx.js",
@@ -413,16 +413,16 @@
       "sha256": "bbbd943901dd05e900f73517651389ded5c80b7e3c8a661ecc5049eb3720805c"
     },
     {
-      "path": "assets/viewPreferences-DUkSt7Hc.js",
+      "path": "assets/viewPreferences-CJPsvScx.js",
       "sha256": "fcf560991dfd67b1660e6e12f5a7955f4d25629d395ec5e1140dba25f0b0753a"
     },
     {
-      "path": "assets/xlsx-BCaIQihV.js",
+      "path": "assets/xlsx-Be8P-QyE.js",
       "sha256": "4124d76d6ed7fc8cab79c09a32475cdc4c677b7f2d962e3e2a0dc040bde9a72d"
     },
     {
       "path": "index.html",
-      "sha256": "8726c81a8cd12d87459d7b9d56f42e5c3ce4eccebce637469049072002caaa55"
+      "sha256": "74be1575648d0eb4e13085ba1082f08ab29d2611059978dc67d673f509ac84dd"
     },
     {
       "path": "leads/internal-leads.css",
@@ -438,11 +438,11 @@
     },
     {
       "path": "renderer-web.html",
-      "sha256": "8726c81a8cd12d87459d7b9d56f42e5c3ce4eccebce637469049072002caaa55"
+      "sha256": "74be1575648d0eb4e13085ba1082f08ab29d2611059978dc67d673f509ac84dd"
     },
     {
       "path": "seendy.html",
-      "sha256": "c806d6452ef98c637267da9f2d1ee3cc64733547a2fe07e7af16267a779282b0"
+      "sha256": "5795afddde25bde17470699d884038ae1272503ca43c009770ed98f0bba483b3"
     },
     {
       "path": "seendy/chat-doodles.svg",
