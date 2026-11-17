@@ -1,5 +1,14 @@
 # CRM releases
 
+## Drive: tenant folders for renters with their own Drive — 2026-11-17
+
+Release `crm-drive-inquilinos-20261117`, source `ef24a64a870a6720dda078f47fb5d87ddba6eb32`
+(`crm-finalizar-compartido-20261117` source `71853b3` + automanize-app#122). Tenants with
+their own Drive now get the renter folder (`createTenantFolders` in `driveNative.js`);
+before, the action was unknown and renters were saved without a folder. Existing
+GoRoom, Daniel Holgado and Darío Ginés folders were backfilled the same day.
+No UI text, route or data model changes.
+
 ## Shared contracts: "Finalizar" no longer archives everyone silently — 2026-11-17
 
 Release `crm-finalizar-compartido-20261117`, app source `71853b3` (branch
