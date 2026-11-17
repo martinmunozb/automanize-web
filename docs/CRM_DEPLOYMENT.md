@@ -239,6 +239,32 @@ published entry had been replaced by a reset to an older version in `origin/main
 
 ## Payment method in the payment detail — 2026-11-16
 
+## Drive supervision and visual folder map — 2026-11-17
+
+Active release `crm-drive-map-20261117`, app source
+`6572d97f557dc03c20eb95758f3d53b8db7b5c40`, web code
+`f1d3bc7b95d8ef6405ce159672a8c72c27d75f60`. Superadmin → Drive defaults to a
+hierarchical account/folder map, with affected branches, per-folder check status,
+account search, issue filter, expand/collapse and mobile layout. The table remains
+available. Backend-only audit credentials; the tree RPC checks Superadmin.
+
+All 117 manifest resources and the public entry were verified over HTTPS,
+including the tree RPC/map strings in the public bundle, existing stuck-progress
+fix, no-cache HTML and noindex. Cloudflare's known JS Detection insertion is the
+only normalized HTML difference. Assets were published before HTML and prior
+hashed resources retained. Unrelated dirty `nize-privacy.html` was preserved.
+Rollback documents: `/tmp/nize-drive-map-20261117T193031Z`; prior web code
+`d5046dfa9ae9ade3fe3b9565415f18f6ed91e244` (Drive monitoring table release).
+
+Independent Drive monitor: 45 active companies and 656 monitored records,
+persistent alerts and grouped mail to automanize@gmail.com. Test email and first
+real digest confirmed delivered by the provider. Read-only audit does not repair
+or move folders. See backend `docs/drive-supervision.md` for effective grants,
+migrations, interval/caps, coverage and deployment backups. No Caddy, OAuth,
+portal or unrelated app permission changes were needed.
+
+## Payment method in the payment detail — 2026-11-16 (continued)
+
 Release `crm-forma-pago-20261116`, source automanize-app branch
 `chore/crm-forma-pago-20261116` (previous release `b85cb96` + "Forma de pago"
 field). Cobros → expanded payment → Contexto shows "Forma de pago": Efectivo when
