@@ -1,5 +1,14 @@
 # CRM releases
 
+## Shared rooms: one occupant leaves without a new contract, and Undo — 2026-11-18
+
+Release `crm-baja-ocupante-20261118`, source `2ea37fcb223b91de39117c8af559d7f6dcf1b60c`
+(`crm-drive-inquilinos-20261117` source `ef24a64` + automanize-app#123). "Dar de baja a un
+ocupante" keeps the same contract: the leaver gets `inquilinos_clientes.activo=false` and
+`fecha_baja` (column added in production the same day); if the holder leaves another
+occupant becomes holder and pending payments move to them. The Cobros room timeline shows
+occupants per month. Finalizar, Dar de baja a un ocupante and Eliminar cobro offer Undo for 20 s.
+
 ## Drive: tenant folders for renters with their own Drive — 2026-11-17
 
 Release `crm-drive-inquilinos-20261117`, source `ef24a64a870a6720dda078f47fb5d87ddba6eb32`
