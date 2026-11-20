@@ -21,6 +21,20 @@ test('crm.html vende 3 planes: CRM por Stripe, Gold y Elite Gold por llamada', (
   assert.doesNotMatch(crm, /data-tier=|priceToggle|Hasta 3 pisos|7 días/);
 });
 
+test('los 3 planes muestran la conexion con ChatGPT y Claude con sus logos', () => {
+  const crm = read('crm.html');
+  const bloques = crm.match(/<div class="crm-plan__ia">[\s\S]*?<\/div>/g) || [];
+  assert.equal(bloques.length, 3);
+  for (const bloque of bloques) {
+    assert.match(bloque, /Conexión con ChatGPT y Claude/);
+    assert.match(bloque, /src="assets\/images\/logos\/chatgpt\.svg"/);
+    assert.match(bloque, /src="assets\/images\/logos\/claude\.svg"/);
+  }
+  assert.ok(fs.existsSync(path.join(rootDir, 'assets/images/logos/chatgpt.svg')));
+  assert.ok(fs.existsSync(path.join(rootDir, 'assets/images/logos/claude.svg')));
+  assert.match(crm, /rental-subpages\.css\?v=20261120-1/);
+});
+
 test('Contratar va directo a Stripe y la cuenta se crea despues', () => {
   const js = read('assets/js/crm-pricing.js');
   const crm = read('crm.html');
