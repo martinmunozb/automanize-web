@@ -430,59 +430,59 @@
     },
     {
       "path": "index.html",
-      "sha256": "7970880eecf7de91280635ef0293aef5f607e2b4dadf690a8ee61b38e89e91bf"
+      "sha256": "e2b4c157d2b3c0bc55e514e179ef7e32d6a6c14a7d0760f9f0d2a50fc6e6fd6e"
     },
     {
       "path": "leads/internal-leads.css",
-      "sha256": "bc1bbeeec678f11a0f633db835a509e026c9eff8507792bc3f77afb7c41c33d7"
+      "sha256": "b896321ef751c641fdb01df8f8c1d1a80dd78da7ebe401c26a17f7f9e197a086"
     },
     {
       "path": "leads/internal-leads.js",
-      "sha256": "41a23e771b5f7287c4a4431abd5818490a7ab7ecae2193d4f41a355def17a324"
+      "sha256": "5424b103927e1a8a039567ac04fc80e982e0492b97b479e28a8c70b54b7d9ce7"
     },
     {
       "path": "leads/leads.html",
-      "sha256": "850f3a9cd6721ef8d68e60ac72d979e3148c6fa6cb0432cbe960a679d6a37d12"
+      "sha256": "51ad8ed4fa9d2afb00dafd6377075573f4bdf1a16cb9c41e448880d810078ac4"
     },
     {
       "path": "renderer-web.html",
-      "sha256": "7970880eecf7de91280635ef0293aef5f607e2b4dadf690a8ee61b38e89e91bf"
+      "sha256": "e2b4c157d2b3c0bc55e514e179ef7e32d6a6c14a7d0760f9f0d2a50fc6e6fd6e"
     },
     {
       "path": "seendy.html",
-      "sha256": "65918059e386624285f76676ef12895e6f4ecaf9033417b93a852b9b33c18877"
+      "sha256": "c082fd9920f2d5b12b08e70cbaeb58cb37ae4cd48eadf34cf4726b0f54ee842e"
     },
     {
       "path": "seendy/chat-doodles.svg",
-      "sha256": "3500f266f8526709c346c685dcb8620655c093555a2c9deb729406266c5bf811"
+      "sha256": "d67dda2ce9ee8653a6323d5df0a1c0120de94cc5379246a4686db540d2631a87"
     },
     {
       "path": "seendy/seendy-nize.css",
-      "sha256": "687d93843dcc1c4ccc82c67e6630e8ad7081a19069f57e7afa1029d8d59ac87c"
+      "sha256": "51414257726606dcd4c689ab75b945cf439f5feb4912ec1a04c3ab13551d4055"
     },
     {
       "path": "seendy/seendy.css",
-      "sha256": "933251c1a05cb22ce7f80b691e3793c1bb75986c0c2aae345719829f307ff360"
+      "sha256": "497a2c356beda2f0c606c45d0f737b11b93a8da46f73f5259d6ecd51b05819a2"
     },
     {
       "path": "seendy/shadcn-admin.LICENSE.txt",
-      "sha256": "8cee2f3708f7132dd0be12efa299f36f4655126157905ed7dc532a0339d3a3a5"
+      "sha256": "d28c723c33a18dfed6af67b1a0ac368724f79bcb80750d3e080dbcf8dedb9e4b"
     },
     {
       "path": "seendy/wa-ui.LICENSE.txt",
-      "sha256": "92950dc026d7e5df8b687de76c244076f46013ac6f26fc9f4bb81c27a52dd8db"
+      "sha256": "4aa91fc1511ebfb61fb58d630764878277ae04be16975371ed04bbcc12c971f0"
     },
     {
       "path": "third-party/big-calendar/LICENSE",
-      "sha256": "8845460f7d019151dc144207eb6a74aab88966e51c9d0b9684c499cc8255ec1b"
+      "sha256": "4fec5bf0b29beefaee1876b69b48f5d7e6ee666a874d222d29c15753585fc822"
     },
     {
       "path": "third-party/tremor/LICENSE",
-      "sha256": "aab2f679fc7fb32112b338cfcce98276958ffc52c007a0e03153a9c50db44f8f"
+      "sha256": "6e43333ff4b171baacff233a3672365923eb688bf7ce8724eac42868bc4a08eb"
     },
     {
       "path": "third-party/tremor/NOTICE.txt",
-      "sha256": "69d58716fd460387213631c8cb5adbda7e90b46f5d18603e4634ebc43fe75190"
+      "sha256": "8eff340492fa702991929f45998e23b4fddb29d5925aff3400ffde176185cf60"
     }
   ]
 }
