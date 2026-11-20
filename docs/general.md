@@ -78,7 +78,7 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 - `docs/gastos-revision.md` — revisión/confirmación de gastos clasificados por IA
 
 
-## Planes coordinados ? preparado 20/11/2026
+## Planes coordinados ? publicado 20/11/2026
 
 PR web #98 acompa?a backend #76/#98 y app #105/#126. La contrataci?n CRM usa
 `/webhook/crm-checkout`; `alta-crm.html` llama a `/webhook/crm-alta` despu?s del
@@ -89,3 +89,12 @@ privacidad; no se almacena la contrase?a en Stripe ni se registra el session_id.
 Las rutas HTTP nuevas no est?n supervisadas por el monitor de Supabase (pendiente);
 la autorizaci?n del pago y el alta se comprueba en servidor. La release CRM debe
 preservar el c?digo publicado 743b162 y subirse con manifiesto completo.
+
+
+Publicados backend, contrataci?n y CRM `crm-planes-20261120` (sourceCommit 4cb2412,
+118 recursos verificados). Caddy validado/recargado por USR1 para alta-crm privada.
+Se conserva nize-privacy.html modificado en el VPS y los activos anteriores.
+Navegador: CRM y alta sin pago v?lido sin errores JavaScript. Cloudflare inyecta
+un script din?mico en HTML; hashes de origen ?ntegros y recursos p?blicos
+verificados normalizando ?nicamente esa inyecci?n. Backend/SQL/GoRoom:
+`automanize-backend/docs/planes.md`; Windows 1.0.116 publicado en ambos canales.
