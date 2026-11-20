@@ -529,6 +529,47 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     .hidden { display: none !important; }
 
+    .filters {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+    }
+    .filters input, .filters select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-soft);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 16px;
+    }
+    .filters input:focus, .filters select:focus { outline: 2px solid var(--accent-line); outline-offset: 1px; }
+    .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .zone-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .zone-chip {
+      border: 1px solid var(--border-strong);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .zone-chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .filter-check { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; font-weight: 600; }
+    .filter-check input { width: 18px; min-height: 18px; height: 18px; accent-color: var(--accent); }
+    .filters-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 13px; }
+    .filters-clear { border: none; background: none; color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; padding: 4px 0; }
+    .section--interest .section-title { color: var(--accent); }
+    .property-card.interest { border-color: var(--accent); }
+
     @media (min-width: 720px) {
       body {
         background:
@@ -556,6 +597,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       .toggle-all { width: auto; }
       .section-subtitle { display: block; }
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .property-card { padding: 16px; }
       .bottom-bar { padding: 12px 24px; }
       .modal-backdrop { align-items: center; padding: 18px; }
@@ -615,6 +657,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p>Marca las que quieres enviar y confirma.</p>
         </div>
       </header>
+
+      <section id="filters" class="filters" aria-label="Buscar y filtrar viviendas">
+        <input id="searchInput" type="search" placeholder="Buscar por nombre o dirección" autocomplete="off" />
+        <div id="zoneChips" class="zone-chips"></div>
+        <div class="filter-row">
+          <select id="localidadFilter" aria-label="Localidad"><option value="">Todas las localidades</option></select>
+          <select id="tipoFilter" aria-label="Tipo">
+            <option value="">Pisos y habitaciones</option>
+            <option value="piso">Solo pisos</option>
+            <option value="habitacion">Solo habitaciones</option>
+          </select>
+          <input id="precioFilter" type="number" inputmode="numeric" min="0" step="50" placeholder="Precio máx. €" aria-label="Precio máximo" />
+          <label class="filter-check"><input id="mascotasFilter" type="checkbox" /> Admite mascotas</label>
+        </div>
+        <div class="filters-foot">
+          <span id="filtersSummary"></span>
+          <button id="clearFilters" class="filters-clear hidden" type="button">Quitar filtros</button>
+        </div>
+      </section>
+
+      <section id="interestSection" class="section section--interest hidden" aria-labelledby="interestTitle">
+        <div class="section-head">
+          <div>
+            <h2 id="interestTitle" class="section-title">
+              <span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>
+              Viene por esta vivienda
+            </h2>
+            <p class="section-subtitle">El candidato rellenó el formulario desde su anuncio</p>
+          </div>
+        </div>
+        <div id="interestGrid" class="grid"></div>
+      </section>
 
       <section class="section" aria-labelledby="recommendedTitle">
         <div class="section-head">
@@ -698,6 +772,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     let recommendedIds = [];
     let selectedIds = new Set();
     let otherHomesOpen = false;
+    let interestId = '';
+    const homesById = new Map();
+    const selectedZones = new Set();
+
+    const interestSection = document.getElementById('interestSection');
+    const interestGrid = document.getElementById('interestGrid');
+    const searchInput = document.getElementById('searchInput');
+    const zoneChips = document.getElementById('zoneChips');
+    const localidadFilter = document.getElementById('localidadFilter');
+    const tipoFilter = document.getElementById('tipoFilter');
+    const precioFilter = document.getElementById('precioFilter');
+    const mascotasFilter = document.getElementById('mascotasFilter');
+    const filtersSummary = document.getElementById('filtersSummary');
+    const clearFilters = document.getElementById('clearFilters');
     let lastSubmitFailed = false;
 
     function supabaseHeaders() {
@@ -834,7 +922,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     function createHomeCard(home, isRecommended) {
       const id = getHomeId(home);
       const card = document.createElement('article');
-      card.className = `property-card${isRecommended ? ' recommended' : ''}`;
+      const isInterest = id === interestId;
+      card.className = `property-card${isRecommended ? ' recommended' : ''}${isInterest ? ' interest' : ''}`;
       card.dataset.id = id;
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
@@ -850,12 +939,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="card-body">
           <span class="card-top">
             <span class="property-name">${escapeHtml(home.nombre || 'Vivienda sin nombre')}</span>
-            ${isRecommended ? '<span class="badge">Recomendada</span>' : ''}
+            ${isInterest ? '<span class="badge">Viene por esta</span>' : isRecommended ? '<span class="badge">Recomendada</span>' : ''}
           </span>
           <span class="address">${escapeHtml(home.direccion_completa || 'Dirección no indicada')}</span>
           <span class="meta-row">
             <span class="meta">${formatPrice(home.precio)}</span>
-            <span class="meta">${escapeHtml(home.tipo || 'Tipo no indicado')}</span>
+            <span class="meta">${escapeHtml(home.tipo === 'habitacion' ? 'Habitación' : home.tipo === 'piso' ? 'Piso' : (home.tipo || 'Tipo no indicado'))}</span>
+            ${home.zona ? `<span class="meta">${escapeHtml(home.zona)}</span>` : ''}
           </span>
           ${videoLink}
         </span>
@@ -877,9 +967,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       return card;
     }
 
-    function renderHomes(recommendedHomes, otherHomes) {
+    function renderHomes(interestHomes, recommendedHomes, otherHomes) {
+      interestGrid.innerHTML = '';
       recommendedGrid.innerHTML = '';
       otherGrid.innerHTML = '';
+
+      interestHomes.forEach(home => interestGrid.appendChild(createHomeCard(home, false)));
+      interestSection.classList.toggle('hidden', !interestHomes.length);
 
       if (recommendedHomes.length) {
         recommendedHomes.forEach(home => recommendedGrid.appendChild(createHomeCard(home, true)));
@@ -895,11 +989,120 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       toggleOtherButton.textContent = `Ver todas las viviendas disponibles (+${otherHomes.length})`;
       updateSelectedState();
+      applyFilters();
+    }
+
+    function normalizeText(value) {
+      return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
+
+    function uniqueSorted(values) {
+      return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'es'));
+    }
+
+    function buildFilters(homes) {
+      zoneChips.innerHTML = '';
+      uniqueSorted(homes.map(home => home.zona)).forEach(zona => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'zone-chip';
+        chip.textContent = zona;
+        chip.setAttribute('aria-pressed', 'false');
+        chip.addEventListener('click', () => {
+          if (selectedZones.has(zona)) selectedZones.delete(zona); else selectedZones.add(zona);
+          chip.setAttribute('aria-pressed', selectedZones.has(zona) ? 'true' : 'false');
+          applyFilters();
+        });
+        zoneChips.appendChild(chip);
+      });
+      zoneChips.classList.toggle('hidden', !zoneChips.children.length);
+
+      localidadFilter.length = 1;
+      uniqueSorted(homes.map(home => home.localidad)).forEach(localidad => {
+        localidadFilter.add(new Option(localidad, localidad));
+      });
+    }
+
+    function filtersActive() {
+      return Boolean(searchInput.value.trim() || selectedZones.size || localidadFilter.value
+        || tipoFilter.value || precioFilter.value || mascotasFilter.checked);
+    }
+
+    function homeMatches(home) {
+      const query = normalizeText(searchInput.value);
+      if (query) {
+        const haystack = normalizeText([home.nombre, home.direccion_completa, home.zona, home.localidad, home.id_inmueble].join(' '));
+        if (!query.split(/\s+/).every(word => haystack.includes(word))) return false;
+      }
+      if (selectedZones.size && !selectedZones.has(home.zona)) return false;
+      if (localidadFilter.value && home.localidad !== localidadFilter.value) return false;
+      if (tipoFilter.value && home.tipo !== tipoFilter.value) return false;
+      const maxPrice = Number(precioFilter.value);
+      if (precioFilter.value && maxPrice > 0) {
+        const price = Number(home.precio);
+        if (!Number.isFinite(price) || price <= 0 || price > maxPrice) return false;
+      }
+      if (mascotasFilter.checked && home.mascotas !== true) return false;
+      return true;
+    }
+
+    function applyFilters() {
+      const active = filtersActive();
+      let visible = 0;
+
+      [interestGrid, recommendedGrid, otherGrid].forEach(grid => {
+        let gridVisible = 0;
+        grid.querySelectorAll('.property-card').forEach(card => {
+          const match = !active || homeMatches(homesById.get(card.dataset.id) || {});
+          card.classList.toggle('hidden', !match);
+          if (match) gridVisible += 1;
+        });
+        visible += gridVisible;
+        let note = grid.querySelector('.filter-empty');
+        const hasCards = grid.querySelector('.property-card');
+        if (active && hasCards && !gridVisible) {
+          if (!note) {
+            note = document.createElement('div');
+            note.className = 'empty-message filter-empty';
+            note.textContent = 'Ninguna vivienda de esta sección coincide con los filtros.';
+            grid.appendChild(note);
+          }
+        } else if (note) {
+          note.remove();
+        }
+      });
+
+      // Con filtros activos se busca en todas las viviendas: se abre "Añadir otras".
+      otherGrid.classList.toggle('collapsed', !(otherHomesOpen || active));
+      toggleOtherButton.classList.toggle('hidden', active);
+      clearFilters.classList.toggle('hidden', !active);
+      filtersSummary.textContent = active ? `${visible} de ${homesById.size} viviendas` : `${homesById.size} viviendas disponibles`;
+    }
+
+    function resetFilters() {
+      searchInput.value = '';
+      selectedZones.clear();
+      zoneChips.querySelectorAll('.zone-chip').forEach(chip => chip.setAttribute('aria-pressed', 'false'));
+      localidadFilter.value = '';
+      tipoFilter.value = '';
+      precioFilter.value = '';
+      mascotasFilter.checked = false;
+      applyFilters();
     }
 
     async function loadPendingSelection() {
       const rows = await supabaseRpc('rpc_seleccion_pendiente', { p_token: token });
       return rows[0] || null;
+    }
+
+    async function loadInterestId() {
+      try {
+        const id = await supabaseRpc('rpc_seleccion_inmueble_interes', { p_token: token });
+        return id ? String(id) : '';
+      } catch (error) {
+        console.error('No se pudo cargar el inmueble de interés.', error);
+        return '';
+      }
     }
 
     async function loadTenantHomes() {
@@ -938,16 +1141,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         recommendedIds = normalizeIds(pendingSelection.favoritos_ids);
-        selectedIds = new Set(recommendedIds);
         clientName.textContent = getClientLabel(pendingSelection);
 
-        const tenantHomes = await loadTenantHomes();
+        const [tenantHomes, interest] = await Promise.all([loadTenantHomes(), loadInterestId()]);
+        homesById.clear();
+        tenantHomes.forEach(home => homesById.set(getHomeId(home), home));
+
+        // Si el candidato vino desde el enlace de un inmueble disponible, solo
+        // ese queda marcado; el resto se añade a mano.
+        interestId = interest && homesById.has(interest) ? interest : '';
+        selectedIds = new Set(interestId ? [interestId] : recommendedIds);
 
         const recommendedSet = new Set(recommendedIds);
-        const recommendedHomes = tenantHomes.filter(home => recommendedSet.has(getHomeId(home)));
-        const otherHomes = tenantHomes.filter(home => !recommendedSet.has(getHomeId(home)));
+        const interestHomes = tenantHomes.filter(home => getHomeId(home) === interestId);
+        const recommendedHomes = tenantHomes.filter(home => recommendedSet.has(getHomeId(home)) && getHomeId(home) !== interestId);
+        const otherHomes = tenantHomes.filter(home => !recommendedSet.has(getHomeId(home)) && getHomeId(home) !== interestId);
 
-        renderHomes(recommendedHomes, otherHomes);
+        buildFilters(tenantHomes);
+        renderHomes(interestHomes, recommendedHomes, otherHomes);
         showApp();
       } catch (error) {
         console.error('Error cargando la seleccion de viviendas.', error);
@@ -1006,12 +1217,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     toggleOtherButton.addEventListener('click', () => {
       otherHomesOpen = !otherHomesOpen;
-      otherGrid.classList.toggle('collapsed', !otherHomesOpen);
+      applyFilters();
       const count = otherGrid.querySelectorAll('.property-card').length;
       toggleOtherButton.textContent = otherHomesOpen
         ? 'Ocultar viviendas disponibles'
         : `Ver todas las viviendas disponibles (+${count})`;
     });
+
+    searchInput.addEventListener('input', applyFilters);
+    [localidadFilter, tipoFilter, mascotasFilter].forEach(el => el.addEventListener('change', applyFilters));
+    precioFilter.addEventListener('input', applyFilters);
+    clearFilters.addEventListener('click', resetFilters);
 
     openConfirmButton.addEventListener('click', openModal);
     cancelModalButton.addEventListener('click', closeModal);

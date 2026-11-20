@@ -30,13 +30,14 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 /
 ├── index.html              — Landing principal Automanize
 ├── solicitar-demo.html     — Reserva de la llamada Elite Gold en popup de Cal.com, enlazada desde el sitio
+├── alta-crm.html           — Crear la cuenta después de pagar el Plan CRM en Stripe
 ├── gracias-demo.html       — Agradecimiento tras reservar desde solicitar-demo.html
 ├── formulario.html         — Formulario dinámico de leads por token (WhatsApp)
 ├── alta-agencia.html       — Ficha de alta para agencias ya contratadas, por token
 ├── alta-agencia-admin.html — Panel interno: ver fichas recibidas y generar tokens
 ├── pago-nize.html          — Página de pago/confirmación Nize
 ├── captador-nize.html      — Landing captador de inmuebles
-├── crm.html                — Landing CRM. Incluye la sección de precios (Basic + Plus/Pro/Elite);
+├── crm.html                — Landing CRM. Incluye la sección de precios (Plan CRM por tramos + Elite Gold);
 │                             todos los botones de pago llevan a la prueba de 7 días, no cobran al
 │                             alta (assets/js/crm-pricing.js, ver docs/REGLAS_NEGOCIO.md del repo
 │                             padre) — nize.html es solo la landing del embudo, sin precios
@@ -75,3 +76,16 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 - `docs/telefono.md` — lógica del prefijo telefónico
 - `docs/incidencias-fotos.md` — subida de fotos de incidencias por token
 - `docs/gastos-revision.md` — revisión/confirmación de gastos clasificados por IA
+
+
+## Planes coordinados ? preparado 20/11/2026
+
+PR web #98 acompa?a backend #76/#98 y app #105/#126. La contrataci?n CRM usa
+`/webhook/crm-checkout`; `alta-crm.html` llama a `/webhook/crm-alta` despu?s del
+pago. Retirar `checkout-directo` solo cuando se publique esta web. La p?gina de
+alta lleva no-referrer, noindex y pol?tica privada Caddy en sus dos URLs.
+El formulario recoge empresa, email, tel?fono, contrase?a y aceptaci?n de
+privacidad; no se almacena la contrase?a en Stripe ni se registra el session_id.
+Las rutas HTTP nuevas no est?n supervisadas por el monitor de Supabase (pendiente);
+la autorizaci?n del pago y el alta se comprueba en servidor. La release CRM debe
+preservar el c?digo publicado 743b162 y subirse con manifiesto completo.

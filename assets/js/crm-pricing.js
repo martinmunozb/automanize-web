@@ -1,171 +1,54 @@
-// crm-pricing.js — Sección de precios de crm.html: toggle mensual/anual y
-// modal que crea la cuenta con 7 días de prueba gratis (misma Edge Function
-// que solicitar-demo.html). Antes del formulario, el modal ofrece un upsell
-// (agendar llamada vs. probarlo por su cuenta) — ver docs/REGLAS_NEGOCIO.md.
-// No cobra nada al alta: si al terminar el trial el tenant no cabe en el
-// plan gratuito, se bloquea y ahí se le ofrece pagar (flujo ya existente de
-// trial-checkout, ver docs/REGLAS_NEGOCIO.md).
+// crm-pricing.js — Sección de precios de crm.html. "Contratar" abre Stripe
+// directamente; la cuenta se crea después del pago, en alta-crm.html.
 (() => {
-  const SUPABASE_URL = 'https://edjugpekcntzvqaskbmc.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkanVncGVrY250enZxYXNrYm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMTc0NjksImV4cCI6MjA4NzY5MzQ2OX0.JOyutVcE_OB5Bszuz12_aTBK4RRzD-a79QQ3uLS7IyA';
-  const TRIAL_SIGNUP_URL = `${SUPABASE_URL}/functions/v1/trial-signup`;
-  const CHECKOUT_DIRECTO_URL = 'https://backend.automanize.com/webhook/checkout-directo';
+  const CRM_CHECKOUT_URL = 'https://backend.automanize.com/webhook/crm-checkout';
+  // Importes sin IVA: la fuente de verdad del cobro es src/trial/reglas.js del backend.
+  const PRECIOS = { 15: 27, 30: 54, 60: 81 };
+  const precioDe = (inmuebles) => PRECIOS[inmuebles] ?? 81 + ((inmuebles - 60) / 30) * 27;
+  // Topes que se venden: 15, 30, 60 y de 30 en 30 hasta 660.
+  const TOPES = [15, 30, ...Array.from({ length: 21 }, (_, i) => 60 + i * 30)];
 
-  const TIER_NOMBRES = { tier1: 'Plus', tier2: 'Pro', tier3: 'Elite' };
-  let periodoActual = 'mensual';
-  let tierSeleccionado = null;
-  let tenantIdCreado = null;
-
-  // --- Toggle mensual/anual ---
-  const btnMensual = document.getElementById('priceToggleMensual');
-  const btnAnual = document.getElementById('priceToggleAnual');
-  const setToggleActivo = (btnActivo, btnInactivo) => {
-    btnActivo.classList.add('bg-[#FFB300]', 'text-black');
-    btnActivo.classList.remove('text-[#888]');
-    btnInactivo.classList.remove('bg-[#FFB300]', 'text-black');
-    btnInactivo.classList.add('text-[#888]');
+  // --- Selector de inmuebles del Plan CRM ---
+  const slider = document.getElementById('crmInmuebles');
+  const pintarPlanCrm = () => {
+    const inmuebles = TOPES[Number(slider.value)];
+    const precio = precioDe(inmuebles);
+    document.getElementById('crmInmueblesTexto').textContent = String(inmuebles);
+    document.getElementById('crmInmueblesLista').textContent = String(inmuebles);
+    document.getElementById('crmPrecio').textContent = `${precio}€`;
+    document.getElementById('crmContratar').dataset.inmuebles = String(inmuebles);
+    slider.setAttribute('aria-valuetext', `Hasta ${inmuebles} inmuebles, ${precio} euros al mes`);
+    slider.style.setProperty('--avance', `${(Number(slider.value) / (TOPES.length - 1)) * 100}%`);
   };
-  const aplicarPeriodo = (periodo) => {
-    periodoActual = periodo;
-    document.querySelectorAll('.price-amount[data-mensual]').forEach((el) => { el.textContent = el.dataset[periodo]; });
-    document.querySelectorAll('.price-period[data-mensual]').forEach((el) => { el.textContent = el.dataset[periodo]; });
-  };
-  btnMensual?.addEventListener('click', () => { setToggleActivo(btnMensual, btnAnual); aplicarPeriodo('mensual'); });
-  btnAnual?.addEventListener('click', () => { setToggleActivo(btnAnual, btnMensual); aplicarPeriodo('anual'); });
+  slider?.addEventListener('input', pintarPlanCrm);
+  if (slider) pintarPlanCrm();
 
-  // --- Modal de contratación ---
-  const modal = document.getElementById('pricingModal');
-  const modalKicker = document.getElementById('pricingModalKicker');
-  const pricingScreens = modal ? [...modal.querySelectorAll('.pricing-screen')] : [];
-  const upsellCallLink = document.getElementById('pricingUpsellCall');
-  const upsellSelfBtn = document.getElementById('pricingUpsellSelf');
-  const form = document.getElementById('pricingForm');
-  const formError = document.getElementById('pricingError');
-  const success = document.getElementById('pricingSuccess');
-  const successTitulo = document.getElementById('pricingSuccessTitulo');
-  const buyNowBtn = document.getElementById('pricingBuyNow');
-  const buyNowError = document.getElementById('pricingBuyNowError');
-  let lastFocus = null;
-
-  const showPricingScreen = (name) => {
-    pricingScreens.forEach((screen) => { screen.classList.toggle('hidden', screen.dataset.screen !== name); });
-  };
-
-  const openModal = (tier) => {
-    tierSeleccionado = tier;
-    tenantIdCreado = null;
-    modalKicker.textContent = `Prueba de 7 días — ${TIER_NOMBRES[tier] || ''}`;
-    formError.textContent = '';
-    buyNowError.textContent = '';
-    form.reset();
-    success.classList.add('hidden');
-    buyNowBtn.classList.add('hidden');
-    showPricingScreen('upsell');
-    lastFocus = document.activeElement;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-    window.setTimeout(() => upsellCallLink?.focus(), 100);
-  };
-  const closeModal = () => {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
-    lastFocus?.focus();
-  };
-
+  // --- Contratar: directo a Stripe ---
+  const checkoutError = document.getElementById('crmCheckoutError');
   document.querySelectorAll('.js-open-pricing-modal').forEach((btn) => {
-    btn.addEventListener('click', () => openModal(btn.dataset.tier));
-  });
-  upsellSelfBtn?.addEventListener('click', () => {
-    showPricingScreen('form');
-    window.setTimeout(() => form.querySelector('input')?.focus(), 100);
-  });
-  document.getElementById('pricingModalClose')?.addEventListener('click', closeModal);
-  modal?.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
-  });
-
-  form?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    formError.textContent = '';
-
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    if (!tierSeleccionado) {
-      formError.textContent = 'Elige un plan antes de continuar.';
-      return;
-    }
-
-    const datos = Object.fromEntries(new FormData(form).entries());
-    const submitButton = form.querySelector('button[type="submit"]');
-    const textoOriginal = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Creando tu cuenta...';
-
-    const meta = window.AutomanizeMeta;
-    const eventId = meta ? meta.newEventId() : undefined;
-
-    try {
-      const resSignup = await fetch(TRIAL_SIGNUP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
-        body: JSON.stringify({
-          empresa: datos.nombre,
-          telefono: datos.telefono,
-          email: datos.email,
-          nif: datos.nif,
-          website: datos.website,
-          privacidad_aceptada: datos.privacidad_aceptada === 'on',
-          event_source_url: window.location.href,
-          event_id: eventId,
-          ...(meta ? meta.ids() : {}),
-        }),
-      });
-      const dataSignup = await resSignup.json().catch(() => ({}));
-      if (!resSignup.ok || dataSignup.error) throw new Error(dataSignup.error || 'No se pudo crear tu cuenta.');
-
-      if (meta) meta.track('CompleteRegistration', { content_name: 'Nize - prueba gratis 7 dias' }, eventId);
-      tenantIdCreado = dataSignup.tenant_id || null;
-      const primero = String(datos.nombre || '').trim().split(/\s+/)[0];
-      successTitulo.textContent = primero ? `¡Gracias, ${primero}!` : '¡Listo!';
-      form.classList.add('hidden');
-      success.classList.remove('hidden');
-      buyNowBtn.classList.toggle('hidden', !tenantIdCreado);
-    } catch (err) {
-      formError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
-      submitButton.disabled = false;
-      submitButton.textContent = textoOriginal;
-    }
+    btn.addEventListener('click', async () => {
+      const textoOriginal = btn.textContent;
+      checkoutError.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Abriendo Stripe...';
+      try {
+        const res = await fetch(CRM_CHECKOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inmuebles: Number(btn.dataset.inmuebles) }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.url) throw new Error(data.error || 'No se pudo abrir el pago.');
+        window.location.href = data.url;
+      } catch (err) {
+        checkoutError.textContent = `${err.message} Inténtalo de nuevo o escríbenos por WhatsApp.`;
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      }
+    });
   });
 
-  buyNowBtn?.addEventListener('click', async () => {
-    if (!tenantIdCreado || !tierSeleccionado) return;
-    buyNowError.textContent = '';
-    const textoOriginal = buyNowBtn.textContent;
-    buyNowBtn.disabled = true;
-    buyNowBtn.textContent = 'Preparando el pago...';
-
-    try {
-      const res = await fetch(CHECKOUT_DIRECTO_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenant_id: tenantIdCreado, tier: tierSeleccionado, periodo: periodoActual }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.error || !data.url) throw new Error(data.error || 'No se pudo iniciar el pago.');
-      window.location.href = data.url;
-    } catch (err) {
-      buyNowError.textContent = err.message || 'Hubo un error. Inténtalo de nuevo o escríbenos por WhatsApp.';
-      buyNowBtn.disabled = false;
-      buyNowBtn.textContent = textoOriginal;
-    }
-  });
-
-  // --- Modal Elite Gold: datos -> situación -> agenda en Cal.com ---
+  // --- Modal Gold y Elite Gold: datos -> situación -> agenda en Cal.com ---
   const eliteModal = document.getElementById('eliteModal');
   const eliteScreens = eliteModal ? [...eliteModal.querySelectorAll('.elite-screen')] : [];
   const eliteBackBtn = document.getElementById('eliteModalBack');
@@ -173,6 +56,7 @@
   let eliteData = {};
   let eliteIndex = 0;
   let eliteLastFocus = null;
+  let elitePlan = 'Elite Gold';
 
   const showEliteScreen = (name) => {
     eliteIndex = eliteOrder.indexOf(name);
@@ -180,7 +64,9 @@
     eliteBackBtn?.classList.toggle('hidden', eliteIndex === 0);
     eliteBackBtn?.classList.toggle('flex', eliteIndex !== 0);
   };
-  const openEliteModal = () => {
+  const openEliteModal = (plan) => {
+    elitePlan = plan;
+    eliteModal.querySelectorAll('.js-elite-plan').forEach((el) => { el.textContent = plan; });
     eliteData = {};
     document.getElementById('eliteForm1')?.reset();
     document.getElementById('eliteForm2')?.reset();
@@ -199,7 +85,7 @@
   };
 
   document.querySelectorAll('.js-open-elite-modal').forEach((btn) => {
-    btn.addEventListener('click', openEliteModal);
+    btn.addEventListener('click', () => openEliteModal(btn.dataset.plan));
   });
   document.getElementById('eliteModalClose')?.addEventListener('click', closeEliteModal);
   eliteBackBtn?.addEventListener('click', () => { if (eliteIndex > 0) showEliteScreen(eliteOrder[eliteIndex - 1]); });
@@ -221,7 +107,7 @@
     const eliteForm2 = event.target;
     if (!eliteForm2.checkValidity()) { eliteForm2.reportValidity(); return; }
     eliteData = { ...eliteData, ...Object.fromEntries(new FormData(eliteForm2).entries()) };
-    const notas = `Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
+    const notas = `Plan: ${elitePlan}. Habitaciones/inmuebles: ${eliteData.volumen}. Mayor problema ahora: ${eliteData.problema}`;
     const params = new URLSearchParams({ name: eliteData.nombre || '', email: eliteData.email || '', notes: notas });
     // Cal.com pide el teléfono: se rellena solo para no preguntarlo otra vez. Exige
     // formato internacional; si no lo cumple, lo escribe la persona en el calendario.
