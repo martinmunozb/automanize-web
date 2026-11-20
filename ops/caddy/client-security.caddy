@@ -5,7 +5,10 @@
 respond @client_internal "Not found" 404
 
 # This only stops crawlers declaring these identities; it is not bot detection.
-@client_ai header_regexp client_ai User-Agent (?i)(GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-SearchBot|Claude-User|anthropic-ai|CCBot|Google-Extended|Bytespider|PerplexityBot|Perplexity-User|Amazonbot|cohere-ai|Applebot-Extended|meta-externalagent)
+@client_ai {
+    header_regexp client_ai User-Agent (?i)(GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-SearchBot|Claude-User|anthropic-ai|CCBot|Google-Extended|Bytespider|PerplexityBot|Perplexity-User|Amazonbot|cohere-ai|Applebot-Extended|meta-externalagent)
+    not path /nize /nize.html /nize-privacy /nize-privacy.html /contactus /contactus.html /terms /terms.html
+}
 respond @client_ai "Forbidden" 403
 
 header X-Content-Type-Options "nosniff"

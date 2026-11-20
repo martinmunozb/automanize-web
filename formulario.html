@@ -75,6 +75,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .screen-center h2 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; }
     .screen-center p  { font-size: 15px; color: var(--muted); line-height: 1.65; max-width: 280px; }
 
+    /* ── Rejected screen (regla de descarte del tenant) ── */
+    .reject-icon { color: var(--error); background: var(--error-bg); border-color: rgba(248,113,113,0.3); }
+    .reject-screen p.reject-msg { color: var(--text); max-width: 340px; }
+    .reject-box {
+      width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px;
+      margin-top: 8px; text-align: left;
+    }
+    .reject-box .btn-back, .reject-box .btn-next { flex: none; width: 100%; }
+    .reject-box p { max-width: none; font-size: 13px; line-height: 1.6; }
+    .reject-box p.reject-gap { margin-top: 8px; }
+    .reject-box .privacy-text { font-size: 12.5px; }
+
     /* ── Success screen ── */
     @keyframes popIn {
       0%   { opacity: 0; transform: scale(.6); }
@@ -142,6 +154,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       letter-spacing: .04em; white-space: nowrap; flex-shrink: 0;
       font-variant-numeric: tabular-nums;
     }
+    .inmueble-tag {
+      display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+      margin-bottom: 12px; padding: 10px 12px;
+      background: var(--accent-dim); border: 1px solid var(--accent-ring); border-radius: 10px;
+      font-size: 13px; color: var(--text); line-height: 1.4;
+    }
+    .inmueble-tag b { font-weight: 700; }
+    .inmueble-tag span { color: var(--muted); }
     .wizard-progress-track { height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; }
     .wizard-progress-fill {
       height: 100%; background: var(--accent); border-radius: 999px;
@@ -461,7 +481,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   // ─── State ───────────────────────────────────────────────────────────────────
 
   const S = {
-    screen:     'loading', // loading | error | wizard | success
+    screen:     'loading', // loading | error | wizard | rejected | success
+    rechazo:    null,      // { mensaje, motivo } cuando una regla de descarte del tenant se cumple
+    rechazado:  false,     // se enviaron las respuestas como descartado
     errorKey:   '',        // notfound | expired | used | generic
     mode:       'token',   // token (lead ya identificado por WhatsApp) | public (link compartido, ej. Idealista)
     tenantName: '',
@@ -477,6 +499,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     submitting: false,
     fieldErr:   '',
     privacyAccepted: false,
+    inmueble:   null,      // piso/habitación del enlace /f/<slug>?i=<id_inmueble>
   };
 
   // ─── Render ──────────────────────────────────────────────────────────────────
@@ -508,7 +531,91 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if      (S.screen === 'loading') renderLoading();
     else if (S.screen === 'error')   renderError();
     else if (S.screen === 'wizard')  renderWizard();
+    else if (S.screen === 'rejected') renderRejected();
     else if (S.screen === 'success') renderSuccess();
+  }
+
+  // Pantalla cuando una regla de descarte se cumple: avisa, deja corregir la
+  // respuesta y, solo si acepta la privacidad, guarda sus respuestas como
+  // descartado (sin matching ni aviso al gestor).
+  function renderRejected() {
+    app.innerHTML = `
+      <div class="screen-center reject-screen">
+        <div class="screen-icon reject-icon">${ICONS.alert}</div>
+        <h2>No puedes continuar con la solicitud</h2>
+        <p class="reject-msg">${esc(S.rechazo.mensaje)}</p>
+        <div class="reject-box">
+          <p>¿Te has equivocado al responder? Vuelve y cambia tu respuesta.</p>
+          <button class="btn-back" id="bFix">← Cambiar mi respuesta</button>
+          <p class="reject-gap">Si tu respuesta es correcta, puedes enviarnos tus respuestas igualmente para que las tengamos.</p>
+          ${renderPrivacyConsent()}
+          ${S.fieldErr ? `<div class="field-err">${esc(S.fieldErr)}</div>` : ''}
+          <button class="btn-next${S.submitting ? ' loading' : ''}" id="bSave" ${S.submitting ? 'disabled' : ''}>Enviar mis respuestas</button>
+        </div>
+      </div>`;
+
+    document.getElementById('bFix')?.addEventListener('click', () => {
+      S.screen = 'wizard'; S.rechazo = null; S.fieldErr = ''; S.direction = 'back'; render();
+    });
+    document.getElementById('bSave')?.addEventListener('click', () => {
+      if (!S.privacyAccepted) { S.fieldErr = 'Debes aceptar la Política de Privacidad para enviar tus respuestas.'; render(); return; }
+      submit(S.rechazo.motivo);
+    });
+    const chk = document.getElementById('privacyCheckbox');
+    chk?.addEventListener('click', () => {
+      S.privacyAccepted = !S.privacyAccepted;
+      if (S.privacyAccepted) S.fieldErr = '';
+      render();
+    });
+    chk?.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chk.click(); }
+    });
+  }
+
+  // ─── Reglas de descarte (tenant_preguntas.reglas_descarte) ───────────────────
+  // Regla: { op: 'es'|'menor'|'mayor', valor, y: [{ pregunta: <tenant_preguntas.id>, op, valor }], mensaje }.
+  // Se cumple cuando la pregunta propia y todas las de "y" están respondidas y
+  // cumplen. Si alguna está oculta o es incompleta, la regla no se aplica.
+  const MENSAJE_DESCARTE_DEFECTO = 'Lo sentimos, con esta respuesta no puedes continuar con la solicitud porque no encaja con el perfil de candidato que buscamos.';
+  const TIPOS_MULTI = ['multi_select', 'dynamic_zone_multi_select', 'dynamic_street_multi_select'];
+
+  function condicionCompleta(c) {
+    if (c?.op === 'es') return Array.isArray(c.valor) && c.valor.length > 0;
+    return (c?.op === 'menor' || c?.op === 'mayor') && c.valor !== '' && c.valor !== null && Number.isFinite(Number(c.valor));
+  }
+
+  function cumpleCondicion(step, c) {
+    const v = S.answers[step.campo_clientes];
+    if (v === undefined || v === null || String(v).trim() === '') return false;
+    if (c.op === 'es') {
+      const sel = TIPOS_MULTI.includes(step.tipo_input) ? String(v).split(',').map(s => s.trim()) : [String(v)];
+      return c.valor.some(x => sel.includes(String(x)));
+    }
+    const n = Number(v);
+    if (!Number.isFinite(n)) return false;
+    return c.op === 'menor' ? n < Number(c.valor) : n > Number(c.valor);
+  }
+
+  function respuestaLegible(step) {
+    const v = String(S.answers[step.campo_clientes] ?? '');
+    const vals = TIPOS_MULTI.includes(step.tipo_input) ? v.split(',').map(s => s.trim()) : [v];
+    return vals.map(x => step.opciones.find(o => o.value === x)?.label ?? x).join(', ');
+  }
+
+  function reglaQueDescarta() {
+    const vis = visibleSteps();
+    const porFila = Object.fromEntries(vis.filter(s => s.fila_id).map(s => [s.fila_id, s]));
+    for (const s of vis) {
+      for (const r of s.reglas || []) {
+        const conds = [[s, r], ...(Array.isArray(r.y) ? r.y : []).map(c => [porFila[c.pregunta], c])];
+        if (!conds.every(([st, c]) => st && condicionCompleta(c) && cumpleCondicion(st, c))) continue;
+        return {
+          mensaje: String(r.mensaje || '').trim() || MENSAJE_DESCARTE_DEFECTO,
+          motivo: conds.map(([st]) => `${st.textoMostrar} → ${respuestaLegible(st)}`).join(' · '),
+        };
+      }
+    }
+    return null;
   }
 
   function renderLoading() {
@@ -516,6 +623,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   function renderSuccess() {
+    if (S.rechazado) {
+      app.innerHTML = `
+        <div class="screen-center">
+          <div class="screen-icon">${ICONS.check}</div>
+          <h2>Respuestas enviadas</h2>
+          <p>Gracias por tu interés. Hemos guardado tus respuestas.</p>
+        </div>`;
+      return;
+    }
     app.innerHTML = `
       <div class="screen-center success-screen">
         <div class="success-badge">
@@ -545,6 +661,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2>${esc(title)}</h2>
         <p>${esc(body)}</p>
       </div>`;
+  }
+
+  function renderInmuebleTag() {
+    const i = S.inmueble;
+    const precio = Number(i.precio) > 0 ? `${new Intl.NumberFormat('es-ES').format(Number(i.precio))} €/mes` : '';
+    const detalle = [i.zona || i.localidad, precio].filter(Boolean).join(' · ');
+    return `<div class="inmueble-tag">Solicitas: <b>${esc(i.nombre || (i.tipo === 'habitacion' ? 'Habitación' : 'Vivienda'))}</b>${detalle ? `<span>${esc(detalle)}</span>` : ''}</div>`;
   }
 
   function visibleSteps() {
@@ -581,6 +704,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="wizard-brand">${esc(S.tenantName)} <span>·</span> Solicitud</div>
             <div class="wizard-step-label">${S.step + 1} / ${total}</div>
           </div>
+          ${S.inmueble ? renderInmuebleTag() : ''}
           <div class="wizard-progress-track"><div class="wizard-progress-fill" style="width:${pct}%"></div></div>
         </div>
 
@@ -778,6 +902,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
     if (empty) { S.fieldErr = 'Por favor, responde esta pregunta antes de continuar.'; S.skipEnterAnim = true; render(); return; }
 
+    const rechazo = reglaQueDescarta();
+    if (rechazo) { S.fieldErr = ''; S.rechazo = rechazo; S.screen = 'rejected'; render(); return; }
+
     if (isLast && !S.privacyAccepted) {
       S.fieldErr = 'Debes aceptar la Política de Privacidad para continuar.';
       S.skipEnterAnim = true;
@@ -790,7 +917,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     else        { S.direction = 'fwd'; S.step++; render(); }
   }
 
-  async function submit() {
+  // motivo != null → se guarda como descartado por una regla del tenant.
+  async function submit(motivo = null) {
     S.submitting = true;
     S.skipEnterAnim = true;
     render();
@@ -823,6 +951,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           p_respuestas: respuestas,
           p_privacidad_aceptada: S.privacyAccepted,
         };
+        if (motivo) payload.p_descartado_motivo = motivo;
         const res = await sbRpc('crear_lead_publico', payload);
         formToken = res?.form_token;
         clienteId = res?.id;
@@ -831,9 +960,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           p_token: S.token,
           p_respuestas: respuestas,
           p_privacidad_aceptada: S.privacyAccepted,
+          ...(motivo ? { p_descartado_motivo: motivo } : {}),
         });
         formToken = res?.form_token;
         clienteId = S.clienteId;
+      }
+
+      // Inmueble del enlace: se guarda antes del aviso al backend para que la
+      // selección de viviendas ya lo tenga marcado.
+      if (S.inmueble && formToken) {
+        try {
+          await sbRpc('set_inmueble_interes', { p_form_token: formToken, p_inmueble_id: S.inmueble.id_inmueble });
+        } catch (err) { console.error('No se pudo guardar el inmueble de interés:', err); }
       }
 
       // Aviso al backend (WhatsApp al tenant + matching de propiedades).
@@ -841,7 +979,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // sin él responde 401 y no se envía nada. Es best-effort respecto al
       // resultado (no bloquea la pantalla de éxito), pero el error se
       // registra siempre para poder detectarlo.
-      if (N8N_WEBHOOK_URL && formToken) {
+      // Un descartado no pasa al matching ni se avisa al gestor.
+      if (N8N_WEBHOOK_URL && formToken && !motivo) {
         fetch(N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -863,6 +1002,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }).catch(() => {});
       }
 
+      S.rechazado = !!motivo;
       S.screen = 'success';
       render();
     } catch (err) {
@@ -887,6 +1027,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     // que leerlo también de la ruta visible).
     const pathMatch = window.location.pathname.match(/^\/f\/([^/]+)\/?$/);
     const slug = params.get('t') || (pathMatch ? pathMatch[1] : null);
+    const inmuebleId = (params.get('i') || '').trim();
 
     let tenantId;
     let tenantInfo = null;
@@ -936,7 +1077,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // Preguntas activas del tenant
       const tp = await sbGet('tenant_preguntas', {
-        select: 'id,pregunta_id,tipo_input,pregunta_texto_custom,opciones_custom,orden',
+        select: 'id,pregunta_id,tipo_input,pregunta_texto_custom,opciones_custom,reglas_descarte,orden',
         tenant_id: `eq.${tenantId}`,
         activa: 'eq.true',
         order: 'orden.asc',
@@ -958,6 +1099,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!row.pregunta_id) {
           return {
             pregunta_id:    row.id,
+            fila_id:        row.id,
+            reglas:         row.reglas_descarte,
             clave:          row.id,
             campo_clientes: `__p_${row.id}`,
             textoMostrar:   row.pregunta_texto_custom,
@@ -969,6 +1112,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!cat) return null;
         return {
           pregunta_id:    row.pregunta_id,
+          fila_id:        row.id,
+          reglas:         row.reglas_descarte,
           clave:          cat.clave,
           campo_clientes: cat.campo_clientes,
           textoMostrar:   row.pregunta_texto_custom || cat.pregunta_texto,
@@ -985,6 +1130,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           { pregunta_id: null, clave: 'telefono_publico',  campo_clientes: '__telefonoNum',  textoMostrar: '¿Cuál es tu número de teléfono?',  subtext: 'Te avisaremos por WhatsApp en cuanto tengamos opciones para ti. Nunca lo compartimos con terceros.', tipo_input: 'phone_prefix', opciones: [] },
           { pregunta_id: null, clave: 'email_publico',     campo_clientes: '__email',        textoMostrar: '¿Cuál es tu email?',               subtext: 'Te enviaremos las opciones disponibles a este correo. Nunca lo compartimos con terceros.',           tipo_input: 'email',        opciones: [] },
         );
+      }
+
+      // Enlace de un inmueble concreto: se muestra arriba y sobran las
+      // preguntas de zona y calle. Si ya no está disponible, formulario normal.
+      if (inmuebleId) {
+        try {
+          const rows = await sbRpc('get_inmueble_publico', { p_tenant_id: tenantId, p_id: inmuebleId });
+          S.inmueble = (Array.isArray(rows) ? rows[0] : rows) || null;
+        } catch { S.inmueble = null; }
+        if (S.inmueble) {
+          S.steps = S.steps.filter(s => !['dynamic_zone_multi_select', 'dynamic_street_multi_select'].includes(s.tipo_input));
+        }
       }
 
       // Zonas dinámicas para dynamic_zone_multi_select

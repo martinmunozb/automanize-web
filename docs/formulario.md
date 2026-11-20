@@ -28,6 +28,22 @@ Formulario wizard paso a paso que recibe un lead (persona interesada en alquilar
    ```
    Esto copia el set de preguntas por defecto (`activa_por_defecto`/`orden_defecto` de `preguntas_catalogo`); luego el propio tenant las ajusta desde Nize (ver abajo).
 
+## Enlace de un inmueble y selección (17 noviembre 2026)
+
+`/f/<slug>?i=<id_inmueble>` consulta `get_inmueble_publico(p_tenant_id,p_id)` y muestra «Solicitas: nombre · zona/localidad · precio €/mes». Solo devuelve datos mínimos de inmuebles disponibles del mismo tenant. Cuando existe, omite las preguntas de tipo zona/calle; un ID inexistente, ajeno o no disponible conserva el formulario normal. El enlace general sigue disponible.
+
+Tras crear/actualizar el candidato, `set_inmueble_interes(p_form_token,p_inmueble_id)` guarda `clientes.inmueble_interes_id` antes del webhook. Se autentica con el token del candidato y valida disponibilidad y tenant. Un fallo se registra en consola y conserva el envío del formulario; no se promete persistencia atómica con el resto de respuestas.
+
+El dato conserva el último interés específico guardado: un reenvío desde el enlace general o un ID inválido, igual que un reinicio del candidato, no lo borra. Otro enlace específico válido lo sustituye; no se interpreta como origen obligatorio del último formulario.
+
+`/seleccionar/?token=<uuid>` obtiene el origen con `rpc_seleccion_inmueble_interes(p_token)`. Si sigue en el inventario que autoriza ese token, aparece en «Viene por esta vivienda» como única opción marcada inicialmente. Sin origen válido se mantiene el marcado previo de las recomendaciones. El gestor puede cambiarlo; el origen no determina la selección final ni la decisión sobre el candidato.
+
+La selección tiene buscador (sin distinguir acentos) y filtros combinables de zona, localidad, tipo, precio máximo y mascotas. Busca en todo el inventario autorizado, abre las otras viviendas mientras hay filtros y mantiene la selección aunque alguna tarjeta quede oculta. El límite de precio excluye importes vacíos/no válidos; mascotas exige `true`.
+
+Migración y contrato SQL: `automanize-app/inmuebles/sql_formulario_enlace_inmueble.sql`, aplicada y revisada en producción. RLS de tablas y `security_invoker` de la vista se conservan; las RPC son `SECURITY DEFINER` con `search_path=public` y acceso público deliberado por inmueble o token. Las lecturas/escrituras siguen en la familia RPC de Supabase vigilada por el monitor. No se añade una ruta HTTP de backend: sigue `/webhook/formulario`, cuya cobertura independiente no se certifica aquí.
+
+Se verificaron el formulario real de GoRoom sin enviarlo, el menú CRM y los filtros con datos simulados, además de aislamiento anónimo/autenticado/otro tenant con reversión de escrituras. Release y activación: `CRM_DEPLOYMENT.md`. La plantilla WhatsApp nueva y la prueba de aviso real se verifican aparte. RGPD: nuevo dato vinculado al candidato; revisar 01 RAT y 06 Política de Privacidad y texto informativo.
+
 ---
 
 ## Preguntas personalizables por el tenant (desde el 29 de octubre de 2026)
@@ -114,6 +130,23 @@ La reescritura de `/f/<slug>` → `formulario.html?t=<slug>` vive en el **Caddyf
 
 - Si `clave === 'aval_ingreso'` y `answers['tieneAval'] === 'false'` → el paso se oculta y se salta.
 - El payload de submit solo incluye los pasos visibles.
+
+## Reglas de descarte (desde el 16 de noviembre de 2026)
+
+Cada fila de `tenant_preguntas` puede llevar `reglas_descarte` (las edita el tenant desde Nize → Preguntas del formulario):
+
+```js
+[{ op: 'es',    valor: ['No tengo contrato'], y: [], mensaje: '' },
+ { op: 'es',    valor: ['Temporal'],
+   y: [{ pregunta: '<tenant_preguntas.id de ingresos>', op: 'menor', valor: 1200 }],
+   mensaje: 'Texto que ve el candidato' }]
+```
+
+- `op`: `es` (alguna de las opciones de `valor`; en preguntas de varias opciones basta con que marque una) o `menor`/`mayor` (números).
+- Al pulsar Continuar/Enviar, `reglaQueDescarta()` revisa todas las reglas de los pasos visibles: se cumple cuando la pregunta de la regla y todas las de `y` están respondidas y cumplen. Una regla con algún valor vacío o que usa una pregunta oculta no se aplica.
+- Si se cumple → pantalla `rejected`: mensaje de la regla (o uno genérico), botón "Cambiar mi respuesta" (vuelve al paso) y, tras aceptar la privacidad, "Enviar mis respuestas". Ese envío pasa `p_descartado_motivo` (texto `pregunta → respuesta · …`) a `crear_lead_publico`/`submit_formulario`, que dejan al lead en `seguimiento = 'Archivado'` con `descartado_motivo`/`descartado_en`. **No** se llama al webhook del backend (ni matching ni aviso al gestor). Si después vuelve a enviar y pasa, el motivo se limpia.
+- Si el candidato cierra la pantalla sin enviar, no se guarda nada.
+- Es un filtro de experiencia, evaluado en el navegador: el servidor no recalcula las reglas.
 
 ---
 
