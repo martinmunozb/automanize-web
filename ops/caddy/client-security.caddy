@@ -12,7 +12,7 @@ respond @client_internal "Not found" 404
 respond @client_ai "Forbidden" 403
 
 header X-Content-Type-Options "nosniff"
-@client_private path /app /app/* /usar-demo /usar-demo.html /solicitar-demo /solicitar-demo.html /panel-interno /panel-interno.html /onboarding-cliente /onboarding-cliente.html /oauth-drive /oauth-drive.html
+@client_private path /alta-crm /alta-crm.html /app /app/* /usar-demo /usar-demo.html /solicitar-demo /solicitar-demo.html /panel-interno /panel-interno.html /onboarding-cliente /onboarding-cliente.html /oauth-drive /oauth-drive.html
 header @client_private {
     >X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
     >Referrer-Policy "no-referrer"

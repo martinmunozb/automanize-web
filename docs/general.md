@@ -76,3 +76,16 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 - `docs/telefono.md` — lógica del prefijo telefónico
 - `docs/incidencias-fotos.md` — subida de fotos de incidencias por token
 - `docs/gastos-revision.md` — revisión/confirmación de gastos clasificados por IA
+
+
+## Planes coordinados ? preparado 20/11/2026
+
+PR web #98 acompa?a backend #76/#98 y app #105/#126. La contrataci?n CRM usa
+`/webhook/crm-checkout`; `alta-crm.html` llama a `/webhook/crm-alta` despu?s del
+pago. Retirar `checkout-directo` solo cuando se publique esta web. La p?gina de
+alta lleva no-referrer, noindex y pol?tica privada Caddy en sus dos URLs.
+El formulario recoge empresa, email, tel?fono, contrase?a y aceptaci?n de
+privacidad; no se almacena la contrase?a en Stripe ni se registra el session_id.
+Las rutas HTTP nuevas no est?n supervisadas por el monitor de Supabase (pendiente);
+la autorizaci?n del pago y el alta se comprueba en servidor. La release CRM debe
+preservar el c?digo publicado 743b162 y subirse con manifiesto completo.

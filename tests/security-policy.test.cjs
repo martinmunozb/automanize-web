@@ -50,7 +50,7 @@ test('Caddy denies internal files and declared AI crawlers, preserving UI and pu
     }
   }
   assert.equal((await request('/crm.html', 'Googlebot')).status, 200);
-  for (const url of ['/app', '/app/', '/usar-demo.html', '/solicitar-demo.html', '/panel-interno.html', '/solicitar-demo', '/usar-demo', '/panel-interno', '/oauth-drive', '/onboarding-cliente']) {
+  for (const url of ['/alta-crm', '/alta-crm.html', '/app', '/app/', '/usar-demo.html', '/solicitar-demo.html', '/panel-interno.html', '/solicitar-demo', '/usar-demo', '/panel-interno', '/oauth-drive', '/onboarding-cliente']) {
     assert.match((await request(url)).headers['x-robots-tag'], /noindex/);
   }
   assert.equal((await request('/')).headers['x-content-type-options'], 'nosniff');
