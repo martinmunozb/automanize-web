@@ -310,3 +310,13 @@ Release `crm-forma-pago-20261116`, source automanize-app branch
 field). Cobros → expanded payment → Contexto shows "Forma de pago": Efectivo when
 `pagos.es_efectivo`, otherwise "No efectivo" once collected. Separate from the AI
 verdict. No data, route or permission changes.
+
+## Bancos con despliegue gradual — 2026-11-23
+
+Release `crm-bancos-20261123`, app source `d56b1e3bda2e51d2c829910d3d61e2f547a491e0`
+(`deploy/banking-real-test-20261120` = `crm-planes-20261120` + Bancos). Parte de
+`release/precios-conexion-ia-20261120`, así que conserva planes y precios. Bancos
+(Finanzas) solo aparece al admin de las empresas de la lista del CRM
+(`puedeUsarBancos`, hoy la empresa propia); el backend aplica la misma lista con
+`BANKING_TENANT_IDS`. Sin cambios de base de datos en esta publicación (028/029 ya
+estaban). La rama web `deploy/banking-real-test-20261120` queda superada.
