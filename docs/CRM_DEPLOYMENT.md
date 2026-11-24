@@ -3,14 +3,17 @@
 ## Seendy y Resumen propio — 2026-11-24
 
 Release `crm-seendy-resumen-20261124`, fuente de aplicación `074277f`, sobre
-`crm-bancos-propietario-20261124`. La bandeja de Seendy aprovecha la altura disponible en portátiles
-y se verificó integrada en el CRM. Resumen propio incorpora la descarga por
-inmueble y meses, muestra la fórmula del margen y retira los bloques duplicados.
-Las pruebas usaron datos ficticios y el manifiesto incluye los 119 recursos.
+`crm-bancos-propietario-20261124`. La bandeja de Seendy aprovecha la altura
+disponible en portátiles. Resumen propio incorpora la descarga por inmueble
+y meses, muestra la fórmula del margen y retira los bloques duplicados.
 
-El panel interno registra los nuevos gastos recurrentes al llegar su fecha.
-Para publicar ese formulario, aplicar primero la migración y comprobar la
-tarea programada según `panel-interno-finanzas.md`.
+Activa en automanize.com desde el commit web `d0dc860`. Se verificaron los 119
+recursos en el origen, 115 hashes por HTTPS, el panel interno y Seendy en el CRM
+público con datos ficticios. La versión anterior se conserva en `9258b9b`.
+
+La migración de gastos recurrentes `20261124180957` se aplicó antes de publicar
+el panel interno. La primera ejecución programada finalizó correctamente a
+las 19:15 de Madrid. Ver `panel-interno-finanzas.md`.
 
 ## Shared rooms: one occupant leaves without a new contract, and Undo — 2026-11-18
 
