@@ -1,0 +1,1 @@
+import{n as e,t}from"./PropietariosPanel-BT4D8NlN.js";export{t as InquilinosPanel,e as diasAlquiladosEnAnio};
