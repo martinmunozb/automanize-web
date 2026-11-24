@@ -1,5 +1,17 @@
 # CRM releases
 
+## Seendy y Resumen propio — 2026-11-24
+
+Release `crm-seendy-resumen-20261124`, fuente de aplicación `074277f`, sobre
+`crm-bancos-propietario-20261124`. La bandeja de Seendy aprovecha la altura disponible en portátiles
+y se verificó integrada en el CRM. Resumen propio incorpora la descarga por
+inmueble y meses, muestra la fórmula del margen y retira los bloques duplicados.
+Las pruebas usaron datos ficticios y el manifiesto incluye los 119 recursos.
+
+El panel interno registra los nuevos gastos recurrentes al llegar su fecha.
+Para publicar ese formulario, aplicar primero la migración y comprobar la
+tarea programada según `panel-interno-finanzas.md`.
+
 ## Shared rooms: one occupant leaves without a new contract, and Undo — 2026-11-18
 
 Release `crm-baja-ocupante-20261118`, source `2ea37fcb223b91de39117c8af559d7f6dcf1b60c`

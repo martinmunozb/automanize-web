@@ -78,6 +78,7 @@ Web de marketing y utilidades de **Automanize** / **Nize**. Hospedada en `automa
 - `docs/telefono.md` — lógica del prefijo telefónico
 - `docs/incidencias-fotos.md` — subida de fotos de incidencias por token
 - `docs/gastos-revision.md` — revisión/confirmación de gastos clasificados por IA
+- `docs/panel-interno-finanzas.md` — gastos recurrentes y ejecución programada
 
 
 ## Planes coordinados ? publicado 20/11/2026

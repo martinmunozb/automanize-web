@@ -602,6 +602,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <input type="number" id="formRepeticiones" min="2" max="60" value="12" />
           </div>
         </div>
+        <p id="formRecurrenciaAyuda" hidden style="font-size:12px;margin-top:8px">Cada gasto se registrará automáticamente al llegar su fecha. La primera fecha cuenta como una repetición.</p>
       </div>
       <div class="field">
         <label class="field-label">Factura (PDF) — opcional</label>
@@ -1016,6 +1017,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let finEditingId = null;
   let finEditingFacturaActual = null;
   let finSelectedFile = null;
+  let finRecurrenceId = null;
+  let finRecurrenceUpload = null;
+
+  function finToday() {
+    const parts = new Intl.DateTimeFormat('es-ES', {
+      timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(new Date());
+    const date = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return `${date.year}-${date.month}-${date.day}`;
+  }
 
   async function finLoadData() {
     document.getElementById('gastosWrap').innerHTML = loadingBlock();
@@ -1040,13 +1051,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   function finPeriodFilter(list) {
     if (finActivePeriod === 'todo') return list;
-    const now = new Date();
-    return list.filter(r => {
-      const d = new Date(r.fecha + 'T00:00:00');
-      if (finActivePeriod === 'mes') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-      if (finActivePeriod === 'anio') return d.getFullYear() === now.getFullYear();
-      return true;
-    });
+    const today = finToday();
+    if (finActivePeriod === 'mes') return list.filter(r => r.fecha.startsWith(today.slice(0, 7)));
+    if (finActivePeriod === 'anio') return list.filter(r => r.fecha.startsWith(today.slice(0, 4)));
+    return list;
   }
 
   function finUltimosNombres(tipo) {
@@ -1175,6 +1183,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     finEditingId = record ? record.id : null;
     finEditingFacturaActual = record && record.factura_url ? { path: record.factura_url, nombre: record.factura_nombre } : null;
     finSelectedFile = null;
+    finRecurrenceId = null;
+    finRecurrenceUpload = null;
 
     document.getElementById('formModalTitle').textContent = (finEditingId ? 'Editar ' : 'Nuevo ') + (tipo === 'gasto' ? 'gasto' : 'ingreso');
     document.getElementById('formNombreLabel').textContent = 'Nombre del ' + tipo;
@@ -1183,7 +1193,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.getElementById('nombreSuggestions').innerHTML = finUltimosNombres(tipo).map(n => `<option value="${escHtml(n)}">`).join('');
     document.getElementById('formTipo').value = record ? record.tipo : '';
     document.getElementById('formImporte').value = record ? record.importe : '';
-    document.getElementById('formFecha').value = record ? record.fecha : new Date().toISOString().slice(0, 10);
+    document.getElementById('formFecha').value = record ? record.fecha : finToday();
     document.getElementById('formNotas').value = record ? (record.notas || '') : '';
     document.getElementById('formFile').value = '';
     const drop = document.getElementById('fileDrop');
@@ -1199,14 +1209,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.getElementById('formRecurrente').checked = false;
     document.getElementById('formFrecuencia').value = 'mensual';
     document.getElementById('formRepeticiones').value = 12;
-    document.getElementById('recurrenteOpts').style.display = 'none';
+    finToggleRecurrenteOpts();
 
     hideEl('formAlertErr');
     document.getElementById('formModal').classList.add('show');
   }
 
   function finToggleRecurrenteOpts() {
-    document.getElementById('recurrenteOpts').style.display = document.getElementById('formRecurrente').checked ? 'grid' : 'none';
+    const checked = document.getElementById('formRecurrente').checked;
+    document.getElementById('recurrenteOpts').style.display = checked ? 'grid' : 'none';
+    document.getElementById('formRecurrenciaAyuda').hidden = !checked || finFormTipo !== 'gasto';
   }
 
   function finDuplicateRecord(tipo, record) {
@@ -1215,7 +1227,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     finEditingFacturaActual = null;
     finSelectedFile = null;
     document.getElementById('formModalTitle').textContent = 'Duplicar ' + (tipo === 'gasto' ? 'gasto' : 'ingreso');
-    document.getElementById('formFecha').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('formFecha').value = finToday();
     document.getElementById('formFile').value = '';
     const drop = document.getElementById('fileDrop');
     drop.textContent = '📎 Adjuntar PDF';
@@ -1239,6 +1251,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   async function finSaveForm() {
+    const btn = document.getElementById('formSaveBtn');
+    if (btn.disabled) return;
     const nombre = document.getElementById('formNombre').value.trim();
     const tipo = document.getElementById('formTipo').value.trim();
     const importe = finEvalMathExpression(document.getElementById('formImporte').value);
@@ -1255,8 +1269,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const repeticiones = esRecurrente
       ? Math.max(2, Math.min(60, parseInt(document.getElementById('formRepeticiones').value, 10) || 2))
       : 1;
+    const programarGasto = esRecurrente && finFormTipo === 'gasto';
+    const recurrenceId = programarGasto ? (finRecurrenceId ||= crypto.randomUUID()) : null;
 
-    const btn = document.getElementById('formSaveBtn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spin"></span> Guardando...';
     hideEl('formAlertErr');
@@ -1265,32 +1280,46 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       let facturaPath = finEditingFacturaActual ? finEditingFacturaActual.path : null;
       let facturaNombre = finEditingFacturaActual ? finEditingFacturaActual.nombre : null;
 
-      if (finSelectedFile) {
+      const selectedFile = finSelectedFile;
+      if (programarGasto && finRecurrenceUpload?.file === selectedFile) {
+        facturaPath = finRecurrenceUpload.path;
+        facturaNombre = selectedFile.name;
+      } else if (selectedFile) {
         if (finEditingFacturaActual) {
           await db.storage.from('finanzas-facturas').remove([finEditingFacturaActual.path]);
         }
-        const path = `${finFormTipo}s/${crypto.randomUUID()}-${finSelectedFile.name}`;
-        const { error: upErr } = await db.storage.from('finanzas-facturas').upload(path, finSelectedFile);
+        const path = `${finFormTipo}s/${crypto.randomUUID()}-${selectedFile.name}`;
+        const { error: upErr } = await db.storage.from('finanzas-facturas').upload(path, selectedFile);
         if (upErr) throw new Error('No se pudo subir el PDF: ' + upErr.message);
         facturaPath = path;
-        facturaNombre = finSelectedFile.name;
+        facturaNombre = selectedFile.name;
+        if (programarGasto) finRecurrenceUpload = { file: selectedFile, path };
       }
 
-      const fnName = finFormTipo === 'gasto' ? 'finanzas_upsert_gasto' : 'finanzas_upsert_ingreso';
+      const datos = {
+        p_nombre: nombre,
+        p_tipo: tipo,
+        p_importe: importe,
+        p_fecha: fecha,
+        p_notas: notas || null,
+        p_factura_url: facturaPath,
+        p_factura_nombre: facturaNombre,
+      };
 
-      for (let i = 0; i < repeticiones; i++) {
-        const fechaOcurrencia = i === 0 ? fecha : finAddFrequency(fecha, frecuencia, i);
-        const { error } = await db.rpc(fnName, {
-          p_id: i === 0 ? finEditingId : null,
-          p_nombre: nombre,
-          p_tipo: tipo,
-          p_importe: importe,
-          p_fecha: fechaOcurrencia,
-          p_notas: notas || null,
-          p_factura_url: i === 0 ? facturaPath : null,
-          p_factura_nombre: i === 0 ? facturaNombre : null,
+      if (programarGasto) {
+        const { error } = await db.rpc('finanzas_programar_gasto', {
+          ...datos, p_id: recurrenceId, p_frecuencia: frecuencia, p_repeticiones: repeticiones,
         });
         if (error) throw error;
+      } else {
+        const fnName = finFormTipo === 'gasto' ? 'finanzas_upsert_gasto' : 'finanzas_upsert_ingreso';
+        for (let i = 0; i < repeticiones; i++) {
+          const ocurrencia = i === 0 ? datos : {
+            ...datos, p_fecha: finAddFrequency(fecha, frecuencia, i), p_factura_url: null, p_factura_nombre: null,
+          };
+          const { error } = await db.rpc(fnName, { ...ocurrencia, p_id: i === 0 ? finEditingId : null });
+          if (error) throw error;
+        }
       }
 
       finCloseForm();
