@@ -585,7 +585,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="field" id="recurrenteWrap" style="display:none">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:0">
           <input type="checkbox" id="formRecurrente" style="width:auto" onchange="finToggleRecurrenteOpts()" />
-          Ingreso recurrente
+          <span id="formRecurrenteLabel">Ingreso recurrente</span>
         </label>
         <div class="row-2" id="recurrenteOpts" style="display:none;margin-top:10px">
           <div class="field" style="margin-bottom:0">
@@ -1194,7 +1194,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       drop.textContent = '📎 Adjuntar PDF';
       drop.classList.remove('has-file');
     }
-    document.getElementById('recurrenteWrap').style.display = (tipo === 'ingreso' && !finEditingId) ? 'block' : 'none';
+    document.getElementById('recurrenteWrap').style.display = finEditingId ? 'none' : 'block';
+    document.getElementById('formRecurrenteLabel').textContent = tipo === 'gasto' ? 'Gasto recurrente' : 'Ingreso recurrente';
     document.getElementById('formRecurrente').checked = false;
     document.getElementById('formFrecuencia').value = 'mensual';
     document.getElementById('formRepeticiones').value = 12;
@@ -1219,7 +1220,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const drop = document.getElementById('fileDrop');
     drop.textContent = '📎 Adjuntar PDF';
     drop.classList.remove('has-file');
-    document.getElementById('recurrenteWrap').style.display = tipo === 'ingreso' ? 'block' : 'none';
+    document.getElementById('recurrenteWrap').style.display = 'block';
   }
 
   function finCloseForm() {
@@ -1249,7 +1250,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       return;
     }
 
-    const esRecurrente = finFormTipo === 'ingreso' && !finEditingId && document.getElementById('formRecurrente').checked;
+    const esRecurrente = !finEditingId && document.getElementById('formRecurrente').checked;
     const frecuencia = document.getElementById('formFrecuencia').value;
     const repeticiones = esRecurrente
       ? Math.max(2, Math.min(60, parseInt(document.getElementById('formRepeticiones').value, 10) || 2))
@@ -1337,13 +1338,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (!isNaN(result)) el.value = result;
   }
 
+  // Trabaja en fecha local: toISOString() pasa a UTC y en España devuelve el día anterior.
+  // Mensual/anual se ajustan al último día del mes (31 ene → 28 feb → 31 mar), sin saltar de mes.
   function finAddFrequency(fechaBase, frecuencia, i) {
-    const d = new Date(fechaBase + 'T00:00:00');
-    if (frecuencia === 'semanal') d.setDate(d.getDate() + 7 * i);
-    else if (frecuencia === 'quincenal') d.setDate(d.getDate() + 14 * i);
-    else if (frecuencia === 'anual') d.setFullYear(d.getFullYear() + i);
-    else d.setMonth(d.getMonth() + i);
-    return d.toISOString().slice(0, 10);
+    const [y, m, dia] = fechaBase.split('-').map(Number);
+    let d;
+    if (frecuencia === 'semanal' || frecuencia === 'quincenal') {
+      d = new Date(y, m - 1, dia + (frecuencia === 'semanal' ? 7 : 14) * i);
+    } else {
+      const meses = frecuencia === 'anual' ? 12 * i : i;
+      const ultimoDia = new Date(y, m - 1 + meses + 1, 0).getDate();
+      d = new Date(y, m - 1 + meses, Math.min(dia, ultimoDia));
+    }
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
