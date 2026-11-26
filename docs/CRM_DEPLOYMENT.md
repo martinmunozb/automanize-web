@@ -1,5 +1,27 @@
 # CRM releases
 
+## Guided WhatsApp authorization — 2026-11-26
+
+Prepared release `crm-seendy-conexion-guiada-20261126`: only Seendy HTML and its
+hashed JS/CSS change. The main CRM entry and `renderer-web.html` retain their
+previous hashes from `crm-seendy-sin-acceso-20261126b` (base app source `8a9dea01`).
+`release.json` retains the CRM base `sourceCommit` and adds `seendySourceCommit`
+`fc40a9727e69ecb5e162ab54c1db139cb1c002b4`; 124 resources are versioned, including
+the previous runtime assets. This is a composite release, not a full CRM rebuild.
+
+Seendy offers prerequisites, Meta authorization and step-specific errors without
+copying tokens. Its inbox drafts and final authorization/import result survive
+navigation and Realtime updates. The server rollout preserves deployed connector
+token rejection and background WhatsApp template copying. It updates the two
+existing Edge Functions and applies `sql_seendy_reconexion_verificada.sql`, keeping
+authorized disconnection and requiring verified signup for reactivation.
+
+Local UI/WorkspaceApp/handler checks, app security, both builds, and real Caddy
+HTTP policy tests passed. Source PRs: automanize-app#130 and #131. Workspace
+documentation: martinmunozb/Automanize#81. No new routes, tables or providers; the
+existing Supabase monitor route families apply. No WhatsApp test is sent and the
+customer must authorize Meta personally. No desktop installer is published here.
+
 ## Seendy y Resumen propio — 2026-11-24
 
 Release `crm-seendy-resumen-20261124`, fuente de aplicación `074277f`, sobre
