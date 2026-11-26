@@ -1,5 +1,42 @@
 # CRM releases
 
+## Guided WhatsApp authorization — 2026-11-26
+
+Published and verified at 23:35 Europe/Madrid on 2026-11-26:
+release `crm-seendy-conexion-guiada-20261126`. Only Seendy HTML and its
+hashed JS/CSS change. The main CRM entry and `renderer-web.html` retain their
+previous hashes from `crm-seendy-sin-acceso-20261126b` (base app source `8a9dea01`).
+`release.json` retains the CRM base `sourceCommit` and adds `seendySourceCommit`
+`fc40a9727e69ecb5e162ab54c1db139cb1c002b4`; 124 resources are versioned, including
+the previous runtime assets. This is a composite release, not a full CRM rebuild.
+
+Seendy offers prerequisites, Meta authorization and step-specific errors without
+copying tokens. Its inbox drafts and final authorization/import result survive
+navigation and Realtime updates. The server rollout preserves deployed connector
+token rejection and background WhatsApp template copying. It updates the two
+existing Edge Functions and applies `sql_seendy_reconexion_verificada.sql`, keeping
+authorized disconnection and requiring verified signup for reactivation.
+
+Local UI/WorkspaceApp/handler checks, app security, both builds, and real Caddy
+HTTP policy tests passed. Source PRs: automanize-app#130 and #131. Workspace
+documentation: martinmunozb/Automanize#81. No new routes, tables or providers; the
+existing Supabase monitor route families apply. No WhatsApp test is sent and the
+customer must authorize Meta personally. No desktop installer is published here.
+
+Runtime `aeaadaf` was activated assets first, preserving all historical assets and
+unrelated VPS files. All 124 origin and public resources match the manifest
+(HTML verified after removing only the observed Cloudflare challenge injection).
+The real CRM→iframe audit, with synthetic API responses, verifies the menu and
+guide, disabled preparation until confirmation, draft retention, dark/light,
+expanded view and mobile with zero errors and zero real mutations. Supabase rejects
+anonymous and connector-token HTTP calls; CORS and 12 rolled-back SQL permission
+checks passed against the active migration. Internal files/maps remain 404,
+GPTBot 403, legitimate routes 200 and HTML no-cache/noindex.
+Active functions: embedded-signup v18 and ensure-workspace v19. Database migration
+`seendy_reconexion_verificada_20261126` applied, with effective grants/search_path
+and RLS verified. Previous web backup (mode 600):
+`/var/backups/automanize/seendy-conexion-guiada-20261126/app-before.tar.gz`.
+
 ## Seendy y Resumen propio — 2026-11-24
 
 Release `crm-seendy-resumen-20261124`, fuente de aplicación `074277f`, sobre
