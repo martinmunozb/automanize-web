@@ -1,5 +1,25 @@
 # CRM releases
 
+## Número repetido en Seendy — 27 noviembre 2026
+
+Publicada y verificada `crm-seendy-numero-unico-20261127`, runtime `3fabfb6`,
+fuente app `0f1be6b` (#135). Sobre la release anterior de la guía del cliente:
+solo cambia Seendy HTML y un nuevo JS con hash. Se conservan documentos CRM,
+recursos históricos y fuente base; 126 archivos verificados en origen y dominio
+público. Auditoría CRM/iframe con APIs sintéticas y caso de número duplicado:
+una fila desconectada con renovación visible, cero errores y mutaciones reales.
+
+Se oculta únicamente la fila activa sin acceso a Meta si existe otra desconectada
+del mismo teléfono normalizado. No se borran canales, secretos, mensajes ni
+conversaciones ni se cambia el enrutado. Recuento real posterior de los dos
+canales de InvictaRent: 19 conversaciones y 528 mensajes, sin cambios.
+Sin nuevas rutas, permisos ni RLS; mismos controles y familias del monitor.
+Pruebas helpers/Realtime/conexión y build web con seguridad correctos; protecciones
+HTTP y denegación anónima/de conectores verificadas en el dominio público.
+Backup modo 600: `/var/backups/automanize/seendy-numero-unico-20261127/entries-before.tar.gz`
+(entradas y manifiesto; los assets anteriores se conservan). Evidencias locales:
+`output/seendy-numero-unico-20261127/` fuera de los recursos públicos. Sin instalador.
+
 ## Guía de conexión para el cliente — 27 noviembre 2026
 
 Release `crm-seendy-guia-cliente-20261127`, fuente Seendy
