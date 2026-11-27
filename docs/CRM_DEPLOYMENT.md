@@ -1,5 +1,24 @@
 # CRM releases
 
+## Guía de conexión para el cliente — 27 noviembre 2026
+
+Release `crm-seendy-guia-cliente-20261127`, fuente Seendy
+`f637a70350456e9ef573dd39d809a16ff4a85245` (app #133, integrado en main).
+Preparada sobre la release pública `crm-seendy-conexion-guiada-20261126`:
+solo cambia la entrada Seendy y su JS con hash. Se conservan los documentos
+de entrada del CRM, sus hashes y los recursos anteriores. El manifiesto incluye
+125 archivos y mantiene la fuente base del CRM por separado.
+
+El cliente ve desde el inicio seis pasos para conectar su propio número de
+WhatsApp Business usando su cuenta de Meta y su móvil. El permiso se describe
+como administrador de su empresa en Nize. No cambia la autorización de servidor,
+datos, RLS, proveedores ni rutas; siguen las familias Supabase ya documentadas.
+No se autoriza Meta por el cliente ni se envían mensajes. Sin instalador nuevo.
+
+Pruebas de conexión servidor/UI/workspace y build web con controles previos
+correctos. Política HTTP real de Caddy verificada en el VPS. La publicación y
+auditoría pública se registrarán tras activar esta release.
+
 ## Guided WhatsApp authorization — 2026-11-26
 
 Published and verified at 23:35 Europe/Madrid on 2026-11-26:
