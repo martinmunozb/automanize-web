@@ -15,9 +15,19 @@ como administrador de su empresa en Nize. No cambia la autorización de servidor
 datos, RLS, proveedores ni rutas; siguen las familias Supabase ya documentadas.
 No se autoriza Meta por el cliente ni se envían mensajes. Sin instalador nuevo.
 
+Activa y verificada el 27/11/2026 a las 10:08 Europe/Madrid en
+`https://automanize.com/app/`, runtime `7f0b790`. Los 125 archivos coinciden en
+origen y dominio público (HTML tras retirar la inyección observada de Cloudflare).
+Auditoría CRM → iframe con APIs sintéticas: seis pasos visibles antes de abrir
+el asistente, borrador conservado, temas, ampliación y móvil; cero errores y cero
+mutaciones reales. Internos/maps 404, GPTBot 403, rutas legítimas 200, HTML
+no-cache/noindex y denegación anónima/de conectores conservados.
+
 Pruebas de conexión servidor/UI/workspace y build web con controles previos
-correctos. Política HTTP real de Caddy verificada en el VPS. La publicación y
-auditoría pública se registrarán tras activar esta release.
+correctos. Política HTTP real de Caddy verificada en el VPS. Backup previo con
+modo 600 en `/var/backups/automanize/seendy-guia-cliente-20261127/app-before.tar.gz`.
+Evidencias locales en `output/seendy-cliente-20261127/` del workspace, fuera de
+los archivos públicos. El checkout VPS conserva sus archivos ajenos e históricos.
 
 ## Guided WhatsApp authorization — 2026-11-26
 
