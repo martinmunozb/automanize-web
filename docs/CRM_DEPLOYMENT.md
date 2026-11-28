@@ -1,5 +1,13 @@
 # CRM releases
 
+## Ventana de reconexión de Seendy — 28 noviembre 2026
+
+`crm-seendy-reconexion-modal-20261128`, fuente app `68a8b20`. El botón del
+menú del espacio y el de la fila del número muestran un diálogo aunque la
+pantalla de conexión ya esté abierta. La preparación y el botón de Meta
+quedan dentro del diálogo. La release conserva las entradas del CRM,
+los assets históricos y la API existente.
+
 ## Botón de renovación de Seendy — 28 noviembre 2026
 
 `crm-seendy-reconexion-20261128`, fuente app `246747c`, abre el asistente desde
