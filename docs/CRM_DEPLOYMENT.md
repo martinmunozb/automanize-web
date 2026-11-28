@@ -1,5 +1,13 @@
 # CRM releases
 
+## Botón de renovación de Seendy — 28 noviembre 2026
+
+`crm-seendy-reconexion-20261128`, fuente app `246747c`, abre el asistente desde
+«Renovar permiso con Meta» y enfoca el paso de preparación. La ventana oficial
+se abre después de confirmar los requisitos y pulsar el botón de autorización.
+La publicación web consta de `seendy.html`, su JS con hash y el manifiesto.
+Mantiene las entradas del CRM, los assets históricos y la API existente.
+
 ## Número repetido en Seendy — 27 noviembre 2026
 
 Publicada y verificada `crm-seendy-numero-unico-20261127`, runtime `3fabfb6`,
