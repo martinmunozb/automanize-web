@@ -1,6 +1,6 @@
 {
-  "id": "crm-seendy-reconexion-20261128",
-  "createdAt": "2026-11-28T08:20:22.706Z",
+  "id": "crm-seendy-reconexion-modal-20261128",
+  "createdAt": "2026-11-28T08:29:41.435Z",
   "sourceCommit": "8a9dea01ad12fc8afd5cbb418381693d69743ae7",
   "entry": "assets/renderer-web-Bn9fBqop.js",
   "documents": [
@@ -365,6 +365,10 @@
       "sha256": "6815eb8b17ba092757c37370974b124cf6833d5bbcb9df3f69aa3d3a638a2269"
     },
     {
+      "path": "assets/seendy-D7H-EBgx.js",
+      "sha256": "efe66df0a9009953e84878f88e7b4668ce6e965ceb36cc3d21a5ae716d685c40"
+    },
+    {
       "path": "assets/seendy-D9AziaNw.css",
       "sha256": "1de8a9a6fb84b67759f23927f75e4009bbba3daf0ca503db9b23d251b38b8dc3"
     },
@@ -482,7 +486,7 @@
     },
     {
       "path": "seendy.html",
-      "sha256": "db35bf35261dbf91de85c5f31c02fad4d73e52dbe905f82470b06782a1b7975d"
+      "sha256": "5dc2ebae51fd98bc6c8486021ab0fd7f8abbf5f454d60bbdee0de2e2a501a7e2"
     },
     {
       "path": "seendy/chat-doodles.svg",
@@ -517,6 +521,6 @@
       "sha256": "8eff340492fa702991929f45998e23b4fddb29d5925aff3400ffde176185cf60"
     }
   ],
-  "previousRelease": "crm-seendy-numero-unico-20261127",
-  "seendySourceCommit": "246747cf3a53c9a8e27d19633884028ba99fa32a"
+  "previousRelease": "crm-seendy-reconexion-20261128",
+  "seendySourceCommit": "68a8b2080da8555f48fbe9cc41f253b6a777b428"
 }
